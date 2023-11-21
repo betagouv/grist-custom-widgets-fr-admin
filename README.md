@@ -1,3 +1,8 @@
+# grist-custom-widgets-fr-admin
+"Widgets custom" pour Grist développés pour répondre aux besoins de l'administration française
+
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
