@@ -1,0 +1,16 @@
+.leaflet-container {
+  height: 100vh;
+  position: relative;
+}
+
+.map__container {
+  width: 100vw;
+}
+
+.absolute-banner {
+  position: absolute;
+  bottom: 10px;
+  width: 100vw;
+  z-index: 1000;
+  background-color: white;
+}
