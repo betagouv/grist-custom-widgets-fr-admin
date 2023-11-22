@@ -3,4 +3,4 @@ export interface NormalizedGeocodeRecords {
   lng: number;
   address_nomalized: string;
   score: number;
-};
+}

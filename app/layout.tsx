@@ -1,11 +1,11 @@
-import Script from 'next/script'
-import 'leaflet/dist/leaflet.css';
-import '../styles/index.css'
+import Script from "next/script";
+import "leaflet/dist/leaflet.css";
+import "../styles/index.css";
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html>
@@ -14,5 +14,5 @@ export default function RootLayout({
         <Script src="https://docs.getgrist.com/grist-plugin-api.js" />
       </body>
     </html>
-  )
+  );
 }

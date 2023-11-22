@@ -1,10 +1,10 @@
 import { cleanRecordData, geocodeFromAdress, isClean } from "./lib";
-import fetchMock from 'jest-fetch-mock'
+import fetchMock from "jest-fetch-mock";
 
 fetchMock.enableMocks();
 fetchMock.dontMock();
 
-describe('geocodeFromAdress', () => {
+describe("geocodeFromAdress", () => {
   beforeEach(() => {
     fetchMock.doMock();
   });
@@ -23,55 +23,164 @@ describe('geocodeFromAdress', () => {
     expect(records).toStrictEqual([]);
   });
 
-  it('should call fetch with the api-adresse API', async () => {
+  it("should call fetch with the api-adresse API", async () => {
     // given
     fetchMock.mockResponse(JSON.stringify({}));
     // when
     const records = await geocodeFromAdress("foo bar");
     // then
     expect(fetchMock.mock.lastCall![0]).toBe(
-      "https://api-adresse.data.gouv.fr/search/?q=foo+bar"
+      "https://api-adresse.data.gouv.fr/search/?q=foo+bar",
     );
   });
 
-  it('should return an array of normalized records', async () => {
+  it("should return an array of normalized records", async () => {
     // given
-    fetchMock.mockResponse(JSON.stringify(
-      {"type":"FeatureCollection","version":"draft","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[2.38603,48.888467]},"properties":{"label":"21 Rue des Ardennes 75019 Paris","score":0.9763818181818181,"housenumber":"21","id":"75119_0427_00021","name":"21 Rue des Ardennes","postcode":"75019","citycode":"75119","x":654978.73,"y":6865558.82,"city":"Paris","district":"Paris 19e Arrondissement","context":"75, Paris, Île-de-France","type":"housenumber","importance":0.7402,"street":"Rue des Ardennes"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[4.732432,49.853021]},"properties":{"label":"21 Rue de la Commune de Paris 08120 Bogny-sur-Meuse","score":0.38073442260442264,"housenumber":"21","id":"08081_0178_00021","name":"21 Rue de la Commune de Paris","postcode":"08120","citycode":"08081","x":824672.92,"y":6974060.63,"city":"Bogny-sur-Meuse","context":"08, Ardennes, Grand Est","type":"housenumber","importance":0.53943,"street":"Rue de la Commune de Paris"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[4.714236,49.723666]},"properties":{"label":"21 Route de Paris 08000 La Francheville","score":0.35332482758620687,"housenumber":"21","id":"08180_0060_00021","name":"21 Route de Paris","postcode":"08000","citycode":"08180","x":823676.21,"y":6959637.74,"city":"La Francheville","context":"08, Ardennes, Grand Est","type":"housenumber","importance":0.47278,"street":"Route de Paris"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[5.265477,49.555608]},"properties":{"label":"Rue de Paris 08370 Bièvres","score":0.3494209090909091,"id":"08065_0120","name":"Rue de Paris","postcode":"08370","citycode":"08065","x":863973.26,"y":6941945.38,"city":"Bièvres","context":"08, Ardennes, Grand Est","type":"street","importance":0.24363,"street":"Rue de Paris"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[4.93991,49.335439]},"properties":{"label":"Rue de Paris 08250 Saint-Juvin","score":0.3483836363636364,"id":"08383_0015","name":"Rue de Paris","postcode":"08250","citycode":"08383","x":841015.89,"y":6916829.22,"city":"Saint-Juvin","context":"08, Ardennes, Grand Est","type":"street","importance":0.23222,"street":"Rue de Paris"}}],"attribution":"BAN","licence":"ETALAB-2.0","query":"21 rue des ardennes, Paris","limit":5}
-    ));
+    fetchMock.mockResponse(
+      JSON.stringify({
+        type: "FeatureCollection",
+        version: "draft",
+        features: [
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [2.38603, 48.888467] },
+            properties: {
+              label: "21 Rue des Ardennes 75019 Paris",
+              score: 0.9763818181818181,
+              housenumber: "21",
+              id: "75119_0427_00021",
+              name: "21 Rue des Ardennes",
+              postcode: "75019",
+              citycode: "75119",
+              x: 654978.73,
+              y: 6865558.82,
+              city: "Paris",
+              district: "Paris 19e Arrondissement",
+              context: "75, Paris, Île-de-France",
+              type: "housenumber",
+              importance: 0.7402,
+              street: "Rue des Ardennes",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [4.732432, 49.853021] },
+            properties: {
+              label: "21 Rue de la Commune de Paris 08120 Bogny-sur-Meuse",
+              score: 0.38073442260442264,
+              housenumber: "21",
+              id: "08081_0178_00021",
+              name: "21 Rue de la Commune de Paris",
+              postcode: "08120",
+              citycode: "08081",
+              x: 824672.92,
+              y: 6974060.63,
+              city: "Bogny-sur-Meuse",
+              context: "08, Ardennes, Grand Est",
+              type: "housenumber",
+              importance: 0.53943,
+              street: "Rue de la Commune de Paris",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [4.714236, 49.723666] },
+            properties: {
+              label: "21 Route de Paris 08000 La Francheville",
+              score: 0.35332482758620687,
+              housenumber: "21",
+              id: "08180_0060_00021",
+              name: "21 Route de Paris",
+              postcode: "08000",
+              citycode: "08180",
+              x: 823676.21,
+              y: 6959637.74,
+              city: "La Francheville",
+              context: "08, Ardennes, Grand Est",
+              type: "housenumber",
+              importance: 0.47278,
+              street: "Route de Paris",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [5.265477, 49.555608] },
+            properties: {
+              label: "Rue de Paris 08370 Bièvres",
+              score: 0.3494209090909091,
+              id: "08065_0120",
+              name: "Rue de Paris",
+              postcode: "08370",
+              citycode: "08065",
+              x: 863973.26,
+              y: 6941945.38,
+              city: "Bièvres",
+              context: "08, Ardennes, Grand Est",
+              type: "street",
+              importance: 0.24363,
+              street: "Rue de Paris",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [4.93991, 49.335439] },
+            properties: {
+              label: "Rue de Paris 08250 Saint-Juvin",
+              score: 0.3483836363636364,
+              id: "08383_0015",
+              name: "Rue de Paris",
+              postcode: "08250",
+              citycode: "08383",
+              x: 841015.89,
+              y: 6916829.22,
+              city: "Saint-Juvin",
+              context: "08, Ardennes, Grand Est",
+              type: "street",
+              importance: 0.23222,
+              street: "Rue de Paris",
+            },
+          },
+        ],
+        attribution: "BAN",
+        licence: "ETALAB-2.0",
+        query: "21 rue des ardennes, Paris",
+        limit: 5,
+      }),
+    );
     // when
     const records = await geocodeFromAdress("foobar");
     // then
     expect(records).toStrictEqual([
       {
-        "address_nomalized": "21 Rue des Ardennes 75019 Paris",
-        "lat": 48.888467,
-        "lng": 2.38603,
-        "score": 0.9763818181818181,
+        address_nomalized: "21 Rue des Ardennes 75019 Paris",
+        lat: 48.888467,
+        lng: 2.38603,
+        score: 0.9763818181818181,
       },
       {
-        "address_nomalized": "21 Rue de la Commune de Paris 08120 Bogny-sur-Meuse",
-        "lat": 49.853021,
-        "lng": 4.732432,
-        "score": 0.38073442260442264,
+        address_nomalized:
+          "21 Rue de la Commune de Paris 08120 Bogny-sur-Meuse",
+        lat: 49.853021,
+        lng: 4.732432,
+        score: 0.38073442260442264,
       },
       {
-        "address_nomalized": "21 Route de Paris 08000 La Francheville",
-        "lat": 49.723666,
-        "lng": 4.714236,
-        "score": 0.35332482758620687,
+        address_nomalized: "21 Route de Paris 08000 La Francheville",
+        lat: 49.723666,
+        lng: 4.714236,
+        score: 0.35332482758620687,
       },
       {
-        "address_nomalized": "Rue de Paris 08370 Bièvres",
-        "lat": 49.555608,
-        "lng": 5.265477,
-        "score": 0.3494209090909091,
+        address_nomalized: "Rue de Paris 08370 Bièvres",
+        lat: 49.555608,
+        lng: 5.265477,
+        score: 0.3494209090909091,
       },
       {
-        "address_nomalized": "Rue de Paris 08250 Saint-Juvin",
-        "lat": 49.335439,
-        "lng": 4.93991,
-        "score": 0.3483836363636364,
+        address_nomalized: "Rue de Paris 08250 Saint-Juvin",
+        lat: 49.335439,
+        lng: 4.93991,
+        score: 0.3483836363636364,
       },
     ]);
   });
@@ -238,4 +347,4 @@ describe("isClean", () => {
     ];
     expect(isClean(dirtyData)).toBe(false);
   });
-})
+});
