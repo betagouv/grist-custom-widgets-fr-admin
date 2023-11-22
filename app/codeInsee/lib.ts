@@ -94,6 +94,7 @@ export const getInseeCodeResultsForRecord = async (
 export const getInseeCodeResultsForRecords = async (
   records: RowRecord[],
   mappings: WidgetColumnMap,
+  // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
 ) => {
   const inseeCodeDataFromApi: InseeCodeUncleanedRecord[] = [];

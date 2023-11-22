@@ -47,8 +47,9 @@ export const ChoiceBanner: FC<{
                     checked={inseeCodeSelected === item}
                   />
                   <div className="flex-column">
-                    {`${NATURE_JURIDIQUE[item.nature_juridique]} ${item.lib_groupement
-                      }`}
+                    {`${NATURE_JURIDIQUE[item.nature_juridique]} ${
+                      item.lib_groupement
+                    }`}
                     {item.insee_dep && <div>{`${DEPT[item.insee_dep]}`}</div>}
                   </div>
                 </div>
