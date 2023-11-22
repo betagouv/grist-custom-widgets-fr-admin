@@ -132,6 +132,19 @@ const InseeCode = () => {
     });
   };
 
+  const recordName = () => {
+    if (record && mappings) {
+      const columnName = mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
+      if (typeof columnName === "string") {
+        return (
+          <div>Collectivité sélectionnée : {String(record[columnName])}</div>
+        );
+      }
+      return <div>Vérifiez les paramétrages de colonne de la Vue</div>;
+    }
+    return <div>Aucune ligne n'est actuellement selectionnée</div>;
+  };
+
   const sirenGroupement = record && noResultData[record.id]?.result && (
     <div>
       Il existe cependant un code Siren :{" "}
@@ -151,14 +164,7 @@ const InseeCode = () => {
     <div>
       <Title />
       <h2>Traitement ligne par ligne</h2>
-      {record ? (
-        <div>
-          Collectivité sélectionnée :{" "}
-          {record[mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name]]}
-        </div>
-      ) : (
-        <div>Aucune ligne n'est actuellement selectionnée</div>
-      )}
+      {recordName()}
       {record && dirtyData[record.id] && (
         <ChoiceBanner
           dirtyData={dirtyData[record.id]}
