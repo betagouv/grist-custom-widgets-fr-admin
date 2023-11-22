@@ -8,7 +8,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html>
+    <html lang="fr">
       <body>
         {children}
         <Script src="https://docs.getgrist.com/grist-plugin-api.js" />

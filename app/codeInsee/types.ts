@@ -36,5 +36,6 @@ export type NoResultInseeCodeRecord = {
 
 export type mappedRecord = {
   id: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };
