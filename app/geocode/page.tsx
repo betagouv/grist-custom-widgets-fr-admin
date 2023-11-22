@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import { LatLngExpression } from "leaflet";
@@ -7,10 +7,14 @@ import { useGristEffect } from "../../lib/grist/hooks";
 import { gristReady, addObjectInRecord } from "../../lib/grist/plugin-api";
 import { cleanRecordData, getGeoCodeDataFromApi } from "./lib";
 import { DynamicMarker, MapRecord } from "./DynamicMarker";
-import { ChoiceBanner, DirtyGeoCodeData, GeoCodeApiResult } from "./ChoiceBanner";
-import './page.css'
-import {COLUMN_MAPPING_NAMES} from "./constants";
-import {RowRecord} from "grist/GristData";
+import {
+  ChoiceBanner,
+  DirtyGeoCodeData,
+  GeoCodeApiResult,
+} from "./ChoiceBanner";
+import "./page.css";
+import { COLUMN_MAPPING_NAMES } from "./constants";
+import { RowRecord } from "grist/GristData";
 
 const DEFAULT_MAP_CENTER: LatLngExpression = [48.864716, 2.349]; // Paris
 
@@ -24,7 +28,7 @@ const GeoCodeur = () => {
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
     getGeoCodeDataFromApi(setResults, setMappings);
-    grist.onRecord((rec: RowRecord|null) => {
+    grist.onRecord((rec: RowRecord | null) => {
       const data = grist.mapColumnNames(rec!); // FIXME rec can be null...
       const mapRecord: MapRecord = {
         Latitude: data[COLUMN_MAPPING_NAMES.LATITUDE],
@@ -59,10 +63,10 @@ const GeoCodeur = () => {
 
   const passDataFromDirtyToClean = (
     adressSelected: GeoCodeApiResult,
-    initalData: DirtyGeoCodeData
+    initalData: DirtyGeoCodeData,
   ) => {
     setDirtyData(
-      dirtyData.filter((item) => item.recordId !== initalData.recordId)
+      dirtyData.filter((item) => item.recordId !== initalData.recordId),
     );
     setCleanData([
       ...cleanData,
@@ -107,4 +111,4 @@ type CleanGeoCodeData = {
   score: number;
 };
 
-export default GeoCodeur
+export default GeoCodeur;

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { FC, useEffect } from "react";
 import { Marker, Tooltip, useMap } from "react-leaflet";
@@ -10,7 +10,7 @@ export type MapRecord = grist.RowRecord & {
 };
 
 export const DynamicMarker: FC<{
-  record: MapRecord
+  record: MapRecord;
 }> = ({ record }) => {
   const map = useMap();
   useEffect(() => {

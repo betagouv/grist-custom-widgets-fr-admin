@@ -1,10 +1,10 @@
-// @ts-nocheck
-
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import { NormalizedGeocodeRecords } from "./types";
 
 //Return ltn, lng, adresse from a string
-export const geocodeFromAdress = async (q: string): Promise<NormalizedGeocodeRecords> => {
+export const geocodeFromAdress = async (
+  q: string,
+): Promise<NormalizedGeocodeRecords> => {
   const url = new URL("https://api-adresse.data.gouv.fr/search/");
   url.searchParams.set("q", q);
 
@@ -17,8 +17,8 @@ export const geocodeFromAdress = async (q: string): Promise<NormalizedGeocodeRec
       lng: d.geometry.coordinates[0],
       address_nomalized: d.properties.label,
       score: d.properties.score,
-    }
-  })
+    };
+  });
 };
 
 export const getGeoCodeDataFromApi = async (dataSetter, mappingSetter) => {
@@ -26,17 +26,21 @@ export const getGeoCodeDataFromApi = async (dataSetter, mappingSetter) => {
     const geocodeRecords = [];
     for (const record of records) {
       const mapped = grist.mapColumnNames(record);
-      console.log("--- RECORD")
-      console.log(record)
-      console.log("--- MAPPED")
-      console.log(mapped)
-      if (!mapped[COLUMN_MAPPING_NAMES.LATITUDE] || !mapped[COLUMN_MAPPING_NAMES.LONGITUDE] || !mapped[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS]) {
+      console.log("--- RECORD");
+      console.log(record);
+      console.log("--- MAPPED");
+      console.log(mapped);
+      if (
+        !mapped[COLUMN_MAPPING_NAMES.LATITUDE] ||
+        !mapped[COLUMN_MAPPING_NAMES.LONGITUDE] ||
+        !mapped[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS]
+      ) {
         const address = mapped[COLUMN_MAPPING_NAMES.ADDRESS];
         const geocodeRecord = await geocodeFromAdress(address);
         geocodeRecords.push({
           result: geocodeRecord,
           recordId: record.id,
-          address
+          address,
         });
       }
     }
@@ -51,18 +55,18 @@ export const cleanRecordData = (dataFromApi) => {
       return !isClean(value.result)
         ? { ...acc, dirty: [...acc.dirty, value] }
         : {
-          ...acc,
-          clean: [
-            ...acc.clean,
-            {
-              recordId: value.recordId,
-              address: value.address,
-              ...value.result[0],
-            },
-          ],
-        };
+            ...acc,
+            clean: [
+              ...acc.clean,
+              {
+                recordId: value.recordId,
+                address: value.address,
+                ...value.result[0],
+              },
+            ],
+          };
     },
-    { dirty: [], clean: [] }
+    { dirty: [], clean: [] },
   );
 };
 
