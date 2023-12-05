@@ -4,9 +4,9 @@ import { Instructions } from "./Instructions";
 
 export const Configuration = () => {
   return (
-    <div>
+    <div className="centered_column">
       <Image priority src={configurationSvg} alt="Configuration" />
-      <p>
+      <p style={{ fontSize: "1.3em", lineHeight: "1.1em" }}>
         Commencer par configurer les colonnes source et destination dans les
         options du widget
       </p>
