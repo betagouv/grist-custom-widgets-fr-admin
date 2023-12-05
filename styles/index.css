@@ -14,6 +14,10 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  --lighter-green: #B1FFE2;
+  --light-green: #16B378;
+  --green: #009058;
+  --grey: #686565;
 }
 
 a {
@@ -35,12 +39,12 @@ body {
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 1.7em;
   line-height: 1.5em;
 }
 
 h2 {
-  font-size: 1.5em;
+  font-size: 1.3em;
   line-height: 1.1em;
 }
 
@@ -50,6 +54,7 @@ h3 {
 
 .title {
   margin-bottom: 2rem;
+  text-align: center;
 }
 
 .accordion-title {
@@ -72,24 +77,67 @@ h3 {
   color: gray;
 }
 
+.menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  column-gap: 0.5rem;
+  margin-bottom: 4rem;
+  flex-wrap: wrap;
+}
+
+.divider {
+  border: 1px solid #D9D9D9;
+  height: auto;
+}
+
+.centered_column {
+  text-align: center;
+  flex: 1;
+  padding: 1rem;
+}
+
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: 3px;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  margin: 10px;
 }
 
-button:hover {
-  background-color: #009058;
+button.primary {
+  background-color: var(--light-green, #16B378);
+  border: 1px solid transparent;
 }
 
-button:disabled {
+button.primary:hover {
+  background-color: var(--green, #009058);
+}
+
+button.primary:disabled {
   background-color: rgb(104, 101, 101);
+  cursor: not-allowed;
+}
+
+button.secondary {
+  border-radius: 3px;
+  border: 1px solid var(--light-green, #16B378);
+  color: var(--light-green, #16B378);
+  background-color: transparent;
+}
+
+button.secondary:hover {
+  color: var(--green, #009058);
+  border-color: var(--green, #009058);
+}
+
+button.secondary:disabled {
+  color: var(--grey, #686565);
+  border-color: var(--grey, #686565);
   cursor: not-allowed;
 }
 
@@ -97,6 +145,14 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
+span.selected {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: var(--lighter-green, #B1FFE2);
+}
+
 
 @media (prefers-color-scheme: light) {
   :root {

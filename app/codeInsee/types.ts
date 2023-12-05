@@ -34,8 +34,15 @@ export type NoResultInseeCodeRecord = {
   noResultMessage: string;
 };
 
-export type mappedRecord = {
+export type MappedRecord = {
   id: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };
+
+export type Step =
+  | "loading"
+  | "config"
+  | "global_processing"
+  | "specific_processing"
+  | "menu";

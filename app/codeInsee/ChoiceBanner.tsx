@@ -24,11 +24,15 @@ export const ChoiceBanner: FC<{
   return (
     <div style={{ marginBottom: "2rem" }}>
       <p>
-        <b>Choisissez le bon groupement</b>
+        <b>
+          Plusieurs résultats peuvent correspondre à la collectivité
+          sélectionnée.
+        </b>
         <br />
-        <i>{dirtyData.dirtyMessage}</i>
+        Les voici triés par ordre de fiabilité, choisissez la bonne option et
+        valider.
         <br />
-        <span className="info">NB: Ils sont triés par ordre de fiabilité</span>
+        <span className="info">{dirtyData.dirtyMessage}</span>
       </p>
 
       <div className="flex-column">
@@ -66,7 +70,7 @@ export const ChoiceBanner: FC<{
         })}
       </div>
       <button disabled={!inseeCodeSelected} onClick={selectGroupement}>
-        Choisir
+        Valider
       </button>
     </div>
   );
