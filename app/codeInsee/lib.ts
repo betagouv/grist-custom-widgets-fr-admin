@@ -7,7 +7,7 @@ import {
   NormalizedInseeResult,
   NormalizedInseeResults,
   NoResultInseeCodeRecord,
-  mappedRecord,
+  MappedRecord,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 
@@ -34,7 +34,7 @@ export const callInseeCodeApi = async (
 };
 
 export const getInseeCodeResults = async (
-  mappedRecord: mappedRecord,
+  mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
 ): Promise<InseeCodeUncleanedRecord> => {
@@ -125,48 +125,48 @@ export const cleanRecordsData = (
     (acc: ReduceReturnType, record) => {
       return !record.results.length
         ? {
+          ...acc,
+          noResult: {
+            ...acc.noResult,
+            [record.recordId]: {
+              recordId: record.recordId,
+              noResultMessage: record.noResultMessage!,
+            },
+          },
+        }
+        : isDoubtfulResults(record.results)
+          ? {
             ...acc,
-            noResult: {
-              ...acc.noResult,
+            dirty: {
+              ...acc.dirty,
               [record.recordId]: {
-                recordId: record.recordId,
-                noResultMessage: record.noResultMessage!,
+                ...record,
+                dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
               },
             },
           }
-        : isDoubtfulResults(record.results)
-          ? {
+          : areTooCloseResults(record.results)
+            ? {
               ...acc,
               dirty: {
                 ...acc.dirty,
                 [record.recordId]: {
                   ...record,
-                  dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
+                  dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
                 },
               },
             }
-          : areTooCloseResults(record.results)
-            ? {
-                ...acc,
-                dirty: {
-                  ...acc.dirty,
-                  [record.recordId]: {
-                    ...record,
-                    dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
-                  },
-                },
-              }
             : {
-                ...acc,
-                clean: {
-                  ...acc.clean,
-                  [record.recordId]: {
-                    recordId: record.recordId,
-                    collectivite: record.collectivite,
-                    ...record.results[0],
-                  },
+              ...acc,
+              clean: {
+                ...acc.clean,
+                [record.recordId]: {
+                  recordId: record.recordId,
+                  collectivite: record.collectivite,
+                  ...record.results[0],
                 },
-              };
+              },
+            };
     },
     { dirty: {}, clean: {}, noResult: {} },
   );

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
-import { addObjectInRecord, gristReady2 } from "../../lib/grist/plugin-api";
+import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import {
   cleanRecordsData,
@@ -16,11 +16,17 @@ import {
   InseeCodeUncleanedRecord,
   NoResultInseeCodeRecord,
   NormalizedInseeResult,
+  Step,
 } from "./types";
 import { ChoiceBanner } from "./ChoiceBanner";
 import { RowRecord } from "grist/GristData";
 import { Title } from "./Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
+import { Configuration } from "./Configuration";
+import Image from "next/image";
+import globalSvg from "../../public/global-processing.svg";
+import specificSvg from "../../public/specific-processing.svg";
+import { Instructions } from "./Instructions";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -32,21 +38,16 @@ const InseeCode = () => {
     [recordId: number]: NoResultInseeCodeRecord;
   }>({});
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
-  const [inProgress, setInProgress] = useState(false);
+  const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
+  const [currentStep, setCurrentStep] = useState<Step>("loading");
 
   useGristEffect(() => {
-    gristReady2("full", Object.values(COLUMN_MAPPING_NAMES));
+    gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
 
-    grist.onRecords((records, mappings) => {
+    grist.onRecords((records, gristMappings) => {
       setRecords(records);
-      setMappings(mappings);
-      // if (grist.mapColumnNames(records[0])) {
-      //   setMappings(mappings as Mappings);
-      // }
-      // else {
-      //   console.error("Please map all columns");
-      // }
+      setMappings(gristMappings);
     });
   }, []);
 
@@ -56,8 +57,15 @@ const InseeCode = () => {
     });
   }, []);
 
+  useEffect(() => {
+    mappingsIsReady(mappings)
+      ? setCurrentStep("menu")
+      : setCurrentStep("config");
+  }, [mappings]);
+
   const globalResearch = async () => {
-    setInProgress(true);
+    setCurrentStep("global_processing");
+    setGlobalInProgress(true);
     const callBackFunction = (
       dataFromApi: InseeCodeUncleanedRecord[],
       at: number,
@@ -70,11 +78,12 @@ const InseeCode = () => {
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     };
     await getInseeCodeResultsForRecords(records, mappings!, callBackFunction);
-    setInProgress(false);
+    setGlobalInProgress(false);
   };
 
   const recordResearch = async () => {
     if (record) {
+      setCurrentStep("specific_processing");
       // TODO : delete data corresponding to this record in dirty and noResult states
       const recordUncleanedData = await getInseeCodeResultsForRecord(
         record,
@@ -137,7 +146,10 @@ const InseeCode = () => {
       const columnName = mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
       if (typeof columnName === "string") {
         return (
-          <div>Collectivité sélectionnée : {String(record[columnName])}</div>
+          <div>
+            Collectivité sélectionnée :{" "}
+            <span className="selected">{String(record[columnName])}</span>
+          </div>
         );
       }
       return <div>Vérifiez les paramétrages de colonne de la Vue</div>;
@@ -152,60 +164,117 @@ const InseeCode = () => {
     </div>
   );
 
-  return !mappingsIsReady(mappings) ? (
+  return currentStep === "loading" ? (
+    <Title />
+  ) : currentStep === "config" ? (
     <div>
       <Title />
-      <p>
-        Configurez d&apos;abord les colonnes source et destination dans les
-        options du widget.
-      </p>
+      <Configuration />
     </div>
-  ) : (
+  ) : currentStep === "menu" ? (
     <div>
       <Title />
-      <h2>Traitement ligne par ligne</h2>
-      {recordName()}
-      {record && dirtyData[record.id] && (
-        <ChoiceBanner
-          dirtyData={dirtyData[record.id]}
-          passDataFromDirtyToClean={passDataFromDirtyToClean}
-        />
-      )}
-      {record && noResultData[record.id] && (
+      <div className="menu">
+        <div className="centered_column">
+          <Image priority src={globalSvg} alt="Traitement global" />
+          <h2>Traitement global</h2>
+          <p>
+            Lancer une recherche globale sur l&apos;ensemble des lignes
+            n&apos;ayant pas de code INSEE de renseigné.
+          </p>
+          <button className="primary" onClick={globalResearch}>
+            Recherche globale
+          </button>
+        </div>
+        <div className="divider"></div>
+        <div className="centered_column">
+          <Image priority src={specificSvg} alt="Traitement spécifique" />
+          <h2>Traitement spécifique</h2>
+          <p>
+            Lancer une recherche spécifique du code INSEE de la ligne
+            sélectionnée.
+          </p>
+          <button className="primary" onClick={recordResearch}>
+            Recherche spécifique
+          </button>
+        </div>
+      </div>
+      <Instructions />
+    </div>
+  ) : currentStep === "global_processing" ? (
+    <div className="centered_column">
+      <Title />
+      <Image priority src={globalSvg} alt="traitement global" />
+      {globalInProgress ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <h2>Traitement global en cours...</h2>
+          <span className="loader"></span>
+          <div className="px-2">
+            {atOnProgress[0]} / {atOnProgress[1]}
+          </div>
+          {/* TODO : bouton stop */}
+        </div>
+      ) : (
         <div>
-          {noResultData[record.id].noResultMessage}
-          {sirenGroupement}
+          <h2>Traitement global terminée</h2>
+          <p>
+            Les codes INSEE de{" "}
+            {Object.keys(dirtyData).length + Object.keys(noResultData).length}{" "}
+            lignes n&apos;ont pu être trouvés automatiquement. Il se peut
+            qu&apos;aucun ou plusieurs résultats correspondent aux noms des
+            sources. Pour cela, utilisez la recherche spécifique.
+          </p>
+          <div>
+            <button className="primary" onClick={recordResearch}>
+              Recherche spécifique
+            </button>
+            <button
+              className="secondary"
+              onClick={() => setCurrentStep("menu")}
+            >
+              Retour à l'accueil
+            </button>
+          </div>
         </div>
       )}
-      {record && <button onClick={recordResearch}>Recherche spécifique</button>}
-
-      <div className="py-2">
-        <hr />
-        <h2>Traitement global</h2>
-        <p>
-          Vous pouvez lancer une recherche pour l&apos;ensemble des lignes
-          n&apos;ayant pas encore de code insee renseigné
-          <br />
-          Les données seront renseignées 100 par 100
-        </p>
-        {inProgress ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <span className="loader"></span>
-            <div className="px-2">
-              {atOnProgress[0]} / {atOnProgress[1]}
-            </div>
-          </div>
-        ) : (
-          <button onClick={globalResearch}>Recherche globale</button>
-        )}
-      </div>
     </div>
+  ) : (
+    currentStep === "specific_processing" && (
+      <div className="centered_column">
+        <Title />
+        <Image priority src={specificSvg} alt="traitement spécifique" />
+        <h2>Traitement spécifique</h2>
+        {recordName()}
+
+        {record && dirtyData[record.id] && (
+          <ChoiceBanner
+            dirtyData={dirtyData[record.id]}
+            passDataFromDirtyToClean={passDataFromDirtyToClean}
+          />
+        )}
+        {record && noResultData[record.id] && (
+          <div>
+            {noResultData[record.id].noResultMessage}
+            {sirenGroupement}
+          </div>
+        )}
+        <p>Sélectionner une autre ligne à traiter spécifiquement</p>
+        {record && (
+          <button className="primary" onClick={recordResearch}>
+            Recherche spécifique
+          </button>
+        )}
+        <button className="secondary" onClick={() => setCurrentStep("menu")}>
+          Retour à l'accueil
+        </button>
+      </div>
+    )
   );
 };
 

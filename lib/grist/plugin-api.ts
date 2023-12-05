@@ -1,11 +1,4 @@
 //Set up Grist with acces required and columns to map
-export const gristReady = (access: string, columns: string[]) => {
-  grist.ready({
-    requiredAccess: access,
-    columns: columns,
-  });
-};
-
 interface Column {
   name: string;
   title: string;
@@ -13,7 +6,7 @@ interface Column {
   optional: boolean;
 }
 
-export const gristReady2 = (access: string, columns: Column[]) => {
+export const gristReady = (access: string, columns: Column[]) => {
   grist.ready({
     requiredAccess: access,
     columns: columns,
