@@ -125,48 +125,48 @@ export const cleanRecordsData = (
     (acc: ReduceReturnType, record) => {
       return !record.results.length
         ? {
-          ...acc,
-          noResult: {
-            ...acc.noResult,
-            [record.recordId]: {
-              recordId: record.recordId,
-              noResultMessage: record.noResultMessage!,
-            },
-          },
-        }
-        : isDoubtfulResults(record.results)
-          ? {
             ...acc,
-            dirty: {
-              ...acc.dirty,
+            noResult: {
+              ...acc.noResult,
               [record.recordId]: {
-                ...record,
-                dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
+                recordId: record.recordId,
+                noResultMessage: record.noResultMessage!,
               },
             },
           }
-          : areTooCloseResults(record.results)
-            ? {
+        : isDoubtfulResults(record.results)
+          ? {
               ...acc,
               dirty: {
                 ...acc.dirty,
                 [record.recordId]: {
                   ...record,
-                  dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
+                  dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
                 },
               },
             }
-            : {
-              ...acc,
-              clean: {
-                ...acc.clean,
-                [record.recordId]: {
-                  recordId: record.recordId,
-                  collectivite: record.collectivite,
-                  ...record.results[0],
+          : areTooCloseResults(record.results)
+            ? {
+                ...acc,
+                dirty: {
+                  ...acc.dirty,
+                  [record.recordId]: {
+                    ...record,
+                    dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
+                  },
                 },
-              },
-            };
+              }
+            : {
+                ...acc,
+                clean: {
+                  ...acc.clean,
+                  [record.recordId]: {
+                    recordId: record.recordId,
+                    collectivite: record.collectivite,
+                    ...record.results[0],
+                  },
+                },
+              };
     },
     { dirty: {}, clean: {}, noResult: {} },
   );
