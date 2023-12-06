@@ -18,7 +18,6 @@ import {
   NormalizedInseeResult,
   Step,
 } from "./types";
-import { ChoiceBanner } from "./ChoiceBanner";
 import { RowRecord } from "grist/GristData";
 import { Title } from "./Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
@@ -27,6 +26,7 @@ import Image from "next/image";
 import globalSvg from "../../public/global-processing.svg";
 import specificSvg from "../../public/specific-processing.svg";
 import { Instructions } from "./Instructions";
+import { SpecificProcessing } from "./SpecificProcessing";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -58,10 +58,16 @@ const InseeCode = () => {
   }, []);
 
   useEffect(() => {
-    mappingsIsReady(mappings)
-      ? setCurrentStep("menu")
-      : setCurrentStep("config");
-  }, [mappings]);
+    if (["loading", "config"].includes(currentStep)) {
+      mappingsIsReady(mappings)
+        ? setCurrentStep("menu")
+        : setCurrentStep("config");
+    }
+  }, [mappings, currentStep]);
+
+  const goBackToMenu = () => {
+    setCurrentStep("menu");
+  };
 
   const globalResearch = async () => {
     setCurrentStep("global_processing");
@@ -141,29 +147,6 @@ const InseeCode = () => {
     });
   };
 
-  const recordName = () => {
-    if (record && mappings) {
-      const columnName = mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
-      if (typeof columnName === "string") {
-        return (
-          <div>
-            Collectivité sélectionnée :{" "}
-            <span className="selected">{String(record[columnName])}</span>
-          </div>
-        );
-      }
-      return <div>Vérifiez les paramétrages de colonne de la Vue</div>;
-    }
-    return <div>Aucune ligne n'est actuellement selectionnée</div>;
-  };
-
-  const sirenGroupement = record && noResultData[record.id]?.result && (
-    <div>
-      Il existe cependant un code Siren :{" "}
-      <b>{noResultData[record.id].result?.siren_groupement}</b>
-    </div>
-  );
-
   return currentStep === "loading" ? (
     <Title />
   ) : currentStep === "config" ? (
@@ -206,19 +189,12 @@ const InseeCode = () => {
       <Title />
       <Image priority src={globalSvg} alt="traitement global" />
       {globalInProgress ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
+        <div className="centered_column">
           <h2>Traitement global en cours...</h2>
           <span className="loader"></span>
           <div className="px-2">
             {atOnProgress[0]} / {atOnProgress[1]}
           </div>
-          {/* TODO : bouton stop */}
         </div>
       ) : (
         <div>
@@ -234,10 +210,7 @@ const InseeCode = () => {
             <button className="primary" onClick={recordResearch}>
               Recherche spécifique
             </button>
-            <button
-              className="secondary"
-              onClick={() => setCurrentStep("menu")}
-            >
+            <button className="secondary" onClick={goBackToMenu}>
               Retour à l'accueil
             </button>
           </div>
@@ -249,30 +222,15 @@ const InseeCode = () => {
       <div className="centered_column">
         <Title />
         <Image priority src={specificSvg} alt="traitement spécifique" />
-        <h2>Traitement spécifique</h2>
-        {recordName()}
-
-        {record && dirtyData[record.id] && (
-          <ChoiceBanner
-            dirtyData={dirtyData[record.id]}
-            passDataFromDirtyToClean={passDataFromDirtyToClean}
-          />
-        )}
-        {record && noResultData[record.id] && (
-          <div>
-            {noResultData[record.id].noResultMessage}
-            {sirenGroupement}
-          </div>
-        )}
-        <p>Sélectionner une autre ligne à traiter spécifiquement</p>
-        {record && (
-          <button className="primary" onClick={recordResearch}>
-            Recherche spécifique
-          </button>
-        )}
-        <button className="secondary" onClick={() => setCurrentStep("menu")}>
-          Retour à l'accueil
-        </button>
+        <SpecificProcessing
+          mappings={mappings}
+          record={record}
+          dirtyData={record && dirtyData[record.id]}
+          noResultData={record && noResultData[record.id]}
+          passDataFromDirtyToClean={passDataFromDirtyToClean}
+          recordResearch={recordResearch}
+          goBackToMenu={goBackToMenu}
+        />
       </div>
     )
   );
