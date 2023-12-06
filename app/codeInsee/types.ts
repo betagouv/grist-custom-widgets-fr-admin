@@ -17,6 +17,7 @@ export type InseeCodeUncleanedRecord = {
   collectivite: string;
   recordId: number;
   noResultMessage?: string;
+  toIgnored: boolean;
 };
 
 export type DirtyInseeCodeRecord = InseeCodeUncleanedRecord & {

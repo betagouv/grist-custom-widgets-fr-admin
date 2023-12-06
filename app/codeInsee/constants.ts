@@ -1,5 +1,7 @@
 import { KeyAsString } from "../../lib/util/constants";
 
+export const TITLE = "Ajouter les codes INSEE à partir d'une localité";
+
 export const COLUMN_MAPPING_NAMES = {
   COLLECTIVITE: {
     name: "collectivite",
@@ -58,7 +60,6 @@ export const NO_DATA_MESSAGES = {
     "Aucun résultat ne correspond à la collectivité sélectionnée. Veuillez vérifier si cette collectivité existe bien ou qu’il n’y a pas d’erreur.",
   NO_SOURCE_DATA:
     "Afin de traiter la ligne sélectionnée, veuillez renseigner la collectivité recherchée.",
-  DESTINATION_ALREADY_FILLED_IN: "Le code insee est déjà renseigné.",
   API_ERROR:
     "Une erreur est survenue lors de l'appel à l'api, veuillez appeler le service technique.",
 };

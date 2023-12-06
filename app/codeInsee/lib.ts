@@ -41,6 +41,7 @@ export const getInseeCodeResults = async (
   let noResultMessage;
   let collectivite = "";
   let inseeCodeResults: NormalizedInseeResult[] = [];
+  let toIgnored = false;
   if (mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name]) {
     // Call the api if we don't have to check the destination column or if there are empty
     if (
@@ -67,7 +68,7 @@ export const getInseeCodeResults = async (
         noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
       }
     } else {
-      noResultMessage = NO_DATA_MESSAGES.DESTINATION_ALREADY_FILLED_IN;
+      toIgnored = true;
     }
   } else {
     noResultMessage = NO_DATA_MESSAGES.NO_SOURCE_DATA;
@@ -77,6 +78,7 @@ export const getInseeCodeResults = async (
     collectivite,
     results: inseeCodeResults,
     noResultMessage,
+    toIgnored,
   };
 };
 
@@ -123,50 +125,52 @@ export const cleanRecordsData = (
 ): ReduceReturnType => {
   return recordsUncleanedData.reduce<ReduceReturnType>(
     (acc: ReduceReturnType, record) => {
-      return !record.results.length
-        ? {
-            ...acc,
-            noResult: {
-              ...acc.noResult,
-              [record.recordId]: {
-                recordId: record.recordId,
-                noResultMessage: record.noResultMessage!,
-              },
-            },
-          }
-        : isDoubtfulResults(record.results)
+      return record.toIgnored
+        ? acc
+        : !record.results.length
           ? {
               ...acc,
-              dirty: {
-                ...acc.dirty,
+              noResult: {
+                ...acc.noResult,
                 [record.recordId]: {
-                  ...record,
-                  dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
+                  recordId: record.recordId,
+                  noResultMessage: record.noResultMessage!,
                 },
               },
             }
-          : areTooCloseResults(record.results)
+          : isDoubtfulResults(record.results)
             ? {
                 ...acc,
                 dirty: {
                   ...acc.dirty,
                   [record.recordId]: {
                     ...record,
-                    dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
+                    dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
                   },
                 },
               }
-            : {
-                ...acc,
-                clean: {
-                  ...acc.clean,
-                  [record.recordId]: {
-                    recordId: record.recordId,
-                    collectivite: record.collectivite,
-                    ...record.results[0],
+            : areTooCloseResults(record.results)
+              ? {
+                  ...acc,
+                  dirty: {
+                    ...acc.dirty,
+                    [record.recordId]: {
+                      ...record,
+                      dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
+                    },
                   },
-                },
-              };
+                }
+              : {
+                  ...acc,
+                  clean: {
+                    ...acc.clean,
+                    [record.recordId]: {
+                      recordId: record.recordId,
+                      collectivite: record.collectivite,
+                      ...record.results[0],
+                    },
+                  },
+                };
     },
     { dirty: {}, clean: {}, noResult: {} },
   );
