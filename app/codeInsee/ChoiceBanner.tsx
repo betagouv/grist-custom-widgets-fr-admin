@@ -2,8 +2,8 @@
 
 import { FC, useState } from "react";
 import { DirtyInseeCodeRecord, NormalizedInseeResult } from "./types";
-import { NATURE_JURIDIQUE } from "./constants";
 import { DEPT } from "../../lib/util/constants";
+import "./choiceBanner.css";
 
 export const ChoiceBanner: FC<{
   dirtyData: DirtyInseeCodeRecord;
@@ -22,7 +22,7 @@ export const ChoiceBanner: FC<{
   };
 
   return (
-    <div style={{ marginBottom: "2rem" }}>
+    <div className="container">
       <p>
         <b>
           Plusieurs résultats peuvent correspondre à la collectivité
@@ -32,44 +32,44 @@ export const ChoiceBanner: FC<{
         Les voici triés par ordre de fiabilité, choisissez la bonne option et
         valider.
         <br />
-        <span className="info">{dirtyData.dirtyMessage}</span>
+        <span className="choice-banner-info">{dirtyData.dirtyMessage}</span>
       </p>
 
-      <div className="flex-column">
+      <div className="insee-code-legend">Code INSEE</div>
+      <div className="choices">
         {dirtyData.results.map((item, index) => {
           return (
             <div className="text-align-left" key={index}>
-              <div
-                className="flex-row"
-                style={{ justifyContent: "space-between", margin: "0.5rem 0" }}
-              >
-                <div className="flex-row">
+              <div className="choice">
+                <div className="choice-label">
                   <input
                     onClick={() => setInseeCodeSelected(item)}
                     type="radio"
                     value={item.code_insee}
                     checked={inseeCodeSelected === item}
                   />
-                  <div className="flex-column">
-                    {`${NATURE_JURIDIQUE[item.nature_juridique]} ${
-                      item.lib_groupement
-                    }`}
-                    {item.insee_dep && <div>{`${DEPT[item.insee_dep]}`}</div>}
-                  </div>
+                  <label htmlFor={item.code_insee}>
+                    <b>
+                      {item.nature_juridique} {item.lib_groupement}
+                    </b>
+                    {item.insee_dep && ` - ${DEPT[item.insee_dep]}`}
+                  </label>
                 </div>
                 {item.code_insee ? (
-                  <div>
-                    Code Insee: <b>{item.code_insee}</b>
-                  </div>
+                  <div className="tag info">{item.code_insee}</div>
                 ) : (
-                  <div>Sans code Insee</div>
+                  <div>Sans Code</div>
                 )}
               </div>
             </div>
           );
         })}
       </div>
-      <button disabled={!inseeCodeSelected} onClick={selectGroupement}>
+      <button
+        className="primary"
+        disabled={!inseeCodeSelected}
+        onClick={selectGroupement}
+      >
         Valider
       </button>
     </div>

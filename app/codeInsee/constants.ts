@@ -52,10 +52,13 @@ export const MESSAGES = {
 };
 
 export const NO_DATA_MESSAGES = {
-  NO_INSEE_CODE: "Il n'y a pas de code insee dans la réponse rendue",
-  NO_RESULT: "Aucun résultat n'a été trouvé correspondant à la collectivité",
-  NO_SOURCE_DATA: "La donnée source est manquante",
-  DESTINATION_ALREADY_FILLED_IN: "Le code insee est déjà renseigné",
+  NO_INSEE_CODE:
+    "Il n’existe pas de code INSEE dans les résultats pour la collectivité sélectionnée.",
+  NO_RESULT:
+    "Aucun résultat ne correspond à la collectivité sélectionnée. Veuillez vérifier si cette collectivité existe bien ou qu’il n’y a pas d’erreur.",
+  NO_SOURCE_DATA:
+    "Afin de traiter la ligne sélectionnée, veuillez renseigner la collectivité recherchée.",
+  DESTINATION_ALREADY_FILLED_IN: "Le code insee est déjà renseigné.",
   API_ERROR:
-    "Une erreur est survenue lors de l'appel à l'api, veuillez appeler le service technique",
+    "Une erreur est survenue lors de l'appel à l'api, veuillez appeler le service technique.",
 };
