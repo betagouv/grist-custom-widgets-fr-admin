@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
-import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
+import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import {
   cleanRecordsData,
   getInseeCodeResultsForRecord,
@@ -19,9 +19,9 @@ import {
   Step,
 } from "./types";
 import { RowRecord } from "grist/GristData";
-import { Title } from "./Title";
+import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { Configuration } from "./Configuration";
+import { Configuration } from "../../components/Configuration";
 import Image from "next/image";
 import globalSvg from "../../public/global-processing.svg";
 import specificSvg from "../../public/specific-processing.svg";
@@ -88,6 +88,9 @@ const InseeCode = () => {
   };
 
   const recordResearch = async () => {
+    console.log("-------------------------");
+    console.log(dirtyData);
+    console.log(noResultData);
     if (record) {
       setCurrentStep("specific_processing");
       // TODO : delete data corresponding to this record in dirty and noResult states
@@ -137,7 +140,6 @@ const InseeCode = () => {
       const { [initalData.recordId]: id, ...newDirtyData } = dirtyData;
       return newDirtyData;
     });
-    console.log(dirtyData);
     writeCleanDataInTable({
       [initalData.recordId]: {
         ...inseeCodeSelected,
@@ -148,15 +150,17 @@ const InseeCode = () => {
   };
 
   return currentStep === "loading" ? (
-    <Title />
+    <Title title={TITLE} />
   ) : currentStep === "config" ? (
     <div>
-      <Title />
-      <Configuration />
+      <Title title={TITLE} />
+      <Configuration>
+        <Instructions />
+      </Configuration>
     </div>
   ) : currentStep === "menu" ? (
     <div>
-      <Title />
+      <Title title={TITLE} />
       <div className="menu">
         <div className="centered_column">
           <Image priority src={globalSvg} alt="Traitement global" />
@@ -186,7 +190,7 @@ const InseeCode = () => {
     </div>
   ) : currentStep === "global_processing" ? (
     <div className="centered_column">
-      <Title />
+      <Title title={TITLE} />
       <Image priority src={globalSvg} alt="traitement global" />
       {globalInProgress ? (
         <div className="centered_column">
@@ -220,7 +224,7 @@ const InseeCode = () => {
   ) : (
     currentStep === "specific_processing" && (
       <div className="centered_column">
-        <Title />
+        <Title title={TITLE} />
         <Image priority src={specificSvg} alt="traitement spécifique" />
         <SpecificProcessing
           mappings={mappings}
