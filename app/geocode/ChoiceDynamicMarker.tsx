@@ -1,12 +1,14 @@
 "use client";
 
-import { FC, useEffect } from "react";
+import { useEffect } from "react";
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import { NormalizedGeocodeResult } from "./types";
 
-export const ChoiceDynamicMarker: FC<{
+function ChoiceDynamicMarker({
+  address,
+}: {
   address: NormalizedGeocodeResult;
-}> = ({ address }) => {
+}) {
   const map = useMap();
   useEffect(() => {
     if (address) {
@@ -22,4 +24,6 @@ export const ChoiceDynamicMarker: FC<{
       <Tooltip>{String(address.address_nomalized)}</Tooltip>
     </Marker>
   );
-};
+}
+
+export default ChoiceDynamicMarker;

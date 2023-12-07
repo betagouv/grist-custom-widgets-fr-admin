@@ -2,14 +2,17 @@
 
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { RowRecord } from "grist/GristData";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 
-export const DynamicMarker: FC<{
+function DynamicMarker({
+  mappings,
+  record,
+}: {
   mappings: WidgetColumnMap | null;
   record: RowRecord;
-}> = ({ mappings, record }) => {
+}) {
   const [latColumnName, setLatColumnName] = useState<string>("");
   const [longColumnName, setLongColumnName] = useState<string>("");
   const [normAddressColumnName, setNormAddressColumnName] =
@@ -46,4 +49,6 @@ export const DynamicMarker: FC<{
       <Tooltip>{String(record[normAddressColumnName])}</Tooltip>
     </Marker>
   );
-};
+}
+
+export default DynamicMarker;

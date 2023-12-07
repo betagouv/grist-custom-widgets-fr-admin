@@ -12,11 +12,11 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
-import { DynamicMarker } from "./DynamicMarker";
 import dynamic from "next/dynamic";
 
 // react-leaflet is relies on browser APIs window. Dynamically load the component on the client side desabling ssr
 const MyAwesomeMap = dynamic(() => import("./Map"), { ssr: false });
+const DynamicMarker = dynamic(() => import("./DynamicMarker"), { ssr: false });
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
