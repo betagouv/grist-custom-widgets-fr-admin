@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import configurationSvg from "../public/configuration.svg";
 import { FC, ReactNode } from "react";
