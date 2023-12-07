@@ -15,7 +15,7 @@ export const COLUMN_MAPPING_NAMES = {
   },
   NORMALIZED_NAME: {
     name: "nom_normalise",
-    title: "Nom normalisé (destination - optionnel)",
+    title: "Nom normalisé (destination)",
     type: "Any",
     optional: true,
   },

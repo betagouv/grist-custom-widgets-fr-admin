@@ -15,25 +15,23 @@ import { MappedRecord } from "../../lib/util/types";
 export const callSirenCodeApi = async (
   query: string,
 ): Promise<NormalizedSirenResult[]> => {
-  const url = new URL(
-    "https://api.recherche-entreprises.fabrique.social.gouv.fr/api/v1/search",
-  );
-  url.searchParams.set("query", query);
+  const url = new URL("https://recherche-entreprises.api.gouv.fr/search");
+  url.searchParams.set("q", query);
   const response = await fetch(url.toString());
   if (!response.ok) {
     console.error(
-      "The call to the api.recherche-entreprises.fabrique.social.gouv.fr api is not 200 status",
+      "The call to the recherche-entreprises.api.gouv.fr api is not 200 status",
       response,
     );
   }
   const data = await response.json();
   // @ts-expect-error result in any type
-  return (data.entreprises ?? []).map((result) => {
+  return (data.results ?? []).map((result) => {
     return {
-      label: result.simpleLabel,
+      label: result.nom_complet,
       siren: result.siren,
-      code_commune: result.firstMatchingEtablissement.codeCommuneEtablissement,
-      siret: result.firstMatchingEtablissement.siret,
+      code_commune: result.siege.code_postal,
+      siret: result.siege.siret,
       score: result.score,
     };
   });
