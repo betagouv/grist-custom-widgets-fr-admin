@@ -9,11 +9,11 @@ import {
 } from "./types";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { COLUMN_MAPPING_NAMES, DEFAULT_MAP_CENTER } from "./constants";
+import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
-import { MapContainer, TileLayer } from "react-leaflet";
 import { DynamicMarker } from "./DynamicMarker";
+import { Map } from "./Map";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
@@ -104,19 +104,9 @@ export const SpecificProcessing: FC<{
         style={{ marginBottom: "1rem" }}
         alt="traitement spécifique terminé"
       />
-      <div style={{ width: "100%", height: "350px" }}>
-        <MapContainer
-          center={DEFAULT_MAP_CENTER}
-          zoom={8}
-          style={{ width: "100%", height: "100%" }}
-        >
-          <TileLayer
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {record && <DynamicMarker mappings={mappings} record={record} />}
-        </MapContainer>
-      </div>
+      <Map>
+        {record && <DynamicMarker mappings={mappings} record={record} />}
+      </Map>
       <div style={{ marginTop: "4rem" }}>
         {selectOtherLine}
         {actionsButton(false)}
@@ -125,7 +115,7 @@ export const SpecificProcessing: FC<{
   ) : (
     <div className="centered-column">
       <h2>Traitement spécifique</h2>
-      <div>Collectivité sélectionnée : {recordName()}</div>
+      <div>Adresse sélectionnée : {recordName()}</div>
 
       {record && dirtyData && (
         <ChoiceBanner

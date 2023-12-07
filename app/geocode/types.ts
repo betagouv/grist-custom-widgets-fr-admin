@@ -3,6 +3,7 @@ export type NormalizedGeocodeResult = {
   lng: number;
   address_nomalized: string;
   score: number;
+  departement: string;
 };
 
 export type NormalizedGeocodeResults = {

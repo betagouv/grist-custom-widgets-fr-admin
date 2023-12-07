@@ -2,6 +2,9 @@
 
 import { FC, useState } from "react";
 import { DirtyGeoCodeRecord, NormalizedGeocodeResult } from "./types";
+import "../codeInsee/choiceBanner.css";
+import { ChoiceDynamicMarker } from "./ChoiceDynamicMarker";
+import { Map } from "./Map";
 
 export const ChoiceBanner: FC<{
   dirtyData: DirtyGeoCodeRecord;
@@ -10,34 +13,54 @@ export const ChoiceBanner: FC<{
     initalData: DirtyGeoCodeRecord,
   ) => void;
 }> = ({ dirtyData, passDataFromDirtyToClean }) => {
-  const [addresseSelected, setaddresseSelected] =
+  const [addressSelected, setAddressSelected] =
     useState<NormalizedGeocodeResult | null>(null);
 
   const selectaddress = () => {
-    if (addresseSelected) {
-      passDataFromDirtyToClean(addresseSelected, dirtyData);
+    if (addressSelected) {
+      passDataFromDirtyToClean(addressSelected, dirtyData);
     }
   };
 
   return (
-    <div className="px-2">
-      <p>Quelle adresse vouliez vous dire pour {dirtyData.address} ?</p>
-      <div className="flex-column">
+    <div className="container">
+      <p>
+        <b>
+          Plusieurs résultats peuvent correspondre à l'adresse sélectionnée.
+        </b>
+        <br />
+        Les voici triés par ordre de fiabilité, choisissez la bonne option et
+        valider.
+        <br />
+        <span className="choice-banner-info">{dirtyData.dirtyMessage}</span>
+      </p>
+      {addressSelected && (
+        <Map>
+          <ChoiceDynamicMarker address={addressSelected} />
+        </Map>
+      )}
+      <div className="choices">
         {dirtyData.results.map((item, index) => {
           return (
             <div className="text-align-left" key={index}>
-              <input
-                onClick={() => setaddresseSelected(item)}
-                type="radio"
-                value={item.address_nomalized}
-                checked={addresseSelected === item}
-              />
-              {item.address_nomalized}
+              <div className="choice-label">
+                <input
+                  onClick={() => setAddressSelected(item)}
+                  type="radio"
+                  value={item.address_nomalized}
+                  checked={addressSelected === item}
+                />
+
+                <label htmlFor={item.address_nomalized}>
+                  <b>{item.address_nomalized}</b>
+                  {item.departement && ` - ${item.departement}`}
+                </label>
+              </div>
             </div>
           );
         })}
       </div>
-      <button disabled={!addresseSelected} onClick={selectaddress}>
+      <button disabled={!addressSelected} onClick={selectaddress}>
         Choisir
       </button>
     </div>

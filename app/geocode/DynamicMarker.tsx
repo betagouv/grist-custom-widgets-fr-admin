@@ -6,12 +6,6 @@ import { FC, useEffect, useState } from "react";
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 
-// export type MapRecord = grist.RowRecord & {
-//   Latitude: number;
-//   Longitude: number;
-//   addresse_Normalisee: string;
-// };
-
 export const DynamicMarker: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord;
@@ -28,7 +22,6 @@ export const DynamicMarker: FC<{
       setNormAddressColumnName(
         String(mappings[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]),
       );
-      // TODO : tester l'ancienne méthode avec  .Longitude !!
       if (
         record[latColumnName] &&
         record[longColumnName] &&
