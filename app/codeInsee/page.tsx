@@ -16,7 +16,6 @@ import {
   InseeCodeUncleanedRecord,
   NoResultInseeCodeRecord,
   NormalizedInseeResult,
-  Step,
 } from "./types";
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
@@ -28,6 +27,7 @@ import specificSvg from "../../public/specific-processing.svg";
 import doneSvg from "../../public/done.svg";
 import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
+import { WidgetStep } from "../../lib/util/types";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -41,7 +41,7 @@ const InseeCode = () => {
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
-  const [currentStep, setCurrentStep] = useState<Step>("loading");
+  const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));

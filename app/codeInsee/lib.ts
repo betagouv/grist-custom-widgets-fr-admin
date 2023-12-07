@@ -7,10 +7,10 @@ import {
   NormalizedInseeResult,
   NormalizedInseeResults,
   NoResultInseeCodeRecord,
-  MappedRecord,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
+import { MappedRecord } from "../../lib/util/types";
 
 export const callInseeCodeApi = async (
   collectivity: string,
@@ -42,7 +42,7 @@ export const getInseeCodeResults = async (
   let noResultMessage;
   let collectivite = "";
   let inseeCodeResults: NormalizedInseeResult[] = [];
-  let toIgnored = false;
+  let toIgnore = false;
   if (mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name]) {
     // Call the api if we don't have to check the destination column or if there are empty
     if (
@@ -69,7 +69,7 @@ export const getInseeCodeResults = async (
         noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
       }
     } else {
-      toIgnored = true;
+      toIgnore = true;
     }
   } else {
     noResultMessage = NO_DATA_MESSAGES.NO_SOURCE_DATA;
@@ -79,7 +79,7 @@ export const getInseeCodeResults = async (
     collectivite,
     results: inseeCodeResults,
     noResultMessage,
-    toIgnore: toIgnored,
+    toIgnore,
   };
 };
 

@@ -1,63 +1,69 @@
-import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
-import {
-  CleanGeoCodeRecord,
-  DirtyGeoCodeRecord,
-  GeoCodeUncleanedRecord,
-  NoResultGeoCodeRecord,
-  NormalizedGeocodeResult,
-} from "./types";
 import { RowRecord } from "grist/GristData";
+import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
+
+import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
+import {
+  CleanSirenCodeRecord,
+  DirtySirenCodeRecord,
+  NoResultSirenCodeRecord,
+  NormalizedSirenResult,
+  SirenCodeUncleanedRecord,
+} from "./types";
 import { MappedRecord } from "../../lib/util/types";
 
-//Return ltn, lng, address from a string
-export const callGeoCodeApi = async (
-  q: string,
-): Promise<NormalizedGeocodeResult[]> => {
-  const url = new URL("https://api-adresse.data.gouv.fr/search/");
-  url.searchParams.set("q", q);
-
+export const callSirenCodeApi = async (
+  query: string,
+): Promise<NormalizedSirenResult[]> => {
+  const url = new URL(
+    "https://api.recherche-entreprises.fabrique.social.gouv.fr/api/v1/search",
+  );
+  url.searchParams.set("query", query);
   const response = await fetch(url.toString());
+  if (!response.ok) {
+    console.error(
+      "The call to the api.recherche-entreprises.fabrique.social.gouv.fr api is not 200 status",
+      response,
+    );
+  }
   const data = await response.json();
-
-  // @ts-expect-error d in any type
-  return (data.features ?? []).map((d) => {
+  // @ts-expect-error result in any type
+  return (data.entreprises ?? []).map((result) => {
     return {
-      lat: d.geometry.coordinates[1],
-      lng: d.geometry.coordinates[0],
-      address_nomalized: d.properties.label,
-      score: d.properties.score,
-      departement: d.properties.context?.split(", ")[1],
+      label: result.simpleLabel,
+      siren: result.siren,
+      code_commune: result.firstMatchingEtablissement.codeCommuneEtablissement,
+      siret: result.firstMatchingEtablissement.siret,
+      score: result.score,
     };
   });
 };
 
-export const getGeoCodeResults = async (
+export const getSirenCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
-): Promise<GeoCodeUncleanedRecord> => {
+): Promise<SirenCodeUncleanedRecord> => {
   let noResultMessage;
-  let address = "";
-  let geoCodeResults: NormalizedGeocodeResult[] = [];
+  let name = "";
+  let sirenCodeResults: NormalizedSirenResult[] = [];
   let toIgnore = false;
-  if (mappedRecord[COLUMN_MAPPING_NAMES.ADDRESS.name]) {
+  if (mappedRecord[COLUMN_MAPPING_NAMES.NAME.name]) {
+    // Call the api if we don't have to check the destination column or if there are empty
     if (
       !checkDestinationIsEmpty ||
-      !mappedRecord[COLUMN_MAPPING_NAMES.LATITUDE.name] ||
-      !mappedRecord[COLUMN_MAPPING_NAMES.LONGITUDE.name] ||
-      (mappings[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name] &&
-        !mappedRecord[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name])
+      !mappedRecord[COLUMN_MAPPING_NAMES.SIREN.name] ||
+      (mappings[COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name] &&
+        !mappedRecord[COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name])
     ) {
-      address = mappedRecord[COLUMN_MAPPING_NAMES.ADDRESS.name];
-      geoCodeResults = await callGeoCodeApi(address);
-      if (geoCodeResults === undefined) {
+      name = mappedRecord[COLUMN_MAPPING_NAMES.NAME.name];
+      sirenCodeResults = await callSirenCodeApi(name);
+      if (sirenCodeResults === undefined) {
         console.error(
           "The call to the api give a response with undefined result",
         );
         noResultMessage = NO_DATA_MESSAGES.API_ERROR;
-      } else if (geoCodeResults.length === 0) {
+      } else if (sirenCodeResults.length === 0) {
         noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
       }
     } else {
@@ -66,58 +72,55 @@ export const getGeoCodeResults = async (
   } else {
     noResultMessage = NO_DATA_MESSAGES.NO_SOURCE_DATA;
   }
-  console.log({
-    recordId: mappedRecord.id,
-    address,
-    results: geoCodeResults,
-    noResultMessage,
-    toIgnore,
-  });
   return {
     recordId: mappedRecord.id,
-    address,
-    results: geoCodeResults,
+    name,
+    results: sirenCodeResults,
     noResultMessage,
     toIgnore,
   };
 };
 
-export const getGeoCodeResultsForRecord = async (
+export const getSirenCodeResultsForRecord = async (
   record: RowRecord,
   mappings: WidgetColumnMap,
 ) => {
-  return await getGeoCodeResults(grist.mapColumnNames(record), mappings, false);
+  return await getSirenCodeResults(
+    grist.mapColumnNames(record),
+    mappings,
+    false,
+  );
 };
 
-export const getGeoCodeResultsForRecords = async (
+export const getSirenCodeResultsForRecords = async (
   records: RowRecord[],
   mappings: WidgetColumnMap,
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
 ) => {
-  const geoCodeDataFromApi: GeoCodeUncleanedRecord[] = [];
+  const sirenCodeDataFromApi: SirenCodeUncleanedRecord[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
-    geoCodeDataFromApi.push(
-      await getGeoCodeResults(grist.mapColumnNames(record), mappings, true),
+    sirenCodeDataFromApi.push(
+      await getSirenCodeResults(grist.mapColumnNames(record), mappings, true),
     );
     if (parseInt(i) % 100 === 0 || parseInt(i) === records.length - 1) {
-      callBackFunction(geoCodeDataFromApi, parseInt(i), records.length);
+      callBackFunction(sirenCodeDataFromApi, parseInt(i), records.length);
       // clear data
-      geoCodeDataFromApi.length = 0;
+      sirenCodeDataFromApi.length = 0;
     }
   }
 };
 
 type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtyGeoCodeRecord };
-  clean: { [recordId: number]: CleanGeoCodeRecord };
-  noResult: { [recordId: number]: NoResultGeoCodeRecord };
+  dirty: { [recordId: number]: DirtySirenCodeRecord };
+  clean: { [recordId: number]: CleanSirenCodeRecord };
+  noResult: { [recordId: number]: NoResultSirenCodeRecord };
 };
 
 export const cleanRecordsData = (
-  recordsUncleanedData: GeoCodeUncleanedRecord[],
+  recordsUncleanedData: SirenCodeUncleanedRecord[],
 ): ReduceReturnType => {
   return recordsUncleanedData.reduce<ReduceReturnType>(
     (acc: ReduceReturnType, record) => {
@@ -162,7 +165,7 @@ export const cleanRecordsData = (
                     ...acc.clean,
                     [record.recordId]: {
                       recordId: record.recordId,
-                      address: record.address,
+                      name: record.name,
                       ...record.results[0],
                     },
                   },
@@ -172,12 +175,11 @@ export const cleanRecordsData = (
   );
 };
 
-// TODO : check pertinance of score rules
-const isDoubtfulResults = (dataFromApi: NormalizedGeocodeResult[]) => {
+const isDoubtfulResults = (dataFromApi: NormalizedSirenResult[]) => {
   return dataFromApi[0]?.score < 0.6;
 };
 
-const areTooCloseResults = (dataFromApi: NormalizedGeocodeResult[]) => {
+const areTooCloseResults = (dataFromApi: NormalizedSirenResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
     const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;
@@ -189,8 +191,7 @@ const areTooCloseResults = (dataFromApi: NormalizedGeocodeResult[]) => {
 export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
   return (
     mappings &&
-    mappings[COLUMN_MAPPING_NAMES.ADDRESS.name] &&
-    mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name] &&
-    mappings[COLUMN_MAPPING_NAMES.LATITUDE.name]
+    mappings[COLUMN_MAPPING_NAMES.NAME.name] &&
+    mappings[COLUMN_MAPPING_NAMES.SIREN.name]
   );
 };
