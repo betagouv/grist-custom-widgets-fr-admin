@@ -18,13 +18,14 @@ export const DynamicMarker: FC<{
 }> = ({ mappings, record }) => {
   const [latColumnName, setLatColumnName] = useState<string>("");
   const [longColumnName, setLongColumnName] = useState<string>("");
-  const [normaddressColumnName, setNormaddressColumnName] = useState<string>("");
+  const [normAddressColumnName, setNormAddressColumnName] =
+    useState<string>("");
   const map = useMap();
   useEffect(() => {
     if (record && mappings) {
       setLatColumnName(String(mappings[COLUMN_MAPPING_NAMES.LATITUDE.name]));
       setLongColumnName(String(mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name]));
-      setNormaddressColumnName(
+      setNormAddressColumnName(
         String(mappings[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]),
       );
       // TODO : tester l'ancienne méthode avec  .Longitude !!
@@ -40,16 +41,16 @@ export const DynamicMarker: FC<{
         ]);
       }
     }
-  }, [record, map, mappings]);
+  }, [record, map, mappings, latColumnName, longColumnName]);
 
-  if (!record || !record.Latitude || !record.Longitude) {
+  if (!record || !record[latColumnName] || !record[longColumnName]) {
     return null;
   }
   return (
     <Marker
       position={[Number(record[latColumnName]), Number(record[longColumnName])]}
     >
-      <Tooltip>{String(record[normaddressColumnName])}</Tooltip>
+      <Tooltip>{String(record[normAddressColumnName])}</Tooltip>
     </Marker>
   );
 };

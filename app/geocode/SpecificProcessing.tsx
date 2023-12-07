@@ -35,112 +35,118 @@ export const SpecificProcessing: FC<{
   recordResearch,
   goBackToMenu,
 }) => {
-    const recordName = () => {
-      if (record && mappings) {
-        const columnName = mappings[COLUMN_MAPPING_NAMES.ADDRESS.name];
-        if (typeof columnName === "string") {
-          return record[columnName] ? (
-            <span className="tag validated semi-bold">
-              {String(record[columnName])}
-            </span>
-          ) : (
-            <span className="tag warning semi-bold">source manquante</span>
-          );
-        }
-        return (
-          <span className="tag warning semi-bold">
-            colonne illisible (type texte requis)
+  const recordName = () => {
+    if (record && mappings) {
+      const columnName = mappings[COLUMN_MAPPING_NAMES.ADDRESS.name];
+      if (typeof columnName === "string") {
+        return record[columnName] ? (
+          <span className="tag validated semi-bold">
+            {String(record[columnName])}
           </span>
+        ) : (
+          <span className="tag warning semi-bold">source manquante</span>
         );
       }
       return (
-        <span className="tag warning semi-bold">ligne non sélectionnée</span>
+        <span className="tag warning semi-bold">
+          colonne illisible (type texte requis)
+        </span>
       );
-    };
+    }
+    return (
+      <span className="tag warning semi-bold">ligne non sélectionnée</span>
+    );
+  };
 
-    const isResultFind = () => {
-      if (record && mappings) {
-        const columnNameLat = mappings[COLUMN_MAPPING_NAMES.LATITUDE.name];
-        const columnNameLng = mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name];
-        return (
-          typeof columnNameLat === "string" &&
-          typeof columnNameLng === "string" &&
-          record[columnNameLat] &&
-          record[columnNameLng] &&
-          true
-        );
-      }
-      return false;
-    };
+  const isResultFind = () => {
+    if (record && mappings) {
+      const columnNameLat = mappings[COLUMN_MAPPING_NAMES.LATITUDE.name];
+      const columnNameLng = mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name];
+      return (
+        typeof columnNameLat === "string" &&
+        typeof columnNameLng === "string" &&
+        record[columnNameLat] &&
+        record[columnNameLng] &&
+        true
+      );
+    }
+    return false;
+  };
 
-    const selectOtherLine = (
+  const selectOtherLine = (
+    <>
+      <p>Sélectionner une autre ligne à traiter spécifiquement</p>
+      <p>ou</p>
+    </>
+  );
+
+  const actionsButton = (isFirstResearch: boolean) => {
+    return (
       <>
-        <p>Sélectionner une autre ligne à traiter spécifiquement</p>
-        <p>ou</p>
+        {record && (
+          <button className="primary" onClick={recordResearch}>
+            {isFirstResearch ? "Recherche spécifique" : "Réitérer la recherche"}
+          </button>
+        )}
+        <button className="secondary" onClick={goBackToMenu}>
+          Retour à l'accueil
+        </button>
       </>
     );
+  };
 
-    const actionsButton = (isFirstResearch: boolean) => {
-      return (
-        <>
-          {record && (
-            <button className="primary" onClick={recordResearch}>
-              {isFirstResearch ? "Recherche spécifique" : "Réitérer la recherche"}
-            </button>
-          )}
-          <button className="secondary" onClick={goBackToMenu}>
-            Retour à l'accueil
-          </button>
-        </>
-      );
-    };
-
-    return isResultFind() ? (
-      <div className="centered-column">
-        <h2>Traitement spécifique terminé</h2>
-        <Image
-          priority
-          src={doneSvg}
-          style={{ marginBottom: "1rem" }}
-          alt="traitement spécifique terminé"
-        />
-        <MapContainer center={DEFAULT_MAP_CENTER} zoom={8}>
+  return isResultFind() ? (
+    <div className="centered-column">
+      <h2>Traitement spécifique terminé</h2>
+      <Image
+        priority
+        src={doneSvg}
+        style={{ marginBottom: "1rem" }}
+        alt="traitement spécifique terminé"
+      />
+      <div style={{ width: "100%", height: "350px" }}>
+        <MapContainer
+          center={DEFAULT_MAP_CENTER}
+          zoom={8}
+          style={{ width: "100%", height: "100%" }}
+        >
           <TileLayer
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {record && <DynamicMarker mappings={mappings} record={record} />}
         </MapContainer>
-        <div style={{ marginTop: "4rem" }}>
-          {selectOtherLine}
-          {actionsButton(false)}
-        </div>
       </div>
-    ) : (
-      <div className="centered-column">
-        <h2>Traitement spécifique</h2>
-        <div>Collectivité sélectionnée : {recordName()}</div>
+      <div style={{ marginTop: "4rem" }}>
+        {selectOtherLine}
+        {actionsButton(false)}
+      </div>
+    </div>
+  ) : (
+    <div className="centered-column">
+      <h2>Traitement spécifique</h2>
+      <div>Collectivité sélectionnée : {recordName()}</div>
 
-        {record && dirtyData && (
-          <ChoiceBanner
-            dirtyData={dirtyData}
-            passDataFromDirtyToClean={passDataFromDirtyToClean}
-          />
-        )}
-        {record && noResultData && (
-          <div className="py-2">
-            <span className="semi-bold">{noResultData.noResultMessage}</span>
-          </div>
-        )}
-        <div style={{ marginTop: "4rem" }}>
-          {record && noResultData ? (
-            <>
-              {selectOtherLine} {actionsButton(false)}
-            </>
-          ) : (
-            actionsButton(true)
-          )}
+      {record && dirtyData && (
+        <ChoiceBanner
+          dirtyData={dirtyData}
+          passDataFromDirtyToClean={passDataFromDirtyToClean}
+        />
+      )}
+      {record && noResultData && (
+        <div className="py-2">
+          <span className="semi-bold">{noResultData.noResultMessage}</span>
         </div>
+      )}
+      <div style={{ marginTop: "4rem" }}>
+        {record && noResultData ? (
+          <>
+            {selectOtherLine} {actionsButton(false)}
+          </>
+        ) : (
+          actionsButton(true)
+        )}
       </div>
-    );
-  };
+    </div>
+  );
+};
