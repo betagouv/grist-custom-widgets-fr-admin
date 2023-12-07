@@ -13,7 +13,10 @@ import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
 import { DynamicMarker } from "./DynamicMarker";
-import { Map } from "./Map";
+import dynamic from "next/dynamic";
+
+// react-leaflet is relies on browser APIs window. Dynamically load the component on the client side desabling ssr
+const MyAwesomeMap = dynamic(() => import("./Map"), { ssr: false });
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
@@ -104,9 +107,11 @@ export const SpecificProcessing: FC<{
         style={{ marginBottom: "1rem" }}
         alt="traitement spécifique terminé"
       />
-      {/* <Map>
-        {record && <DynamicMarker mappings={mappings} record={record} />}
-      </Map> */}
+      {record && (
+        <MyAwesomeMap>
+          <DynamicMarker mappings={mappings} record={record} />
+        </MyAwesomeMap>
+      )}
       <div style={{ marginTop: "4rem" }}>
         {selectOtherLine}
         {actionsButton(false)}
