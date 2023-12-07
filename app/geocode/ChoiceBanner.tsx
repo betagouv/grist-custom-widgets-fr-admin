@@ -34,11 +34,11 @@ export const ChoiceBanner: FC<{
         <br />
         <span className="choice-banner-info">{dirtyData.dirtyMessage}</span>
       </p>
-      {addressSelected && (
+      {/* {addressSelected && (
         <Map>
           <ChoiceDynamicMarker address={addressSelected} />
         </Map>
-      )}
+      )} */}
       <div className="choices">
         {dirtyData.results.map((item, index) => {
           return (

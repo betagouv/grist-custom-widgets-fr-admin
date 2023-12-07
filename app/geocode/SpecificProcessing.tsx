@@ -104,9 +104,9 @@ export const SpecificProcessing: FC<{
         style={{ marginBottom: "1rem" }}
         alt="traitement spécifique terminé"
       />
-      <Map>
+      {/* <Map>
         {record && <DynamicMarker mappings={mappings} record={record} />}
-      </Map>
+      </Map> */}
       <div style={{ marginTop: "4rem" }}>
         {selectOtherLine}
         {actionsButton(false)}
