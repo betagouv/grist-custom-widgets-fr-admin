@@ -28,6 +28,7 @@ export const callGeoCodeApi = async (
       lng: d.geometry.coordinates[0],
       address_nomalized: d.properties.label,
       score: d.properties.score,
+      departement: d.properties.context?.split(", ")[1],
     };
   });
 };
