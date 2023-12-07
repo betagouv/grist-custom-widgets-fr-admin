@@ -1,37 +1,35 @@
-export const TITLE = "Ajouter les codes INSEE à partir d'une localité";
+import { LatLngExpression } from "leaflet";
+
+export const TITLE = "Geocoder une adresse";
 
 export const COLUMN_MAPPING_NAMES = {
-  COLLECTIVITE: {
-    name: "collectivite",
-    title: "Collectivité (source)",
+  ADDRESS: {
+    name: "address",
+    title: "adresse (source)",
     type: "Any",
     optional: false,
   },
-  DEPARTEMENT: {
-    name: "departement",
-    title: "Code Insee du département (désambiguité - optionnel)",
+  NORMALIZED_ADDRESS: {
+    name: "address_normalisee",
+    title: "adresse Normalisee (destination - optionnel)",
     type: "Any",
     optional: true,
   },
-  NATURE_JURIDIQUE: {
-    name: "nature_juridique",
-    title: "Nature juridique (désambiguité - optionnel)",
-    type: "Any",
-    optional: true,
-  },
-  CODE_INSEE: {
-    name: "code_insee",
-    title: "Code Insee (destination)",
+  LATITUDE: {
+    name: "latitude",
+    title: "Latitude (destination)",
     type: "Any",
     optional: false,
   },
-  LIB_GROUPEMENT: {
-    name: "lib_groupement",
-    title: "Destination libellé normalisé (destination - optionnel)",
+  LONGITUDE: {
+    name: "longitude",
+    title: "Longitude (destination)",
     type: "Any",
-    optional: true,
+    optional: false,
   },
 };
+
+export const DEFAULT_MAP_CENTER: LatLngExpression = [48.864716, 2.349]; // Paris
 
 export const NO_DATA_MESSAGES = {
   NO_INSEE_CODE:

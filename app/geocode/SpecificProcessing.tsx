@@ -3,24 +3,26 @@
 import { FC } from "react";
 import { ChoiceBanner } from "./ChoiceBanner";
 import {
-  DirtyInseeCodeRecord,
-  NoResultInseeCodeRecord,
-  NormalizedInseeResult,
+  DirtyGeoCodeRecord,
+  NoResultGeoCodeRecord,
+  NormalizedGeocodeResult,
 } from "./types";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { COLUMN_MAPPING_NAMES } from "./constants";
+import { COLUMN_MAPPING_NAMES, DEFAULT_MAP_CENTER } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
+import { MapContainer, TileLayer } from "react-leaflet";
+import { DynamicMarker } from "./DynamicMarker";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
-  dirtyData: DirtyInseeCodeRecord | null | undefined;
-  noResultData: NoResultInseeCodeRecord | null | undefined;
+  dirtyData: DirtyGeoCodeRecord | null | undefined;
+  noResultData: NoResultGeoCodeRecord | null | undefined;
   passDataFromDirtyToClean: (
-    inseeCodeSelected: NormalizedInseeResult,
-    initalData: DirtyInseeCodeRecord,
+    inseeCodeSelected: NormalizedGeocodeResult,
+    initalData: DirtyGeoCodeRecord,
   ) => void;
   recordResearch: () => void;
   goBackToMenu: () => void;
@@ -35,7 +37,7 @@ export const SpecificProcessing: FC<{
 }) => {
     const recordName = () => {
       if (record && mappings) {
-        const columnName = mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
+        const columnName = mappings[COLUMN_MAPPING_NAMES.ADDRESS.name];
         if (typeof columnName === "string") {
           return record[columnName] ? (
             <span className="tag validated semi-bold">
@@ -58,23 +60,18 @@ export const SpecificProcessing: FC<{
 
     const isResultFind = () => {
       if (record && mappings) {
-        const columnName = mappings[COLUMN_MAPPING_NAMES.CODE_INSEE.name];
-        return typeof columnName === "string" && record[columnName] && true;
+        const columnNameLat = mappings[COLUMN_MAPPING_NAMES.LATITUDE.name];
+        const columnNameLng = mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name];
+        return (
+          typeof columnNameLat === "string" &&
+          typeof columnNameLng === "string" &&
+          record[columnNameLat] &&
+          record[columnNameLng] &&
+          true
+        );
       }
       return false;
     };
-
-    const sirenGroupement = record &&
-      noResultData?.result &&
-      noResultData.result?.siren_groupement && (
-        <>
-          {" "}
-          Il existe cependant un code SIREN :{" "}
-          <span className="tag info">
-            {noResultData.result?.siren_groupement}
-          </span>
-        </>
-      );
 
     const selectOtherLine = (
       <>
@@ -107,7 +104,13 @@ export const SpecificProcessing: FC<{
           style={{ marginBottom: "1rem" }}
           alt="traitement spécifique terminé"
         />
-        <div>Le code INSEE de {recordName()} a bien été rempli.</div>
+        <MapContainer center={DEFAULT_MAP_CENTER} zoom={8}>
+          <TileLayer
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {record && <DynamicMarker mappings={mappings} record={record} />}
+        </MapContainer>
         <div style={{ marginTop: "4rem" }}>
           {selectOtherLine}
           {actionsButton(false)}
@@ -127,7 +130,6 @@ export const SpecificProcessing: FC<{
         {record && noResultData && (
           <div className="py-2">
             <span className="semi-bold">{noResultData.noResultMessage}</span>
-            {sirenGroupement}
           </div>
         )}
         <div style={{ marginTop: "4rem" }}>
