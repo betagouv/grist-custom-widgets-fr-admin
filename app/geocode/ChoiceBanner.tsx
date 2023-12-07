@@ -4,7 +4,10 @@ import { FC, useState } from "react";
 import { DirtyGeoCodeRecord, NormalizedGeocodeResult } from "./types";
 import "../codeInsee/choiceBanner.css";
 import { ChoiceDynamicMarker } from "./ChoiceDynamicMarker";
-import { Map } from "./Map";
+import dynamic from "next/dynamic";
+
+// react-leaflet is relies on browser APIs window. Dynamically load the component on the client side desabling ssr
+const MyAwesomeMap = dynamic(() => import("./Map"), { ssr: false });
 
 export const ChoiceBanner: FC<{
   dirtyData: DirtyGeoCodeRecord;
@@ -34,11 +37,11 @@ export const ChoiceBanner: FC<{
         <br />
         <span className="choice-banner-info">{dirtyData.dirtyMessage}</span>
       </p>
-      {/* {addressSelected && (
-        <Map>
+      {addressSelected && (
+        <MyAwesomeMap>
           <ChoiceDynamicMarker address={addressSelected} />
-        </Map>
-      )} */}
+        </MyAwesomeMap>
+      )}
       <div className="choices">
         {dirtyData.results.map((item, index) => {
           return (

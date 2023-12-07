@@ -1,10 +1,10 @@
 "use client";
 
-import { FC, ReactNode } from "react";
+import { ReactNode } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { DEFAULT_MAP_CENTER } from "./constants";
 
-export const Map: FC<{ children?: ReactNode }> = ({ children }) => {
+function Map({ children }: { children?: ReactNode }) {
   return (
     <div style={{ width: "100%", height: "300px" }}>
       <MapContainer
@@ -20,4 +20,6 @@ export const Map: FC<{ children?: ReactNode }> = ({ children }) => {
       </MapContainer>
     </div>
   );
-};
+}
+
+export default Map;
