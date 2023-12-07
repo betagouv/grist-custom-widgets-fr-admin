@@ -21,6 +21,7 @@ export const callGeoCodeApi = async (
   const response = await fetch(url.toString());
   const data = await response.json();
 
+  // @ts-expect-error d in any type
   return (data.features ?? []).map((d) => {
     return {
       lat: d.geometry.coordinates[1],
