@@ -1,0 +1,55 @@
+"use client";
+
+import { WidgetColumnMap } from "grist/CustomSectionAPI";
+import { RowRecord } from "grist/GristData";
+import { FC, useEffect, useState } from "react";
+import { Marker, Tooltip, useMap } from "react-leaflet";
+import { COLUMN_MAPPING_NAMES } from "./constants";
+
+// export type MapRecord = grist.RowRecord & {
+//   Latitude: number;
+//   Longitude: number;
+//   addresse_Normalisee: string;
+// };
+
+export const DynamicMarker: FC<{
+  mappings: WidgetColumnMap | null;
+  record: RowRecord;
+}> = ({ mappings, record }) => {
+  const [latColumnName, setLatColumnName] = useState<string>("");
+  const [longColumnName, setLongColumnName] = useState<string>("");
+  const [normaddressColumnName, setNormaddressColumnName] = useState<string>("");
+  const map = useMap();
+  useEffect(() => {
+    if (record && mappings) {
+      setLatColumnName(String(mappings[COLUMN_MAPPING_NAMES.LATITUDE.name]));
+      setLongColumnName(String(mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name]));
+      setNormaddressColumnName(
+        String(mappings[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]),
+      );
+      // TODO : tester l'ancienne méthode avec  .Longitude !!
+      if (
+        record[latColumnName] &&
+        record[longColumnName] &&
+        record[latColumnName] !== 0 &&
+        record[longColumnName] !== 0
+      ) {
+        map.flyTo([
+          Number(record[latColumnName]),
+          Number(record[longColumnName]),
+        ]);
+      }
+    }
+  }, [record, map, mappings]);
+
+  if (!record || !record.Latitude || !record.Longitude) {
+    return null;
+  }
+  return (
+    <Marker
+      position={[Number(record[latColumnName]), Number(record[longColumnName])]}
+    >
+      <Tooltip>{String(record[normaddressColumnName])}</Tooltip>
+    </Marker>
+  );
+};

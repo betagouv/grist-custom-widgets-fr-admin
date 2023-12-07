@@ -1,5 +1,5 @@
 import { RowRecord } from "grist/GristData";
-import { COLUMN_MAPPING_NAMES, MESSAGES, NO_DATA_MESSAGES } from "./constants";
+import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import {
   DirtyInseeCodeRecord,
   CleanInseeCodeRecord,
@@ -10,6 +10,7 @@ import {
   MappedRecord,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
+import { MESSAGES } from "../../lib/util/constants";
 
 export const callInseeCodeApi = async (
   collectivity: string,
@@ -78,7 +79,7 @@ export const getInseeCodeResults = async (
     collectivite,
     results: inseeCodeResults,
     noResultMessage,
-    toIgnored,
+    toIgnore: toIgnored,
   };
 };
 
@@ -125,7 +126,7 @@ export const cleanRecordsData = (
 ): ReduceReturnType => {
   return recordsUncleanedData.reduce<ReduceReturnType>(
     (acc: ReduceReturnType, record) => {
-      return record.toIgnored
+      return record.toIgnore
         ? acc
         : !record.results.length
           ? {

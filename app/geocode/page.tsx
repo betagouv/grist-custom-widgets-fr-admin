@@ -2,41 +2,41 @@
 
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
-import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
-import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
+import { gristReady, addObjectInRecord } from "../../lib/grist/plugin-api";
+import { RowRecord } from "grist/GristData";
 import {
-  cleanRecordsData,
-  getInseeCodeResultsForRecord,
-  getInseeCodeResultsForRecords,
-  mappingsIsReady,
-} from "./lib";
-import {
-  CleanInseeCodeRecord,
-  DirtyInseeCodeRecord,
-  InseeCodeUncleanedRecord,
-  NoResultInseeCodeRecord,
-  NormalizedInseeResult,
+  CleanGeoCodeRecord,
+  DirtyGeoCodeRecord,
+  GeoCodeUncleanedRecord,
+  NoResultGeoCodeRecord,
+  NormalizedGeocodeResult,
   Step,
 } from "./types";
-import { RowRecord } from "grist/GristData";
-import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
+import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import { Configuration } from "../../components/Configuration";
+import { Instructions } from "./Instructions";
+import { Title } from "../../components/Title";
 import Image from "next/image";
 import globalSvg from "../../public/global-processing.svg";
 import specificSvg from "../../public/specific-processing.svg";
 import doneSvg from "../../public/done.svg";
-import { Instructions } from "./Instructions";
+import {
+  cleanRecordsData,
+  getGeoCodeResultsForRecord,
+  getGeoCodeResultsForRecords,
+  mappingsIsReady,
+} from "./lib";
 import { SpecificProcessing } from "./SpecificProcessing";
 
-const InseeCode = () => {
+const GeoCodeur = () => {
   const [record, setRecord] = useState<RowRecord | null>();
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [dirtyData, setDirtyData] = useState<{
-    [recordId: number]: DirtyInseeCodeRecord;
+    [recordId: number]: DirtyGeoCodeRecord;
   }>({});
   const [noResultData, setNoResultData] = useState<{
-    [recordId: number]: NoResultInseeCodeRecord;
+    [recordId: number]: NoResultGeoCodeRecord;
   }>({});
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
@@ -50,6 +50,17 @@ const InseeCode = () => {
       setRecords(records);
       setMappings(gristMappings);
     });
+    // getGeoCodeDataFromApi(setResults, setMappings);
+    // grist.onRecord((rec: RowRecord | null) => {
+    //   const data = grist.mapColumnNames(rec!); // FIXME rec can be null...
+    //   const mapRecord: MapRecord = {
+    //     Latitude: data[COLUMN_MAPPING_NAMES.LATITUDE],
+    //     Longitude: data[COLUMN_MAPPING_NAMES.LONGITUDE],
+    //     addresse_Normalisee: data[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS],
+    //     id: rec!.id,
+    //   };
+    //   setRecord(mapRecord);
+    // });
   }, []);
 
   useGristEffect(() => {
@@ -74,7 +85,7 @@ const InseeCode = () => {
     setCurrentStep("global_processing");
     setGlobalInProgress(true);
     const callBackFunction = (
-      dataFromApi: InseeCodeUncleanedRecord[],
+      dataFromApi: GeoCodeUncleanedRecord[],
       at: number,
       on: number,
     ) => {
@@ -84,7 +95,7 @@ const InseeCode = () => {
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     };
-    await getInseeCodeResultsForRecords(records, mappings!, callBackFunction);
+    await getGeoCodeResultsForRecords(records, mappings!, callBackFunction);
     setGlobalInProgress(false);
   };
 
@@ -92,7 +103,7 @@ const InseeCode = () => {
     if (record) {
       setCurrentStep("specific_processing");
       // TODO : delete data corresponding to this record in dirty and noResult states
-      const recordUncleanedData = await getInseeCodeResultsForRecord(
+      const recordUncleanedData = await getGeoCodeResultsForRecord(
         record,
         mappings!,
       );
@@ -107,13 +118,15 @@ const InseeCode = () => {
   };
 
   const writeCleanDataInTable = (cleanData: {
-    [recordId: number]: CleanInseeCodeRecord;
+    [recordId: number]: CleanGeoCodeRecord;
   }) => {
-    Object.values(cleanData).forEach((clean: CleanInseeCodeRecord) => {
-      if (clean.code_insee) {
+    Object.values(cleanData).forEach((clean: CleanGeoCodeRecord) => {
+      if (clean.lat && clean.lng) {
         const data = {
-          [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code_insee,
-          [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.lib_groupement,
+          [COLUMN_MAPPING_NAMES.LATITUDE.name]: clean.lat,
+          [COLUMN_MAPPING_NAMES.LONGITUDE.name]: clean.lng,
+          [COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]:
+            clean.address_nomalized,
         };
         addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
       } else {
@@ -130,8 +143,8 @@ const InseeCode = () => {
   };
 
   const passDataFromDirtyToClean = (
-    inseeCodeSelected: NormalizedInseeResult,
-    initalData: DirtyInseeCodeRecord,
+    addressSelected: NormalizedGeocodeResult,
+    initalData: DirtyGeoCodeRecord,
   ) => {
     // Remove the record from dirtyData
     setDirtyData(() => {
@@ -140,9 +153,9 @@ const InseeCode = () => {
     });
     writeCleanDataInTable({
       [initalData.recordId]: {
-        ...inseeCodeSelected,
+        ...addressSelected,
         recordId: initalData.recordId,
-        collectivite: initalData.collectivite,
+        address: initalData.address,
       },
     });
   };
@@ -165,7 +178,7 @@ const InseeCode = () => {
           <h2>Traitement global</h2>
           <p>
             Lancer une recherche globale sur l&apos;ensemble des lignes
-            n&apos;ayant pas de code INSEE de renseigné.
+            n&apos;ayant pas de geocodage de renseigné.
           </p>
           <button className="primary" onClick={globalResearch}>
             Recherche globale
@@ -176,7 +189,7 @@ const InseeCode = () => {
           <Image priority src={specificSvg} alt="Traitement spécifique" />
           <h2>Traitement spécifique</h2>
           <p>
-            Lancer une recherche spécifique du code INSEE de la ligne
+            Lancer une recherche spécifique du geocodage de la ligne
             sélectionnée.
           </p>
           <button className="primary" onClick={recordResearch}>
@@ -208,7 +221,7 @@ const InseeCode = () => {
             alt="traitement spécifique terminé"
           />
           <p>
-            Les codes INSEE de{" "}
+            Les Geo Codes de{" "}
             {Object.keys(dirtyData).length + Object.keys(noResultData).length}{" "}
             lignes n&apos;ont pu être trouvés automatiquement. Il se peut
             qu&apos;aucun ou plusieurs résultats correspondent aux noms des
@@ -244,4 +257,4 @@ const InseeCode = () => {
   );
 };
 
-export default InseeCode;
+export default GeoCodeur;
