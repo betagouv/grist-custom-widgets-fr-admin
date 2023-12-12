@@ -2,46 +2,49 @@
 
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
-import { gristReady, addObjectInRecord } from "../../lib/grist/plugin-api";
-import { RowRecord } from "grist/GristData";
-import {
-  CleanGeoCodeRecord,
-  DirtyGeoCodeRecord,
-  GeoCodeUncleanedRecord,
-  NoResultGeoCodeRecord,
-  NormalizedGeocodeResult,
-} from "./types";
-import { WidgetColumnMap } from "grist/CustomSectionAPI";
+import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
-import { Configuration } from "../../components/Configuration";
-import { Instructions } from "./Instructions";
+import {
+  cleanRecordsData,
+  getSirenCodeResultsForRecord,
+  getSirenCodeResultsForRecords,
+  mappingsIsReady,
+} from "./lib";
+import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
+import { WidgetColumnMap } from "grist/CustomSectionAPI";
+import { Configuration } from "../../components/Configuration";
 import Image from "next/image";
 import globalSvg from "../../public/global-processing.svg";
 import specificSvg from "../../public/specific-processing.svg";
 import doneSvg from "../../public/done.svg";
-import {
-  cleanRecordsData,
-  getGeoCodeResultsForRecord,
-  getGeoCodeResultsForRecords,
-  mappingsIsReady,
-} from "./lib";
+import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
+import {
+  CleanSirenCodeRecord,
+  DirtySirenCodeRecord,
+  NoResultSirenCodeRecord,
+  NormalizedSirenResult,
+  SirenCodeUncleanedRecord,
+} from "./types";
 import { WidgetStep } from "../../lib/util/types";
+import { CheckboxParams } from "../../components/CheckboxParams";
 
-const GeoCodeur = () => {
+const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [dirtyData, setDirtyData] = useState<{
-    [recordId: number]: DirtyGeoCodeRecord;
+    [recordId: number]: DirtySirenCodeRecord;
   }>({});
   const [noResultData, setNoResultData] = useState<{
-    [recordId: number]: NoResultGeoCodeRecord;
+    [recordId: number]: NoResultSirenCodeRecord;
   }>({});
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
   const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
+  const [areCollectivitesTerritoriales, setAreCollectivitesTerritoriales] =
+    useState<boolean>(false);
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -50,17 +53,6 @@ const GeoCodeur = () => {
       setRecords(records);
       setMappings(gristMappings);
     });
-    // getGeoCodeDataFromApi(setResults, setMappings);
-    // grist.onRecord((rec: RowRecord | null) => {
-    //   const data = grist.mapColumnNames(rec!); // FIXME rec can be null...
-    //   const mapRecord: MapRecord = {
-    //     Latitude: data[COLUMN_MAPPING_NAMES.LATITUDE],
-    //     Longitude: data[COLUMN_MAPPING_NAMES.LONGITUDE],
-    //     addresse_Normalisee: data[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS],
-    //     id: rec!.id,
-    //   };
-    //   setRecord(mapRecord);
-    // });
   }, []);
 
   useGristEffect(() => {
@@ -85,7 +77,7 @@ const GeoCodeur = () => {
     setCurrentStep("global_processing");
     setGlobalInProgress(true);
     const callBackFunction = (
-      dataFromApi: GeoCodeUncleanedRecord[],
+      dataFromApi: SirenCodeUncleanedRecord[],
       at: number,
       on: number,
     ) => {
@@ -95,7 +87,12 @@ const GeoCodeur = () => {
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     };
-    await getGeoCodeResultsForRecords(records, mappings!, callBackFunction);
+    await getSirenCodeResultsForRecords(
+      records,
+      mappings!,
+      callBackFunction,
+      areCollectivitesTerritoriales,
+    );
     setGlobalInProgress(false);
   };
 
@@ -103,9 +100,10 @@ const GeoCodeur = () => {
     if (record) {
       setCurrentStep("specific_processing");
       // TODO : delete data corresponding to this record in dirty and noResult states
-      const recordUncleanedData = await getGeoCodeResultsForRecord(
+      const recordUncleanedData = await getSirenCodeResultsForRecord(
         record,
         mappings!,
+        areCollectivitesTerritoriales,
       );
       const { clean, dirty, noResult } = cleanRecordsData([
         recordUncleanedData,
@@ -118,15 +116,13 @@ const GeoCodeur = () => {
   };
 
   const writeCleanDataInTable = (cleanData: {
-    [recordId: number]: CleanGeoCodeRecord;
+    [recordId: number]: CleanSirenCodeRecord;
   }) => {
-    Object.values(cleanData).forEach((clean: CleanGeoCodeRecord) => {
-      if (clean.lat && clean.lng) {
+    Object.values(cleanData).forEach((clean: CleanSirenCodeRecord) => {
+      if (clean.siren) {
         const data = {
-          [COLUMN_MAPPING_NAMES.LATITUDE.name]: clean.lat,
-          [COLUMN_MAPPING_NAMES.LONGITUDE.name]: clean.lng,
-          [COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]:
-            clean.address_nomalized,
+          [COLUMN_MAPPING_NAMES.SIREN.name]: clean.siren,
+          [COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name]: clean.label,
         };
         addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
       } else {
@@ -143,8 +139,8 @@ const GeoCodeur = () => {
   };
 
   const passDataFromDirtyToClean = (
-    addressSelected: NormalizedGeocodeResult,
-    initalData: DirtyGeoCodeRecord,
+    inseeCodeSelected: NormalizedSirenResult,
+    initalData: DirtySirenCodeRecord,
   ) => {
     // Remove the record from dirtyData
     setDirtyData(() => {
@@ -153,12 +149,24 @@ const GeoCodeur = () => {
     });
     writeCleanDataInTable({
       [initalData.recordId]: {
-        ...addressSelected,
+        ...inseeCodeSelected,
         recordId: initalData.recordId,
-        address: initalData.address,
+        name: initalData.name,
       },
     });
   };
+
+  const collectivitesTerritorialesCheckbox = (
+    <div className="centered-column">
+      <CheckboxParams
+        label="La recherche concerne des collectivités territoriales"
+        value={areCollectivitesTerritoriales}
+        onChange={() =>
+          setAreCollectivitesTerritoriales(!areCollectivitesTerritoriales)
+        }
+      />
+    </div>
+  );
 
   return currentStep === "loading" ? (
     <Title title={TITLE} />
@@ -172,13 +180,14 @@ const GeoCodeur = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
+      {collectivitesTerritorialesCheckbox}
       <div className="menu">
         <div className="centered-column">
           <Image priority src={globalSvg} alt="Traitement global" />
           <h2>Traitement global</h2>
           <p>
             Lancer une recherche globale sur l&apos;ensemble des lignes
-            n&apos;ayant pas de geocodage de renseigné.
+            n&apos;ayant pas de code SIREN de renseigné.
           </p>
           <button className="primary" onClick={globalResearch}>
             Recherche globale
@@ -189,7 +198,7 @@ const GeoCodeur = () => {
           <Image priority src={specificSvg} alt="Traitement spécifique" />
           <h2>Traitement spécifique</h2>
           <p>
-            Lancer une recherche spécifique du geocodage de la ligne
+            Lancer une recherche spécifique du code SIREN de la ligne
             sélectionnée.
           </p>
           <button className="primary" onClick={recordResearch}>
@@ -202,6 +211,7 @@ const GeoCodeur = () => {
   ) : currentStep === "global_processing" ? (
     <div className="centered-column">
       <Title title={TITLE} />
+      {collectivitesTerritorialesCheckbox}
       <Image priority src={globalSvg} alt="traitement global" />
       {globalInProgress ? (
         <div className="centered-column">
@@ -221,7 +231,7 @@ const GeoCodeur = () => {
             alt="traitement spécifique terminé"
           />
           <p>
-            Les Geo Codes de{" "}
+            Les codes SIREN de{" "}
             {Object.keys(dirtyData).length + Object.keys(noResultData).length}{" "}
             lignes n&apos;ont pu être trouvés automatiquement. Il se peut
             qu&apos;aucun ou plusieurs résultats correspondent aux noms des
@@ -242,6 +252,7 @@ const GeoCodeur = () => {
     currentStep === "specific_processing" && (
       <div className="centered-column">
         <Title title={TITLE} />
+        {collectivitesTerritorialesCheckbox}
         <Image priority src={specificSvg} alt="traitement spécifique" />
         <SpecificProcessing
           mappings={mappings}
@@ -257,4 +268,4 @@ const GeoCodeur = () => {
   );
 };
 
-export default GeoCodeur;
+export default InseeCode;

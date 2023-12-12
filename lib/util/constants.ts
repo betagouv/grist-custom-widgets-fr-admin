@@ -1,6 +1,4 @@
-export interface KeyAsString {
-  [key: string]: string;
-}
+import { KeyAsString } from "./types";
 
 export const NATURE_JURIDIQUE: KeyAsString = {
   COM: "Commune",
