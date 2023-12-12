@@ -1,70 +1,89 @@
 import { RowRecord } from "grist/GristData";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
-import {
-  DirtyInseeCodeRecord,
-  CleanInseeCodeRecord,
-  InseeCodeUncleanedRecord,
-  NormalizedInseeResult,
-  NormalizedInseeResults,
-  NoResultInseeCodeRecord,
-} from "./types";
+
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
+import {
+  CleanSirenCodeRecord,
+  DirtySirenCodeRecord,
+  NoResultSirenCodeRecord,
+  NormalizedSirenResult,
+  SirenCodeUncleanedRecord,
+} from "./types";
 import { MappedRecord } from "../../lib/util/types";
 
-export const callInseeCodeApi = async (
-  collectivity: string,
+const callSirenCodeApi = async (
+  query: string,
+  isCollectiviteTerritoriale: boolean,
   dept?: string,
-  natureJuridique?: string,
-): Promise<NormalizedInseeResult[]> => {
-  const url = new URL("https://addokadmin.sit.incubateur.tech/search");
-  url.searchParams.set("q", collectivity);
-  dept && url.searchParams.set("insee_dep", dept);
-  natureJuridique && url.searchParams.set("nature_juridique", natureJuridique);
-
+  codeCommune?: string,
+  codePostal?: string,
+): Promise<NormalizedSirenResult[]> => {
+  const url = new URL("https://recherche-entreprises.api.gouv.fr/search");
+  url.searchParams.set("q", query);
+  // TODO : check constrainte of shape : code commune strings of lenght 5, dept strings of lenght 2 or 3
+  url.searchParams.set(
+    "est_collectivite_territoriale",
+    isCollectiviteTerritoriale.toString(),
+  );
+  dept && url.searchParams.set("departement", dept);
+  codeCommune && url.searchParams.set("code_commune", codeCommune);
+  codePostal && url.searchParams.set("code_postal", codePostal);
   const response = await fetch(url.toString());
   if (!response.ok) {
     console.error(
-      "The call to the addokadmin.sit.incubateur.tech api is not 200 status",
+      "The call to the recherche-entreprises.api.gouv.fr api is not 200 status",
       response,
     );
   }
-  const data: NormalizedInseeResults = await response.json();
-  return data.results;
+  const data = await response.json();
+  // @ts-expect-error result in any type
+  return (data.results ?? []).map((result) => {
+    return {
+      label: result.nom_complet,
+      siren: result.siren,
+      code_commune: result.siege.code_postal,
+      siret: result.siege.siret,
+      score: result.score,
+    };
+  });
 };
 
-export const getInseeCodeResults = async (
+const getSirenCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
-): Promise<InseeCodeUncleanedRecord> => {
+  isCollectiviteTerritoriale: boolean,
+): Promise<SirenCodeUncleanedRecord> => {
   let noResultMessage;
-  let collectivite = "";
-  let inseeCodeResults: NormalizedInseeResult[] = [];
+  let name = "";
+  let sirenCodeResults: NormalizedSirenResult[] = [];
   let toIgnore = false;
-  if (mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name]) {
+  if (mappedRecord[COLUMN_MAPPING_NAMES.NAME.name]) {
     // Call the api if we don't have to check the destination column or if there are empty
     if (
       !checkDestinationIsEmpty ||
-      !mappedRecord[COLUMN_MAPPING_NAMES.CODE_INSEE.name] ||
-      (mappings[COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name] &&
-        !mappedRecord[COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name])
+      !mappedRecord[COLUMN_MAPPING_NAMES.SIREN.name] ||
+      (mappings[COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name] &&
+        !mappedRecord[COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name])
     ) {
-      collectivite = mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
+      name = mappedRecord[COLUMN_MAPPING_NAMES.NAME.name];
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
-      const natureJuridique =
-        mappedRecord[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name];
-      inseeCodeResults = await callInseeCodeApi(
-        collectivite,
+      const codeCommune = mappedRecord[COLUMN_MAPPING_NAMES.CODE_COMMUNE.name];
+      const codePostal = mappedRecord[COLUMN_MAPPING_NAMES.CODE_POSTAL.name];
+      sirenCodeResults = await callSirenCodeApi(
+        name,
+        isCollectiviteTerritoriale,
         departement,
-        natureJuridique,
+        codeCommune,
+        codePostal,
       );
-      if (inseeCodeResults === undefined) {
+      if (sirenCodeResults === undefined) {
         console.error(
           "The call to the api give a response with undefined result",
         );
         noResultMessage = NO_DATA_MESSAGES.API_ERROR;
-      } else if (inseeCodeResults.length === 0) {
+      } else if (sirenCodeResults.length === 0) {
         noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
       }
     } else {
@@ -75,53 +94,61 @@ export const getInseeCodeResults = async (
   }
   return {
     recordId: mappedRecord.id,
-    collectivite,
-    results: inseeCodeResults,
+    name,
+    results: sirenCodeResults,
     noResultMessage,
     toIgnore,
   };
 };
 
-export const getInseeCodeResultsForRecord = async (
+export const getSirenCodeResultsForRecord = async (
   record: RowRecord,
   mappings: WidgetColumnMap,
+  isCollectiviteTerritoriale: boolean,
 ) => {
-  return await getInseeCodeResults(
+  return await getSirenCodeResults(
     grist.mapColumnNames(record),
     mappings,
     false,
+    isCollectiviteTerritoriale,
   );
 };
 
-export const getInseeCodeResultsForRecords = async (
+export const getSirenCodeResultsForRecords = async (
   records: RowRecord[],
   mappings: WidgetColumnMap,
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
+  areCollectivitesTerritoriales: boolean,
 ) => {
-  const inseeCodeDataFromApi: InseeCodeUncleanedRecord[] = [];
+  const sirenCodeDataFromApi: SirenCodeUncleanedRecord[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
-    inseeCodeDataFromApi.push(
-      await getInseeCodeResults(grist.mapColumnNames(record), mappings, true),
+    sirenCodeDataFromApi.push(
+      await getSirenCodeResults(
+        grist.mapColumnNames(record),
+        mappings,
+        true,
+        areCollectivitesTerritoriales,
+      ),
     );
     if (parseInt(i) % 100 === 0 || parseInt(i) === records.length - 1) {
-      callBackFunction(inseeCodeDataFromApi, parseInt(i), records.length);
+      callBackFunction(sirenCodeDataFromApi, parseInt(i), records.length);
       // clear data
-      inseeCodeDataFromApi.length = 0;
+      sirenCodeDataFromApi.length = 0;
     }
   }
 };
 
 type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtyInseeCodeRecord };
-  clean: { [recordId: number]: CleanInseeCodeRecord };
-  noResult: { [recordId: number]: NoResultInseeCodeRecord };
+  dirty: { [recordId: number]: DirtySirenCodeRecord };
+  clean: { [recordId: number]: CleanSirenCodeRecord };
+  noResult: { [recordId: number]: NoResultSirenCodeRecord };
 };
 
 export const cleanRecordsData = (
-  recordsUncleanedData: InseeCodeUncleanedRecord[],
+  recordsUncleanedData: SirenCodeUncleanedRecord[],
 ): ReduceReturnType => {
   return recordsUncleanedData.reduce<ReduceReturnType>(
     (acc: ReduceReturnType, record) => {
@@ -166,7 +193,7 @@ export const cleanRecordsData = (
                     ...acc.clean,
                     [record.recordId]: {
                       recordId: record.recordId,
-                      collectivite: record.collectivite,
+                      name: record.name,
                       ...record.results[0],
                     },
                   },
@@ -176,11 +203,11 @@ export const cleanRecordsData = (
   );
 };
 
-const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
+const isDoubtfulResults = (dataFromApi: NormalizedSirenResult[]) => {
   return dataFromApi[0]?.score < 0.6;
 };
 
-const areTooCloseResults = (dataFromApi: NormalizedInseeResult[]) => {
+const areTooCloseResults = (dataFromApi: NormalizedSirenResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
     const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;
@@ -192,7 +219,7 @@ const areTooCloseResults = (dataFromApi: NormalizedInseeResult[]) => {
 export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
   return (
     mappings &&
-    mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name] &&
-    mappings[COLUMN_MAPPING_NAMES.CODE_INSEE.name]
+    mappings[COLUMN_MAPPING_NAMES.NAME.name] &&
+    mappings[COLUMN_MAPPING_NAMES.SIREN.name]
   );
 };

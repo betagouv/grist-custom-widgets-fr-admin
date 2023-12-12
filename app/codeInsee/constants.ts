@@ -9,13 +9,13 @@ export const COLUMN_MAPPING_NAMES = {
   },
   DEPARTEMENT: {
     name: "departement",
-    title: "Code Insee du département (désambiguité - optionnel)",
+    title: "Code Insee du département (désambiguité)",
     type: "Any",
     optional: true,
   },
   NATURE_JURIDIQUE: {
     name: "nature_juridique",
-    title: "Nature juridique (désambiguité - optionnel)",
+    title: "Nature juridique (désambiguité)",
     type: "Any",
     optional: true,
   },
@@ -27,7 +27,7 @@ export const COLUMN_MAPPING_NAMES = {
   },
   LIB_GROUPEMENT: {
     name: "lib_groupement",
-    title: "Destination libellé normalisé (destination - optionnel)",
+    title: "Destination libellé normalisé (destination)",
     type: "Any",
     optional: true,
   },

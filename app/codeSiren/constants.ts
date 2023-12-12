@@ -1,35 +1,43 @@
-import { LatLngExpression } from "leaflet";
-
-export const TITLE = "Geocoder une adresse";
+export const TITLE = "Ajouter les codes SIREN à partir d'un nom";
 
 export const COLUMN_MAPPING_NAMES = {
-  ADDRESS: {
-    name: "address",
-    title: "adresse (source)",
+  NAME: {
+    name: "name",
+    title: "Nom (source)",
     type: "Any",
     optional: false,
   },
-  NORMALIZED_ADDRESS: {
-    name: "address_normalisee",
-    title: "adresse Normalisee (destination)",
+  DEPARTEMENT: {
+    name: "departement",
+    title: "Code Insee du département (désambiguité)",
     type: "Any",
     optional: true,
   },
-  LATITUDE: {
-    name: "latitude",
-    title: "Latitude (destination)",
+  CODE_COMMUNE: {
+    name: "code_commune",
+    title: "Code Insee de la commune (désambiguité)",
+    type: "Any",
+    optional: true,
+  },
+  CODE_POSTAL: {
+    name: "code_postal",
+    title: "Code postal de la commune (désambiguité)",
+    type: "Any",
+    optional: true,
+  },
+  SIREN: {
+    name: "siren",
+    title: "SIREN (destination)",
     type: "Any",
     optional: false,
   },
-  LONGITUDE: {
-    name: "longitude",
-    title: "Longitude (destination)",
+  NORMALIZED_NAME: {
+    name: "nom_normalise",
+    title: "Nom normalisé (destination)",
     type: "Any",
-    optional: false,
+    optional: true,
   },
 };
-
-export const DEFAULT_MAP_CENTER: LatLngExpression = [48.864716, 2.349]; // Paris
 
 export const NO_DATA_MESSAGES = {
   NO_INSEE_CODE:

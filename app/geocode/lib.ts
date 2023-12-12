@@ -4,12 +4,12 @@ import {
   CleanGeoCodeRecord,
   DirtyGeoCodeRecord,
   GeoCodeUncleanedRecord,
-  MappedRecord,
   NoResultGeoCodeRecord,
   NormalizedGeocodeResult,
 } from "./types";
 import { RowRecord } from "grist/GristData";
 import { MESSAGES } from "../../lib/util/constants";
+import { MappedRecord } from "../../lib/util/types";
 
 //Return ltn, lng, address from a string
 export const callGeoCodeApi = async (
