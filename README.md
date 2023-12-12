@@ -1,28 +1,32 @@
 # grist-custom-widgets-fr-admin
-"Widgets custom" pour Grist développés pour répondre aux besoins de l'administration française
+"Widgets custom" pour Grist développés pour répondre aux besoins de l'administration française.
+
+L'ensemble des "Widgets custom" sont présents dans un même projet développé en [Next.js](https://nextjs.org/) et utilise le monde `/app`.
+
+Chaque dossier sous `/app` est un widget à part entière.
 
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## En Prod
+Le projet est déployé via les Github Pages à partir de la branche `main` à l'adresse [https://betagouv.github.io/grist-custom-widgets-fr-admin/](https://betagouv.github.io/grist-custom-widgets-fr-admin/).
 
-## Getting Started
+*NB: les widgets custom ne font que transiter de la donnée entre l'appel à des API et la lecture et l'écriture dans le tableau Grist. Aucune donnée présente sur Grist n'est stocké dans les serveurs de github*
 
-First, run the development server:
+
+## En local
+
+Install, run the development server:
 
 ```bash
+npm install
 npm run dev
 # or
+yarn install
 yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
+### Learn More
 
 To learn more about Next.js, take a look at the following resources:
 
@@ -31,8 +35,21 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Pour contribuer
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Toute personne travaillant pour l'administration française peut contribuer à ce projet en créer de nouveau widget ou en proposant des corrections / améliorations à ceux existant. 
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Etapes d'un nouveau widget
+Créer un nouveau dossier sous `/app`.
+
+TODO
+
+### Règles de commit
+Si le commit concerne un widget en particulier le préciser 
+
+[Nom du widget] : [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+Exemple : 
+```bash
+[codeInsee]: feat: add filter
+```
