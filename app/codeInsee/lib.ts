@@ -15,13 +15,12 @@ import { MappedRecord } from "../../lib/util/types";
 export const callInseeCodeApi = async (
   collectivity: string,
   dept?: string,
-  nature_juridique?: string,
+  natureJuridique?: string,
 ): Promise<NormalizedInseeResult[]> => {
   const url = new URL("https://addokadmin.sit.incubateur.tech/search");
   url.searchParams.set("q", collectivity);
   dept && url.searchParams.set("insee_dep", dept);
-  nature_juridique &&
-    url.searchParams.set("nature_juridique", nature_juridique);
+  natureJuridique && url.searchParams.set("nature_juridique", natureJuridique);
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -53,12 +52,12 @@ export const getInseeCodeResults = async (
     ) {
       collectivite = mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
-      const nature_juridique =
+      const natureJuridique =
         mappedRecord[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name];
       inseeCodeResults = await callInseeCodeApi(
         collectivite,
         departement,
-        nature_juridique,
+        natureJuridique,
       );
       if (inseeCodeResults === undefined) {
         console.error(

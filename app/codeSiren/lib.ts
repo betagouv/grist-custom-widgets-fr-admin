@@ -12,11 +12,23 @@ import {
 } from "./types";
 import { MappedRecord } from "../../lib/util/types";
 
-export const callSirenCodeApi = async (
+const callSirenCodeApi = async (
   query: string,
+  isCollectiviteTerritoriale: boolean,
+  dept?: string,
+  codeCommune?: string,
+  codePostal?: string,
 ): Promise<NormalizedSirenResult[]> => {
   const url = new URL("https://recherche-entreprises.api.gouv.fr/search");
   url.searchParams.set("q", query);
+  // TODO : check constrainte of shape : code commune strings of lenght 5, dept strings of lenght 2 or 3
+  url.searchParams.set(
+    "est_collectivite_territoriale",
+    isCollectiviteTerritoriale.toString(),
+  );
+  dept && url.searchParams.set("departement", dept);
+  codeCommune && url.searchParams.set("code_commune", codeCommune);
+  codePostal && url.searchParams.set("code_postal", codePostal);
   const response = await fetch(url.toString());
   if (!response.ok) {
     console.error(
@@ -37,10 +49,11 @@ export const callSirenCodeApi = async (
   });
 };
 
-export const getSirenCodeResults = async (
+const getSirenCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
+  isCollectiviteTerritoriale: boolean,
 ): Promise<SirenCodeUncleanedRecord> => {
   let noResultMessage;
   let name = "";
@@ -55,7 +68,16 @@ export const getSirenCodeResults = async (
         !mappedRecord[COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name])
     ) {
       name = mappedRecord[COLUMN_MAPPING_NAMES.NAME.name];
-      sirenCodeResults = await callSirenCodeApi(name);
+      const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
+      const codeCommune = mappedRecord[COLUMN_MAPPING_NAMES.CODE_COMMUNE.name];
+      const codePostal = mappedRecord[COLUMN_MAPPING_NAMES.CODE_POSTAL.name];
+      sirenCodeResults = await callSirenCodeApi(
+        name,
+        isCollectiviteTerritoriale,
+        departement,
+        codeCommune,
+        codePostal,
+      );
       if (sirenCodeResults === undefined) {
         console.error(
           "The call to the api give a response with undefined result",
@@ -82,11 +104,13 @@ export const getSirenCodeResults = async (
 export const getSirenCodeResultsForRecord = async (
   record: RowRecord,
   mappings: WidgetColumnMap,
+  isCollectiviteTerritoriale: boolean,
 ) => {
   return await getSirenCodeResults(
     grist.mapColumnNames(record),
     mappings,
     false,
+    isCollectiviteTerritoriale,
   );
 };
 
@@ -95,13 +119,19 @@ export const getSirenCodeResultsForRecords = async (
   mappings: WidgetColumnMap,
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
+  areCollectivitesTerritoriales: boolean,
 ) => {
   const sirenCodeDataFromApi: SirenCodeUncleanedRecord[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
     sirenCodeDataFromApi.push(
-      await getSirenCodeResults(grist.mapColumnNames(record), mappings, true),
+      await getSirenCodeResults(
+        grist.mapColumnNames(record),
+        mappings,
+        true,
+        areCollectivitesTerritoriales,
+      ),
     );
     if (parseInt(i) % 100 === 0 || parseInt(i) === records.length - 1) {
       callBackFunction(sirenCodeDataFromApi, parseInt(i), records.length);

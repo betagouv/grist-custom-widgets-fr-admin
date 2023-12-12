@@ -7,6 +7,24 @@ export const COLUMN_MAPPING_NAMES = {
     type: "Any",
     optional: false,
   },
+  DEPARTEMENT: {
+    name: "departement",
+    title: "Code Insee du département (désambiguité)",
+    type: "Any",
+    optional: true,
+  },
+  CODE_COMMUNE: {
+    name: "code_commune",
+    title: "Code Insee de la commune (désambiguité)",
+    type: "Any",
+    optional: true,
+  },
+  CODE_POSTAL: {
+    name: "code_postal",
+    title: "Code postal de la commune (désambiguité)",
+    type: "Any",
+    optional: true,
+  },
   SIREN: {
     name: "siren",
     title: "SIREN (destination)",

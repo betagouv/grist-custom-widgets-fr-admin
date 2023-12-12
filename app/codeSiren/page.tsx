@@ -28,6 +28,7 @@ import {
   SirenCodeUncleanedRecord,
 } from "./types";
 import { WidgetStep } from "../../lib/util/types";
+import { CheckboxParams } from "../../components/CheckboxParams";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -42,6 +43,8 @@ const InseeCode = () => {
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
   const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
+  const [areCollectivitesTerritoriales, setAreCollectivitesTerritoriales] =
+    useState<boolean>(false);
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -84,7 +87,12 @@ const InseeCode = () => {
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     };
-    await getSirenCodeResultsForRecords(records, mappings!, callBackFunction);
+    await getSirenCodeResultsForRecords(
+      records,
+      mappings!,
+      callBackFunction,
+      areCollectivitesTerritoriales,
+    );
     setGlobalInProgress(false);
   };
 
@@ -95,6 +103,7 @@ const InseeCode = () => {
       const recordUncleanedData = await getSirenCodeResultsForRecord(
         record,
         mappings!,
+        areCollectivitesTerritoriales,
       );
       const { clean, dirty, noResult } = cleanRecordsData([
         recordUncleanedData,
@@ -147,6 +156,18 @@ const InseeCode = () => {
     });
   };
 
+  const collectivitesTerritorialesCheckbox = (
+    <div className="centered-column">
+      <CheckboxParams
+        label="La recherche concerne des collectivités territoriales"
+        value={areCollectivitesTerritoriales}
+        onChange={() =>
+          setAreCollectivitesTerritoriales(!areCollectivitesTerritoriales)
+        }
+      />
+    </div>
+  );
+
   return currentStep === "loading" ? (
     <Title title={TITLE} />
   ) : currentStep === "config" ? (
@@ -159,6 +180,7 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
+      {collectivitesTerritorialesCheckbox}
       <div className="menu">
         <div className="centered-column">
           <Image priority src={globalSvg} alt="Traitement global" />
@@ -189,6 +211,7 @@ const InseeCode = () => {
   ) : currentStep === "global_processing" ? (
     <div className="centered-column">
       <Title title={TITLE} />
+      {collectivitesTerritorialesCheckbox}
       <Image priority src={globalSvg} alt="traitement global" />
       {globalInProgress ? (
         <div className="centered-column">
@@ -229,6 +252,7 @@ const InseeCode = () => {
     currentStep === "specific_processing" && (
       <div className="centered-column">
         <Title title={TITLE} />
+        {collectivitesTerritorialesCheckbox}
         <Image priority src={specificSvg} alt="traitement spécifique" />
         <SpecificProcessing
           mappings={mappings}
