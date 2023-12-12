@@ -1,21 +1,28 @@
 [
   {
+    "name": "Carte",
+    "url": "https://infrastructure.pages.sit.incubateur.tech/grist-widgets/carte/index.html",
+    "widgetId": "@anct/widget-map#map",
+    "published": true,
+    "accessLevel": "read table"
+  },
+  {
     "name": "Codes INSEE",
-    "url": "https://infrastructure.pages.sit.incubateur.tech/grist-widgets/codeInsee",
+    "url": "https://betagouv.github.io/grist-custom-widgets-fr-admin/codeInsee",
     "widgetId": "@anct/widget-codes",
     "published": true,
     "accessLevel": "full"
   },
   {
     "name": "Géocodeur",
-    "url": "https://infrastructure.pages.sit.incubateur.tech/grist-widgets/geocode",
+    "url": "https://betagouv.github.io/grist-custom-widgets-fr-admin/geocode",
     "widgetId": "@anct/widget-geocodeur",
     "published": true,
     "accessLevel": "full"
   },
   {
     "name": "Sirène",
-    "url": "https://infrastructure.pages.sit.incubateur.tech/grist-widgets/siren",
+    "url": "https://betagouv.github.io/grist-custom-widgets-fr-admin/siren",
     "widgetId": "@anct/widget-sirene",
     "published": true,
     "accessLevel": "full"
@@ -26,6 +33,13 @@
     "widgetId": "@gristlabs/widget-markdown",
     "published": true,
     "accessLevel": "full"
+  },
+  {
+    "name": "Map",
+    "url": "https://gristlabs.github.io/grist-widget/map/index.html",
+    "widgetId": "@gristlabs/widget-map",
+    "published": true,
+    "accessLevel": "read table"
   },
   {
     "name": "Notepad",
