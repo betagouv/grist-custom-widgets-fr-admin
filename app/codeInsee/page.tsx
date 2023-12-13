@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
-import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
+import {
+  COLUMN_MAPPING_NAMES,
+  DECOUPAGE_ADMIN,
+  NO_DATA_MESSAGES,
+  TITLE,
+} from "./constants";
 import {
   cleanRecordsData,
   getInseeCodeResultsForRecord,
@@ -28,6 +33,7 @@ import doneSvg from "../../public/done.svg";
 import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
 import { WidgetStep } from "../../lib/util/types";
+import { DropDownParams } from "../../components/DropDownParams";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -42,6 +48,9 @@ const InseeCode = () => {
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
   const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
+  const [decoupageAdministratif, setDecoupageAdministratif] = useState<string>(
+    DECOUPAGE_ADMIN.COM,
+  );
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -159,6 +168,14 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
+      <DropDownParams
+        label="Niveau du découpage administratif"
+        list={Object.values(DECOUPAGE_ADMIN)}
+        selected={decoupageAdministratif}
+        onChange={(item) => {
+          setDecoupageAdministratif(item);
+        }}
+      />
       <div className="menu">
         <div className="centered-column">
           <Image priority src={globalSvg} alt="Traitement global" />

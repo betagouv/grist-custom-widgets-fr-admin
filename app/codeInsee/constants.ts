@@ -43,3 +43,11 @@ export const NO_DATA_MESSAGES = {
   API_ERROR:
     "Une erreur est survenue lors de l'appel à l'api, veuillez appeler le service technique.",
 };
+
+export const DECOUPAGE_ADMIN = {
+  COM: "communes",
+  COM_ASSOCIES_ET_DELEGUEES: "communes associées et déléguées",
+  EPCI: "epci",
+  DEPT: "départements",
+  REG: "région",
+};
