@@ -45,18 +45,16 @@ export const ChoiceBanner: FC<{
                   <input
                     onClick={() => setInseeCodeSelected(item)}
                     type="radio"
-                    value={item.code_insee}
+                    value={item.code}
                     checked={inseeCodeSelected === item}
                   />
-                  <label htmlFor={item.code_insee}>
-                    <b>
-                      {item.nature_juridique} {item.lib_groupement}
-                    </b>
-                    {item.insee_dep && ` - ${DEPT[item.insee_dep]}`}
+                  <label htmlFor={item.code}>
+                    <b>{item.nom}</b>
+                    {item.departement && ` - ${item.departement.nom}`}
                   </label>
                 </div>
-                {item.code_insee ? (
-                  <div className="tag info">{item.code_insee}</div>
+                {item.code ? (
+                  <div className="tag info">{item.code}</div>
                 ) : (
                   <div>Sans Code</div>
                 )}

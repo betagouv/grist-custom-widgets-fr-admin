@@ -64,18 +64,6 @@ export const SpecificProcessing: FC<{
     return false;
   };
 
-  const sirenGroupement = record &&
-    noResultData?.result &&
-    noResultData.result?.siren_groupement && (
-      <>
-        {" "}
-        Il existe cependant un code SIREN :{" "}
-        <span className="tag info">
-          {noResultData.result?.siren_groupement}
-        </span>
-      </>
-    );
-
   const selectOtherLine = (
     <>
       <p>Sélectionner une autre ligne à traiter spécifiquement</p>
@@ -127,7 +115,6 @@ export const SpecificProcessing: FC<{
       {record && noResultData && (
         <div className="py-2">
           <span className="semi-bold">{noResultData.noResultMessage}</span>
-          {sirenGroupement}
         </div>
       )}
       <div style={{ marginTop: "4rem" }}>

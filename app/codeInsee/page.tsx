@@ -17,6 +17,7 @@ import {
 } from "./lib";
 import {
   CleanInseeCodeRecord,
+  DecoupageAdmin,
   DirtyInseeCodeRecord,
   InseeCodeUncleanedRecord,
   NoResultInseeCodeRecord,
@@ -48,9 +49,8 @@ const InseeCode = () => {
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
   const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
-  const [decoupageAdministratif, setDecoupageAdministratif] = useState<string>(
-    DECOUPAGE_ADMIN.COM,
-  );
+  const [decoupageAdministratif, setDecoupageAdministratif] =
+    useState<DecoupageAdmin>(DECOUPAGE_ADMIN.COM);
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -93,7 +93,12 @@ const InseeCode = () => {
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     };
-    await getInseeCodeResultsForRecords(records, mappings!, callBackFunction);
+    await getInseeCodeResultsForRecords(
+      records,
+      mappings!,
+      callBackFunction,
+      decoupageAdministratif,
+    );
     setGlobalInProgress(false);
   };
 
@@ -104,6 +109,7 @@ const InseeCode = () => {
       const recordUncleanedData = await getInseeCodeResultsForRecord(
         record,
         mappings!,
+        decoupageAdministratif,
       );
       const { clean, dirty, noResult } = cleanRecordsData([
         recordUncleanedData,
@@ -119,10 +125,10 @@ const InseeCode = () => {
     [recordId: number]: CleanInseeCodeRecord;
   }) => {
     Object.values(cleanData).forEach((clean: CleanInseeCodeRecord) => {
-      if (clean.code_insee) {
+      if (clean.code) {
         const data = {
-          [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code_insee,
-          [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.lib_groupement,
+          [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code,
+          [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.nom,
         };
         addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
       } else {
@@ -156,6 +162,17 @@ const InseeCode = () => {
     });
   };
 
+  const decoupageAdministratifChoice = (
+    <DropDownParams
+      label="Niveau du découpage administratif"
+      list={Object.values(DECOUPAGE_ADMIN)}
+      selected={decoupageAdministratif}
+      onChange={(item) => {
+        setDecoupageAdministratif(item as DecoupageAdmin);
+      }}
+    />
+  );
+
   return currentStep === "loading" ? (
     <Title title={TITLE} />
   ) : currentStep === "config" ? (
@@ -168,14 +185,7 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
-      <DropDownParams
-        label="Niveau du découpage administratif"
-        list={Object.values(DECOUPAGE_ADMIN)}
-        selected={decoupageAdministratif}
-        onChange={(item) => {
-          setDecoupageAdministratif(item);
-        }}
-      />
+      {decoupageAdministratifChoice}
       <div className="menu">
         <div className="centered-column">
           <Image priority src={globalSvg} alt="Traitement global" />
@@ -206,6 +216,7 @@ const InseeCode = () => {
   ) : currentStep === "global_processing" ? (
     <div className="centered-column">
       <Title title={TITLE} />
+      {decoupageAdministratifChoice}
       <Image priority src={globalSvg} alt="traitement global" />
       {globalInProgress ? (
         <div className="centered-column">
@@ -246,6 +257,7 @@ const InseeCode = () => {
     currentStep === "specific_processing" && (
       <div className="centered-column">
         <Title title={TITLE} />
+        {decoupageAdministratifChoice}
         <Image priority src={specificSvg} alt="traitement spécifique" />
         <SpecificProcessing
           mappings={mappings}

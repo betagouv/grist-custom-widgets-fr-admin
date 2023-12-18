@@ -13,12 +13,6 @@ export const COLUMN_MAPPING_NAMES = {
     type: "Any",
     optional: true,
   },
-  NATURE_JURIDIQUE: {
-    name: "nature_juridique",
-    title: "Nature juridique (désambiguité)",
-    type: "Any",
-    optional: true,
-  },
   CODE_INSEE: {
     name: "code_insee",
     title: "Code Insee (destination)",
@@ -45,9 +39,13 @@ export const NO_DATA_MESSAGES = {
 };
 
 export const DECOUPAGE_ADMIN = {
-  COM: "communes",
-  COM_ASSOCIES_ET_DELEGUEES: "communes associées et déléguées",
-  EPCI: "epci",
-  DEPT: "départements",
-  REG: "région",
+  COM: { label: "communes", apiUrl: "communes", key: "COM" },
+  COM_ASSOCIES_ET_DELEGUEES: {
+    label: "communes associées et déléguées",
+    apiUrl: "communes_associees_deleguees",
+    key: "COM_ASSOCIES_ET_DELEGUEES",
+  },
+  EPCI: { label: "epci", apiUrl: "epcis", key: "EPCI" },
+  DEPT: { label: "départements", apiUrl: "departements", key: "DEPT" },
+  REG: { label: "régions", apiUrl: "regions", key: "REG" },
 };

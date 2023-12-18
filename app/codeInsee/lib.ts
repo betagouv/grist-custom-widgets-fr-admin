@@ -7,6 +7,7 @@ import {
   NormalizedInseeResult,
   NormalizedInseeResults,
   NoResultInseeCodeRecord,
+  DecoupageAdmin,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
@@ -14,13 +15,16 @@ import { MappedRecord } from "../../lib/util/types";
 
 export const callInseeCodeApi = async (
   collectivity: string,
+  decoupageAdministratif: DecoupageAdmin,
   dept?: string,
-  natureJuridique?: string,
 ): Promise<NormalizedInseeResult[]> => {
-  const url = new URL("https://addokadmin.sit.incubateur.tech/search");
-  url.searchParams.set("q", collectivity);
+  const url = new URL(
+    "https://geo.api.gouv.fr/" + decoupageAdministratif.apiUrl,
+  );
+  url.searchParams.set("limit", "7");
+  url.searchParams.set("fields", "departement");
+  url.searchParams.set("nom", collectivity);
   dept && url.searchParams.set("insee_dep", dept);
-  natureJuridique && url.searchParams.set("nature_juridique", natureJuridique);
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -30,13 +34,14 @@ export const callInseeCodeApi = async (
     );
   }
   const data: NormalizedInseeResults = await response.json();
-  return data.results;
+  return data;
 };
 
 export const getInseeCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
+  decoupageAdministratif: DecoupageAdmin,
 ): Promise<InseeCodeUncleanedRecord> => {
   let noResultMessage;
   let collectivite = "";
@@ -52,12 +57,10 @@ export const getInseeCodeResults = async (
     ) {
       collectivite = mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
-      const natureJuridique =
-        mappedRecord[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name];
       inseeCodeResults = await callInseeCodeApi(
         collectivite,
+        decoupageAdministratif,
         departement,
-        natureJuridique,
       );
       if (inseeCodeResults === undefined) {
         console.error(
@@ -85,11 +88,13 @@ export const getInseeCodeResults = async (
 export const getInseeCodeResultsForRecord = async (
   record: RowRecord,
   mappings: WidgetColumnMap,
+  decoupageAdministratif: DecoupageAdmin,
 ) => {
   return await getInseeCodeResults(
     grist.mapColumnNames(record),
     mappings,
     false,
+    decoupageAdministratif,
   );
 };
 
@@ -98,13 +103,19 @@ export const getInseeCodeResultsForRecords = async (
   mappings: WidgetColumnMap,
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
+  decoupageAdministratif: DecoupageAdmin,
 ) => {
   const inseeCodeDataFromApi: InseeCodeUncleanedRecord[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
     inseeCodeDataFromApi.push(
-      await getInseeCodeResults(grist.mapColumnNames(record), mappings, true),
+      await getInseeCodeResults(
+        grist.mapColumnNames(record),
+        mappings,
+        true,
+        decoupageAdministratif,
+      ),
     );
     if (parseInt(i) % 100 === 0 || parseInt(i) === records.length - 1) {
       callBackFunction(inseeCodeDataFromApi, parseInt(i), records.length);
@@ -177,14 +188,18 @@ export const cleanRecordsData = (
 };
 
 const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
-  return dataFromApi[0]?.score < 0.6;
+  if (dataFromApi.length > 1) {
+    return dataFromApi[0]?._score < 0.6;
+  }
+  // NB: In this API if there is spaces in the name the score will be very bad but if the name is exact only one result will be proposed
+  return false;
 };
 
 const areTooCloseResults = (dataFromApi: NormalizedInseeResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
-    const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;
-    return firstChoice.score - secondChoice.score < deviation;
+    const deviation = firstChoice._score === 1.0 ? 0.02 : 0.09;
+    return firstChoice._score - secondChoice._score < deviation;
   }
   return false;
 };

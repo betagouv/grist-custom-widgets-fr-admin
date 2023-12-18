@@ -3,11 +3,17 @@
 import { FC, useState } from "react";
 import "./dropDownParams.css";
 
+type DropDownItem = {
+  label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+};
+
 export const DropDownParams: FC<{
   label: string;
-  list: string[];
-  selected: string;
-  onChange: (elem: string) => void;
+  list: DropDownItem[];
+  selected: DropDownItem;
+  onChange: (elem: DropDownItem) => void;
 }> = ({ label, list, selected, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -15,7 +21,7 @@ export const DropDownParams: FC<{
     setIsOpen(!isOpen);
   };
 
-  const closeDropdown = (elem: string) => {
+  const closeDropdown = (elem: DropDownItem) => {
     onChange(elem);
     setIsOpen(false);
   };
@@ -24,7 +30,7 @@ export const DropDownParams: FC<{
       {label}
       <div className="dropdown">
         <button type="button" className="secondary" onClick={toggleDropdown}>
-          <span>{selected} </span>
+          <span>{selected.label} </span>
           <span className="icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               {isOpen ? (
@@ -57,7 +63,7 @@ export const DropDownParams: FC<{
                       className="dropdown-elem"
                       onClick={() => closeDropdown(elem)}
                     >
-                      {elem}
+                      {elem.label}
                     </a>
                   </li>
                 );
