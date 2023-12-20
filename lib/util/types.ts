@@ -35,3 +35,9 @@ export type DirtyRecord<NormalizedResult extends KeyValue> =
   UncleanedRecord<NormalizedResult> & {
     dirtyMessage: string;
   };
+
+export type NoResultRecord<NormalizedResult extends KeyValue> = {
+  result?: NormalizedResult;
+  recordId: number;
+  noResultMessage: string;
+};

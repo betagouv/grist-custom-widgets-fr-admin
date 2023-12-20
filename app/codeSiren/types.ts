@@ -15,9 +15,3 @@ export type CleanSirenCodeRecord = NormalizedSirenResult & {
   name: string;
   recordId: number;
 };
-
-export type NoResultSirenCodeRecord = {
-  result?: NormalizedSirenResult;
-  recordId: number;
-  noResultMessage: string;
-};

@@ -1,14 +1,14 @@
 "use client";
 
 import { FC } from "react";
-import { NoResultGeoCodeRecord, NormalizedGeocodeResult } from "./types";
+import { NormalizedGeocodeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
 import dynamic from "next/dynamic";
-import { DirtyRecord } from "../../lib/util/types";
+import { DirtyRecord, NoResultRecord } from "../../lib/util/types";
 import GenericChoiceBanner from "../../components/GenericChoiceBanner";
 
 // react-leaflet is relies on browser APIs window. Dynamically load the component on the client side desabling ssr
@@ -22,7 +22,7 @@ export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
   dirtyData: DirtyRecord<NormalizedGeocodeResult> | null | undefined;
-  noResultData: NoResultGeoCodeRecord | null | undefined;
+  noResultData: NoResultRecord<NormalizedGeocodeResult> | null | undefined;
   passDataFromDirtyToClean: (
     inseeCodeSelected: NormalizedGeocodeResult,
     initalData: DirtyRecord<NormalizedGeocodeResult>,

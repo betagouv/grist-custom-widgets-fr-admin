@@ -4,11 +4,7 @@ import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { gristReady, addObjectInRecord } from "../../lib/grist/plugin-api";
 import { RowRecord } from "grist/GristData";
-import {
-  CleanGeoCodeRecord,
-  NoResultGeoCodeRecord,
-  NormalizedGeocodeResult,
-} from "./types";
+import { CleanGeoCodeRecord, NormalizedGeocodeResult } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import { Configuration } from "../../components/Configuration";
@@ -27,6 +23,7 @@ import {
 import { SpecificProcessing } from "./SpecificProcessing";
 import {
   DirtyRecord,
+  NoResultRecord,
   UncleanedRecord,
   WidgetCleanDataSteps,
 } from "../../lib/util/types";
@@ -38,7 +35,7 @@ const GeoCodeur = () => {
     [recordId: number]: DirtyRecord<NormalizedGeocodeResult>;
   }>({});
   const [noResultData, setNoResultData] = useState<{
-    [recordId: number]: NoResultGeoCodeRecord;
+    [recordId: number]: NoResultRecord<NormalizedGeocodeResult>;
   }>({});
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
