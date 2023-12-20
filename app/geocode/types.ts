@@ -5,8 +5,3 @@ export type NormalizedGeocodeResult = {
   score: number;
   departement: string;
 };
-
-export type CleanGeoCodeRecord = NormalizedGeocodeResult & {
-  address: string;
-  recordId: number;
-};

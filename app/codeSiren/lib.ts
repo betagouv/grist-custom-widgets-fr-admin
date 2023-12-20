@@ -3,11 +3,10 @@ import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
-import { CleanSirenCodeRecord, NormalizedSirenResult } from "./types";
+import { NormalizedSirenResult } from "./types";
 import {
-  DirtyRecord,
   MappedRecord,
-  NoResultRecord,
+  SortedRecords,
   UncleanedRecord,
 } from "../../lib/util/types";
 
@@ -140,73 +139,11 @@ export const getSirenCodeResultsForRecords = async (
   }
 };
 
-type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtyRecord<NormalizedSirenResult> };
-  clean: { [recordId: number]: CleanSirenCodeRecord };
-  noResult: { [recordId: number]: NoResultRecord<NormalizedSirenResult> };
-};
-
-export const cleanRecordsData = (
-  recordsUncleanedData: UncleanedRecord<NormalizedSirenResult>[],
-): ReduceReturnType => {
-  return recordsUncleanedData.reduce<ReduceReturnType>(
-    (acc: ReduceReturnType, record) => {
-      return record.toIgnore
-        ? acc
-        : !record.results.length
-          ? {
-              ...acc,
-              noResult: {
-                ...acc.noResult,
-                [record.recordId]: {
-                  recordId: record.recordId,
-                  noResultMessage: record.noResultMessage!,
-                },
-              },
-            }
-          : isDoubtfulResults(record.results)
-            ? {
-                ...acc,
-                dirty: {
-                  ...acc.dirty,
-                  [record.recordId]: {
-                    ...record,
-                    dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
-                  },
-                },
-              }
-            : areTooCloseResults(record.results)
-              ? {
-                  ...acc,
-                  dirty: {
-                    ...acc.dirty,
-                    [record.recordId]: {
-                      ...record,
-                      dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
-                    },
-                  },
-                }
-              : {
-                  ...acc,
-                  clean: {
-                    ...acc.clean,
-                    [record.recordId]: {
-                      recordId: record.recordId,
-                      name: record.sourceData,
-                      ...record.results[0],
-                    },
-                  },
-                };
-    },
-    { dirty: {}, clean: {}, noResult: {} },
-  );
-};
-
-const isDoubtfulResults = (dataFromApi: NormalizedSirenResult[]) => {
+export const isDoubtfulResults = (dataFromApi: NormalizedSirenResult[]) => {
   return dataFromApi[0]?.score < 0.6;
 };
 
-const areTooCloseResults = (dataFromApi: NormalizedSirenResult[]) => {
+export const areTooCloseResults = (dataFromApi: NormalizedSirenResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
     const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;
