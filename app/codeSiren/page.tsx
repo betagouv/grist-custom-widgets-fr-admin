@@ -22,19 +22,21 @@ import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
 import {
   CleanSirenCodeRecord,
-  DirtySirenCodeRecord,
   NoResultSirenCodeRecord,
   NormalizedSirenResult,
-  SirenCodeUncleanedRecord,
 } from "./types";
-import { WidgetStep } from "../../lib/util/types";
+import {
+  DirtyRecord,
+  UncleanedRecord,
+  WidgetCleanDataSteps,
+} from "../../lib/util/types";
 import { CheckboxParams } from "../../components/CheckboxParams";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [dirtyData, setDirtyData] = useState<{
-    [recordId: number]: DirtySirenCodeRecord;
+    [recordId: number]: DirtyRecord<NormalizedSirenResult>;
   }>({});
   const [noResultData, setNoResultData] = useState<{
     [recordId: number]: NoResultSirenCodeRecord;
@@ -42,7 +44,8 @@ const InseeCode = () => {
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
-  const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
+  const [currentStep, setCurrentStep] =
+    useState<WidgetCleanDataSteps>("loading");
   const [areCollectivitesTerritoriales, setAreCollectivitesTerritoriales] =
     useState<boolean>(false);
 
@@ -77,7 +80,7 @@ const InseeCode = () => {
     setCurrentStep("global_processing");
     setGlobalInProgress(true);
     const callBackFunction = (
-      dataFromApi: SirenCodeUncleanedRecord[],
+      dataFromApi: UncleanedRecord<NormalizedSirenResult>[],
       at: number,
       on: number,
     ) => {
@@ -140,7 +143,7 @@ const InseeCode = () => {
 
   const passDataFromDirtyToClean = (
     inseeCodeSelected: NormalizedSirenResult,
-    initalData: DirtySirenCodeRecord,
+    initalData: DirtyRecord<NormalizedSirenResult>,
   ) => {
     // Remove the record from dirtyData
     setDirtyData(() => {
@@ -151,7 +154,7 @@ const InseeCode = () => {
       [initalData.recordId]: {
         ...inseeCodeSelected,
         recordId: initalData.recordId,
-        name: initalData.name,
+        name: initalData.sourceData,
       },
     });
   };

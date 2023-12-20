@@ -1,26 +1,23 @@
 "use client";
 
 import { FC } from "react";
-import { ChoiceBanner } from "./ChoiceBanner";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
-import {
-  DirtySirenCodeRecord,
-  NoResultSirenCodeRecord,
-  NormalizedSirenResult,
-} from "./types";
+import { NoResultSirenCodeRecord, NormalizedSirenResult } from "./types";
+import GenericChoiceBanner from "../../components/GenericChoiceBanner";
+import { DirtyRecord } from "../../lib/util/types";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
-  dirtyData: DirtySirenCodeRecord | null | undefined;
+  dirtyData: DirtyRecord<NormalizedSirenResult> | null | undefined;
   noResultData: NoResultSirenCodeRecord | null | undefined;
   passDataFromDirtyToClean: (
     sirenCodeSelected: NormalizedSirenResult,
-    initalData: DirtySirenCodeRecord,
+    initalData: DirtyRecord<NormalizedSirenResult>,
   ) => void;
   recordResearch: () => void;
   goBackToMenu: () => void;
@@ -107,9 +104,23 @@ export const SpecificProcessing: FC<{
       <div>Collectivité sélectionnée : {recordName()}</div>
 
       {record && dirtyData && (
-        <ChoiceBanner
+        <GenericChoiceBanner<NormalizedSirenResult>
           dirtyData={dirtyData}
           passDataFromDirtyToClean={passDataFromDirtyToClean}
+          option={{
+            choiceValueKey: "siren",
+            withChoiceTagLegend: true,
+            choiceTagLegend: "Code SIREN",
+            choiceTagKey: "siren",
+          }}
+          itemDisplay={(item: NormalizedSirenResult) => {
+            return (
+              <div>
+                <b>{item.label}</b>
+                {item.code_commune && ` - ${item.code_commune}`}
+              </div>
+            );
+          }}
         />
       )}
       {record && noResultData && (

@@ -1,26 +1,24 @@
 "use client";
 
 import { FC } from "react";
-import { ChoiceBanner } from "./ChoiceBanner";
-import {
-  DirtyInseeCodeRecord,
-  NoResultInseeCodeRecord,
-  NormalizedInseeResult,
-} from "./types";
+import { NoResultInseeCodeRecord, NormalizedInseeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
+import GenericChoiceBanner from "../../components/GenericChoiceBanner";
+import { DEPT } from "../../lib/util/constants";
+import { DirtyRecord } from "../../lib/util/types";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
-  dirtyData: DirtyInseeCodeRecord | null | undefined;
+  dirtyData: DirtyRecord<NormalizedInseeResult> | null | undefined;
   noResultData: NoResultInseeCodeRecord | null | undefined;
   passDataFromDirtyToClean: (
     inseeCodeSelected: NormalizedInseeResult,
-    initalData: DirtyInseeCodeRecord,
+    initalData: DirtyRecord<NormalizedInseeResult>,
   ) => void;
   recordResearch: () => void;
   goBackToMenu: () => void;
@@ -119,9 +117,25 @@ export const SpecificProcessing: FC<{
       <div>Collectivité sélectionnée : {recordName()}</div>
 
       {record && dirtyData && (
-        <ChoiceBanner
+        <GenericChoiceBanner<NormalizedInseeResult>
           dirtyData={dirtyData}
           passDataFromDirtyToClean={passDataFromDirtyToClean}
+          option={{
+            choiceValueKey: "code_insee",
+            withChoiceTagLegend: true,
+            choiceTagLegend: "Code INSEE",
+            choiceTagKey: "code_insee",
+          }}
+          itemDisplay={(item: NormalizedInseeResult) => {
+            return (
+              <div>
+                <b>
+                  {item.nature_juridique} {item.lib_groupement}
+                </b>
+                {item.insee_dep && ` - ${DEPT[item.insee_dep]}`}
+              </div>
+            );
+          }}
         />
       )}
       {record && noResultData && (

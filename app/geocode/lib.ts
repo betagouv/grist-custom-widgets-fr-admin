@@ -2,14 +2,16 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import {
   CleanGeoCodeRecord,
-  DirtyGeoCodeRecord,
-  GeoCodeUncleanedRecord,
   NoResultGeoCodeRecord,
   NormalizedGeocodeResult,
 } from "./types";
 import { RowRecord } from "grist/GristData";
 import { MESSAGES } from "../../lib/util/constants";
-import { MappedRecord } from "../../lib/util/types";
+import {
+  DirtyRecord,
+  MappedRecord,
+  UncleanedRecord,
+} from "../../lib/util/types";
 
 //Return ltn, lng, address from a string
 export const callGeoCodeApi = async (
@@ -37,7 +39,7 @@ export const getGeoCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
-): Promise<GeoCodeUncleanedRecord> => {
+): Promise<UncleanedRecord<NormalizedGeocodeResult>> => {
   let noResultMessage;
   let address = "";
   let geoCodeResults: NormalizedGeocodeResult[] = [];
@@ -75,7 +77,7 @@ export const getGeoCodeResults = async (
   });
   return {
     recordId: mappedRecord.id,
-    address,
+    sourceData: address,
     results: geoCodeResults,
     noResultMessage,
     toIgnore,
@@ -95,7 +97,7 @@ export const getGeoCodeResultsForRecords = async (
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
 ) => {
-  const geoCodeDataFromApi: GeoCodeUncleanedRecord[] = [];
+  const geoCodeDataFromApi: UncleanedRecord<NormalizedGeocodeResult>[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
@@ -111,13 +113,13 @@ export const getGeoCodeResultsForRecords = async (
 };
 
 type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtyGeoCodeRecord };
+  dirty: { [recordId: number]: DirtyRecord<NormalizedGeocodeResult> };
   clean: { [recordId: number]: CleanGeoCodeRecord };
   noResult: { [recordId: number]: NoResultGeoCodeRecord };
 };
 
 export const cleanRecordsData = (
-  recordsUncleanedData: GeoCodeUncleanedRecord[],
+  recordsUncleanedData: UncleanedRecord<NormalizedGeocodeResult>[],
 ): ReduceReturnType => {
   return recordsUncleanedData.reduce<ReduceReturnType>(
     (acc: ReduceReturnType, record) => {
@@ -162,7 +164,7 @@ export const cleanRecordsData = (
                     ...acc.clean,
                     [record.recordId]: {
                       recordId: record.recordId,
-                      address: record.address,
+                      address: record.sourceData,
                       ...record.results[0],
                     },
                   },
