@@ -12,18 +12,6 @@ export type NormalizedInseeResults = {
   query: string;
 };
 
-export type InseeCodeUncleanedRecord = {
-  results: NormalizedInseeResult[];
-  collectivite: string;
-  recordId: number;
-  noResultMessage?: string;
-  toIgnore: boolean;
-};
-
-export type DirtyInseeCodeRecord = InseeCodeUncleanedRecord & {
-  dirtyMessage: string;
-};
-
 export type CleanInseeCodeRecord = NormalizedInseeResult & {
   collectivite: string;
   recordId: number;

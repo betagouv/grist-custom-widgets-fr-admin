@@ -12,8 +12,6 @@ import {
 } from "./lib";
 import {
   CleanInseeCodeRecord,
-  DirtyInseeCodeRecord,
-  InseeCodeUncleanedRecord,
   NoResultInseeCodeRecord,
   NormalizedInseeResult,
 } from "./types";
@@ -27,13 +25,17 @@ import specificSvg from "../../public/specific-processing.svg";
 import doneSvg from "../../public/done.svg";
 import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
-import { WidgetStep } from "../../lib/util/types";
+import {
+  DirtyRecord,
+  UncleanedRecord,
+  WidgetCleanDataSteps,
+} from "../../lib/util/types";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [dirtyData, setDirtyData] = useState<{
-    [recordId: number]: DirtyInseeCodeRecord;
+    [recordId: number]: DirtyRecord<NormalizedInseeResult>;
   }>({});
   const [noResultData, setNoResultData] = useState<{
     [recordId: number]: NoResultInseeCodeRecord;
@@ -41,7 +43,8 @@ const InseeCode = () => {
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
-  const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
+  const [currentStep, setCurrentStep] =
+    useState<WidgetCleanDataSteps>("loading");
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -74,7 +77,7 @@ const InseeCode = () => {
     setCurrentStep("global_processing");
     setGlobalInProgress(true);
     const callBackFunction = (
-      dataFromApi: InseeCodeUncleanedRecord[],
+      dataFromApi: UncleanedRecord<NormalizedInseeResult>[],
       at: number,
       on: number,
     ) => {
@@ -131,7 +134,7 @@ const InseeCode = () => {
 
   const passDataFromDirtyToClean = (
     inseeCodeSelected: NormalizedInseeResult,
-    initalData: DirtyInseeCodeRecord,
+    initalData: DirtyRecord<NormalizedInseeResult>,
   ) => {
     // Remove the record from dirtyData
     setDirtyData(() => {
@@ -142,7 +145,7 @@ const InseeCode = () => {
       [initalData.recordId]: {
         ...inseeCodeSelected,
         recordId: initalData.recordId,
-        collectivite: initalData.collectivite,
+        collectivite: initalData.sourceData,
       },
     });
   };

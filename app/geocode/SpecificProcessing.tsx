@@ -1,31 +1,31 @@
 "use client";
 
 import { FC } from "react";
-import { ChoiceBanner } from "./ChoiceBanner";
-import {
-  DirtyGeoCodeRecord,
-  NoResultGeoCodeRecord,
-  NormalizedGeocodeResult,
-} from "./types";
+import { NoResultGeoCodeRecord, NormalizedGeocodeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
 import dynamic from "next/dynamic";
+import { DirtyRecord } from "../../lib/util/types";
+import GenericChoiceBanner from "../../components/GenericChoiceBanner";
 
 // react-leaflet is relies on browser APIs window. Dynamically load the component on the client side desabling ssr
 const MyAwesomeMap = dynamic(() => import("./Map"), { ssr: false });
 const DynamicMarker = dynamic(() => import("./DynamicMarker"), { ssr: false });
+const ChoiceDynamicMarker = dynamic(() => import("./ChoiceDynamicMarker"), {
+  ssr: false,
+});
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
-  dirtyData: DirtyGeoCodeRecord | null | undefined;
+  dirtyData: DirtyRecord<NormalizedGeocodeResult> | null | undefined;
   noResultData: NoResultGeoCodeRecord | null | undefined;
   passDataFromDirtyToClean: (
     inseeCodeSelected: NormalizedGeocodeResult,
-    initalData: DirtyGeoCodeRecord,
+    initalData: DirtyRecord<NormalizedGeocodeResult>,
   ) => void;
   recordResearch: () => void;
   goBackToMenu: () => void;
@@ -123,9 +123,26 @@ export const SpecificProcessing: FC<{
       <div>Adresse sélectionnée : {recordName()}</div>
 
       {record && dirtyData && (
-        <ChoiceBanner
+        <GenericChoiceBanner<NormalizedGeocodeResult>
           dirtyData={dirtyData}
           passDataFromDirtyToClean={passDataFromDirtyToClean}
+          option={{
+            choiceValueKey: "address_nomalized",
+            withChoiceTagLegend: false,
+            choiceTagLegend: "",
+            choiceTagKey: "",
+          }}
+          itemDisplay={(item: NormalizedGeocodeResult) => (
+            <div>
+              <b>{item.address_nomalized}</b>
+              {item.departement && ` - ${item.departement}`}
+            </div>
+          )}
+          selectedDisplay={(selected: NormalizedGeocodeResult) => (
+            <MyAwesomeMap>
+              <ChoiceDynamicMarker address={selected} />
+            </MyAwesomeMap>
+          )}
         />
       )}
       {record && noResultData && (

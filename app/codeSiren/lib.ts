@@ -5,12 +5,14 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
 import {
   CleanSirenCodeRecord,
-  DirtySirenCodeRecord,
   NoResultSirenCodeRecord,
   NormalizedSirenResult,
-  SirenCodeUncleanedRecord,
 } from "./types";
-import { MappedRecord } from "../../lib/util/types";
+import {
+  DirtyRecord,
+  MappedRecord,
+  UncleanedRecord,
+} from "../../lib/util/types";
 
 const callSirenCodeApi = async (
   query: string,
@@ -54,7 +56,7 @@ const getSirenCodeResults = async (
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
   isCollectiviteTerritoriale: boolean,
-): Promise<SirenCodeUncleanedRecord> => {
+): Promise<UncleanedRecord<NormalizedSirenResult>> => {
   let noResultMessage;
   let name = "";
   let sirenCodeResults: NormalizedSirenResult[] = [];
@@ -94,7 +96,7 @@ const getSirenCodeResults = async (
   }
   return {
     recordId: mappedRecord.id,
-    name,
+    sourceData: name,
     results: sirenCodeResults,
     noResultMessage,
     toIgnore,
@@ -121,7 +123,7 @@ export const getSirenCodeResultsForRecords = async (
   callBackFunction: Function,
   areCollectivitesTerritoriales: boolean,
 ) => {
-  const sirenCodeDataFromApi: SirenCodeUncleanedRecord[] = [];
+  const sirenCodeDataFromApi: UncleanedRecord<NormalizedSirenResult>[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
@@ -142,13 +144,13 @@ export const getSirenCodeResultsForRecords = async (
 };
 
 type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtySirenCodeRecord };
+  dirty: { [recordId: number]: DirtyRecord<NormalizedSirenResult> };
   clean: { [recordId: number]: CleanSirenCodeRecord };
   noResult: { [recordId: number]: NoResultSirenCodeRecord };
 };
 
 export const cleanRecordsData = (
-  recordsUncleanedData: SirenCodeUncleanedRecord[],
+  recordsUncleanedData: UncleanedRecord<NormalizedSirenResult>[],
 ): ReduceReturnType => {
   return recordsUncleanedData.reduce<ReduceReturnType>(
     (acc: ReduceReturnType, record) => {
@@ -193,7 +195,7 @@ export const cleanRecordsData = (
                     ...acc.clean,
                     [record.recordId]: {
                       recordId: record.recordId,
-                      name: record.name,
+                      name: record.sourceData,
                       ...record.results[0],
                     },
                   },

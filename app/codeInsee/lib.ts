@@ -1,16 +1,18 @@
 import { RowRecord } from "grist/GristData";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import {
-  DirtyInseeCodeRecord,
   CleanInseeCodeRecord,
-  InseeCodeUncleanedRecord,
   NormalizedInseeResult,
   NormalizedInseeResults,
   NoResultInseeCodeRecord,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
-import { MappedRecord } from "../../lib/util/types";
+import {
+  DirtyRecord,
+  MappedRecord,
+  UncleanedRecord,
+} from "../../lib/util/types";
 
 export const callInseeCodeApi = async (
   collectivity: string,
@@ -37,7 +39,7 @@ export const getInseeCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
-): Promise<InseeCodeUncleanedRecord> => {
+): Promise<UncleanedRecord<NormalizedInseeResult>> => {
   let noResultMessage;
   let collectivite = "";
   let inseeCodeResults: NormalizedInseeResult[] = [];
@@ -75,7 +77,7 @@ export const getInseeCodeResults = async (
   }
   return {
     recordId: mappedRecord.id,
-    collectivite,
+    sourceData: collectivite,
     results: inseeCodeResults,
     noResultMessage,
     toIgnore,
@@ -99,7 +101,7 @@ export const getInseeCodeResultsForRecords = async (
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
 ) => {
-  const inseeCodeDataFromApi: InseeCodeUncleanedRecord[] = [];
+  const inseeCodeDataFromApi: UncleanedRecord<NormalizedInseeResult>[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
@@ -115,13 +117,13 @@ export const getInseeCodeResultsForRecords = async (
 };
 
 type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtyInseeCodeRecord };
+  dirty: { [recordId: number]: DirtyRecord<NormalizedInseeResult> };
   clean: { [recordId: number]: CleanInseeCodeRecord };
   noResult: { [recordId: number]: NoResultInseeCodeRecord };
 };
 
 export const cleanRecordsData = (
-  recordsUncleanedData: InseeCodeUncleanedRecord[],
+  recordsUncleanedData: UncleanedRecord<NormalizedInseeResult>[],
 ): ReduceReturnType => {
   return recordsUncleanedData.reduce<ReduceReturnType>(
     (acc: ReduceReturnType, record) => {
@@ -166,7 +168,7 @@ export const cleanRecordsData = (
                     ...acc.clean,
                     [record.recordId]: {
                       recordId: record.recordId,
-                      collectivite: record.collectivite,
+                      collectivite: record.sourceData,
                       ...record.results[0],
                     },
                   },

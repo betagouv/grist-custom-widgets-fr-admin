@@ -6,8 +6,6 @@ import { gristReady, addObjectInRecord } from "../../lib/grist/plugin-api";
 import { RowRecord } from "grist/GristData";
 import {
   CleanGeoCodeRecord,
-  DirtyGeoCodeRecord,
-  GeoCodeUncleanedRecord,
   NoResultGeoCodeRecord,
   NormalizedGeocodeResult,
 } from "./types";
@@ -27,13 +25,17 @@ import {
   mappingsIsReady,
 } from "./lib";
 import { SpecificProcessing } from "./SpecificProcessing";
-import { WidgetStep } from "../../lib/util/types";
+import {
+  DirtyRecord,
+  UncleanedRecord,
+  WidgetCleanDataSteps,
+} from "../../lib/util/types";
 
 const GeoCodeur = () => {
   const [record, setRecord] = useState<RowRecord | null>();
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [dirtyData, setDirtyData] = useState<{
-    [recordId: number]: DirtyGeoCodeRecord;
+    [recordId: number]: DirtyRecord<NormalizedGeocodeResult>;
   }>({});
   const [noResultData, setNoResultData] = useState<{
     [recordId: number]: NoResultGeoCodeRecord;
@@ -41,7 +43,8 @@ const GeoCodeur = () => {
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
   const [atOnProgress, setAtOnProgress] = useState([0, 0]);
-  const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
+  const [currentStep, setCurrentStep] =
+    useState<WidgetCleanDataSteps>("loading");
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -85,7 +88,7 @@ const GeoCodeur = () => {
     setCurrentStep("global_processing");
     setGlobalInProgress(true);
     const callBackFunction = (
-      dataFromApi: GeoCodeUncleanedRecord[],
+      dataFromApi: UncleanedRecord<NormalizedGeocodeResult>[],
       at: number,
       on: number,
     ) => {
@@ -144,7 +147,7 @@ const GeoCodeur = () => {
 
   const passDataFromDirtyToClean = (
     addressSelected: NormalizedGeocodeResult,
-    initalData: DirtyGeoCodeRecord,
+    initalData: DirtyRecord<NormalizedGeocodeResult>,
   ) => {
     // Remove the record from dirtyData
     setDirtyData(() => {
@@ -155,7 +158,7 @@ const GeoCodeur = () => {
       [initalData.recordId]: {
         ...addressSelected,
         recordId: initalData.recordId,
-        address: initalData.address,
+        address: initalData.sourceData,
       },
     });
   };
