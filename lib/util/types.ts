@@ -41,3 +41,22 @@ export type NoResultRecord<NormalizedResult extends KeyValue> = {
   recordId: number;
   noResultMessage: string;
 };
+
+export type CleanRecord<NormalizedResult extends KeyValue> =
+  NormalizedResult & {
+    sourceData: string;
+    recordId: number;
+  };
+
+export type SortedRecords<NormalizedResult extends KeyValue> = {
+  dirty: { [recordId: number]: DirtyRecord<NormalizedResult> };
+  clean: { [recordId: number]: CleanRecord<NormalizedResult> };
+  noResult: { [recordId: number]: NoResultRecord<NormalizedResult> };
+};
+
+export type NoDataMessage = {
+  NO_DESTINATION_DATA: string;
+  NO_RESULT: string;
+  NO_SOURCE_DATA: string;
+  API_ERROR: string;
+};

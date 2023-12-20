@@ -10,8 +10,3 @@ export type NormalizedSirenResults = {
   results: NormalizedSirenResult[];
   query: string;
 };
-
-export type CleanSirenCodeRecord = NormalizedSirenResult & {
-  name: string;
-  recordId: number;
-};

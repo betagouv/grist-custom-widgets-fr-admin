@@ -5,12 +5,13 @@ import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import {
-  cleanRecordsData,
+  areTooCloseResults,
   getInseeCodeResultsForRecord,
   getInseeCodeResultsForRecords,
+  isDoubtfulResults,
   mappingsIsReady,
 } from "./lib";
-import { CleanInseeCodeRecord, NormalizedInseeResult } from "./types";
+import { NormalizedInseeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
@@ -22,11 +23,13 @@ import doneSvg from "../../public/done.svg";
 import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
 import {
+  CleanRecord,
   DirtyRecord,
   NoResultRecord,
   UncleanedRecord,
   WidgetCleanDataSteps,
 } from "../../lib/util/types";
+import { cleanAndSortRecords } from "../../lib/util/utils";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -79,7 +82,11 @@ const InseeCode = () => {
       on: number,
     ) => {
       setAtOnProgress([at, on]);
-      const { clean, dirty, noResult } = cleanRecordsData(dataFromApi);
+      const { clean, dirty, noResult } = cleanAndSortRecords(
+        dataFromApi,
+        isDoubtfulResults,
+        areTooCloseResults,
+      );
       writeCleanDataInTable(clean);
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
@@ -96,9 +103,11 @@ const InseeCode = () => {
         record,
         mappings!,
       );
-      const { clean, dirty, noResult } = cleanRecordsData([
-        recordUncleanedData,
-      ]);
+      const { clean, dirty, noResult } = cleanAndSortRecords(
+        [recordUncleanedData],
+        isDoubtfulResults,
+        areTooCloseResults,
+      );
       clean && writeCleanDataInTable(clean);
       dirty && setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       noResult &&
@@ -107,26 +116,28 @@ const InseeCode = () => {
   };
 
   const writeCleanDataInTable = (cleanData: {
-    [recordId: number]: CleanInseeCodeRecord;
+    [recordId: number]: CleanRecord<NormalizedInseeResult>;
   }) => {
-    Object.values(cleanData).forEach((clean: CleanInseeCodeRecord) => {
-      if (clean.code_insee) {
-        const data = {
-          [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code_insee,
-          [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.lib_groupement,
-        };
-        addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
-      } else {
-        setNoResultData((prevValue) => ({
-          ...prevValue,
-          [clean.recordId]: {
-            recordId: clean.recordId,
-            noResultMessage: NO_DATA_MESSAGES.NO_INSEE_CODE,
-            result: clean,
-          },
-        }));
-      }
-    });
+    Object.values(cleanData).forEach(
+      (clean: CleanRecord<NormalizedInseeResult>) => {
+        if (clean.code_insee) {
+          const data = {
+            [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code_insee,
+            [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.lib_groupement,
+          };
+          addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
+        } else {
+          setNoResultData((prevValue) => ({
+            ...prevValue,
+            [clean.recordId]: {
+              recordId: clean.recordId,
+              noResultMessage: NO_DATA_MESSAGES.NO_DESTINATION_DATA,
+              result: clean,
+            },
+          }));
+        }
+      },
+    );
   };
 
   const passDataFromDirtyToClean = (
@@ -142,7 +153,7 @@ const InseeCode = () => {
       [initalData.recordId]: {
         ...inseeCodeSelected,
         recordId: initalData.recordId,
-        collectivite: initalData.sourceData,
+        sourceData: initalData.sourceData,
       },
     });
   };

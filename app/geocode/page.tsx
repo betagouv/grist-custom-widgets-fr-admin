@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { gristReady, addObjectInRecord } from "../../lib/grist/plugin-api";
 import { RowRecord } from "grist/GristData";
-import { CleanGeoCodeRecord, NormalizedGeocodeResult } from "./types";
+import { NormalizedGeocodeResult } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import { Configuration } from "../../components/Configuration";
@@ -15,18 +15,21 @@ import globalSvg from "../../public/global-processing.svg";
 import specificSvg from "../../public/specific-processing.svg";
 import doneSvg from "../../public/done.svg";
 import {
-  cleanRecordsData,
+  areTooCloseResults,
   getGeoCodeResultsForRecord,
   getGeoCodeResultsForRecords,
+  isDoubtfulResults,
   mappingsIsReady,
 } from "./lib";
 import { SpecificProcessing } from "./SpecificProcessing";
 import {
+  CleanRecord,
   DirtyRecord,
   NoResultRecord,
   UncleanedRecord,
   WidgetCleanDataSteps,
 } from "../../lib/util/types";
+import { cleanAndSortRecords } from "../../lib/util/utils";
 
 const GeoCodeur = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -50,17 +53,6 @@ const GeoCodeur = () => {
       setRecords(records);
       setMappings(gristMappings);
     });
-    // getGeoCodeDataFromApi(setResults, setMappings);
-    // grist.onRecord((rec: RowRecord | null) => {
-    //   const data = grist.mapColumnNames(rec!); // FIXME rec can be null...
-    //   const mapRecord: MapRecord = {
-    //     Latitude: data[COLUMN_MAPPING_NAMES.LATITUDE],
-    //     Longitude: data[COLUMN_MAPPING_NAMES.LONGITUDE],
-    //     addresse_Normalisee: data[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS],
-    //     id: rec!.id,
-    //   };
-    //   setRecord(mapRecord);
-    // });
   }, []);
 
   useGristEffect(() => {
@@ -90,7 +82,11 @@ const GeoCodeur = () => {
       on: number,
     ) => {
       setAtOnProgress([at, on]);
-      const { clean, dirty, noResult } = cleanRecordsData(dataFromApi);
+      const { clean, dirty, noResult } = cleanAndSortRecords(
+        dataFromApi,
+        isDoubtfulResults,
+        areTooCloseResults,
+      );
       writeCleanDataInTable(clean);
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
@@ -107,9 +103,11 @@ const GeoCodeur = () => {
         record,
         mappings!,
       );
-      const { clean, dirty, noResult } = cleanRecordsData([
-        recordUncleanedData,
-      ]);
+      const { clean, dirty, noResult } = cleanAndSortRecords(
+        [recordUncleanedData],
+        isDoubtfulResults,
+        areTooCloseResults,
+      );
       clean && writeCleanDataInTable(clean);
       dirty && setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       noResult &&
@@ -118,28 +116,30 @@ const GeoCodeur = () => {
   };
 
   const writeCleanDataInTable = (cleanData: {
-    [recordId: number]: CleanGeoCodeRecord;
+    [recordId: number]: CleanRecord<NormalizedGeocodeResult>;
   }) => {
-    Object.values(cleanData).forEach((clean: CleanGeoCodeRecord) => {
-      if (clean.lat && clean.lng) {
-        const data = {
-          [COLUMN_MAPPING_NAMES.LATITUDE.name]: clean.lat,
-          [COLUMN_MAPPING_NAMES.LONGITUDE.name]: clean.lng,
-          [COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]:
-            clean.address_nomalized,
-        };
-        addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
-      } else {
-        setNoResultData((prevValue) => ({
-          ...prevValue,
-          [clean.recordId]: {
-            recordId: clean.recordId,
-            noResultMessage: NO_DATA_MESSAGES.NO_INSEE_CODE,
-            result: clean,
-          },
-        }));
-      }
-    });
+    Object.values(cleanData).forEach(
+      (clean: CleanRecord<NormalizedGeocodeResult>) => {
+        if (clean.lat && clean.lng) {
+          const data = {
+            [COLUMN_MAPPING_NAMES.LATITUDE.name]: clean.lat,
+            [COLUMN_MAPPING_NAMES.LONGITUDE.name]: clean.lng,
+            [COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]:
+              clean.address_nomalized,
+          };
+          addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
+        } else {
+          setNoResultData((prevValue) => ({
+            ...prevValue,
+            [clean.recordId]: {
+              recordId: clean.recordId,
+              noResultMessage: NO_DATA_MESSAGES.NO_DESTINATION_DATA,
+              result: clean,
+            },
+          }));
+        }
+      },
+    );
   };
 
   const passDataFromDirtyToClean = (
@@ -155,7 +155,7 @@ const GeoCodeur = () => {
       [initalData.recordId]: {
         ...addressSelected,
         recordId: initalData.recordId,
-        address: initalData.sourceData,
+        sourceData: initalData.sourceData,
       },
     });
   };
