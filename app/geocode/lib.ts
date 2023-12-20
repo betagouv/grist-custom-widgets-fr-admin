@@ -2,7 +2,6 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import { NormalizedGeocodeResult } from "./types";
 import { RowRecord } from "grist/GristData";
-import { MESSAGES } from "../../lib/util/constants";
 import { MappedRecord, UncleanedRecord } from "../../lib/util/types";
 
 //Return ltn, lng, address from a string
