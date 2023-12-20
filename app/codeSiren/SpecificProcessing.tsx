@@ -6,15 +6,15 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import Image from "next/image";
 import doneSvg from "../../public/done.svg";
-import { NoResultSirenCodeRecord, NormalizedSirenResult } from "./types";
+import { NormalizedSirenResult } from "./types";
 import GenericChoiceBanner from "../../components/GenericChoiceBanner";
-import { DirtyRecord } from "../../lib/util/types";
+import { DirtyRecord, NoResultRecord } from "../../lib/util/types";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
   dirtyData: DirtyRecord<NormalizedSirenResult> | null | undefined;
-  noResultData: NoResultSirenCodeRecord | null | undefined;
+  noResultData: NoResultRecord<NormalizedSirenResult> | null | undefined;
   passDataFromDirtyToClean: (
     sirenCodeSelected: NormalizedSirenResult,
     initalData: DirtyRecord<NormalizedSirenResult>,

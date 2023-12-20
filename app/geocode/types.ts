@@ -10,9 +10,3 @@ export type CleanGeoCodeRecord = NormalizedGeocodeResult & {
   address: string;
   recordId: number;
 };
-
-export type NoResultGeoCodeRecord = {
-  result?: NormalizedGeocodeResult;
-  recordId: number;
-  noResultMessage: string;
-};

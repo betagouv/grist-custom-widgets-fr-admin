@@ -16,9 +16,3 @@ export type CleanInseeCodeRecord = NormalizedInseeResult & {
   collectivite: string;
   recordId: number;
 };
-
-export type NoResultInseeCodeRecord = {
-  result?: NormalizedInseeResult;
-  recordId: number;
-  noResultMessage: string;
-};

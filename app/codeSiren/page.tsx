@@ -20,13 +20,10 @@ import specificSvg from "../../public/specific-processing.svg";
 import doneSvg from "../../public/done.svg";
 import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
-import {
-  CleanSirenCodeRecord,
-  NoResultSirenCodeRecord,
-  NormalizedSirenResult,
-} from "./types";
+import { CleanSirenCodeRecord, NormalizedSirenResult } from "./types";
 import {
   DirtyRecord,
+  NoResultRecord,
   UncleanedRecord,
   WidgetCleanDataSteps,
 } from "../../lib/util/types";
@@ -39,7 +36,7 @@ const InseeCode = () => {
     [recordId: number]: DirtyRecord<NormalizedSirenResult>;
   }>({});
   const [noResultData, setNoResultData] = useState<{
-    [recordId: number]: NoResultSirenCodeRecord;
+    [recordId: number]: NoResultRecord<NormalizedSirenResult>;
   }>({});
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
@@ -133,7 +130,7 @@ const InseeCode = () => {
           ...prevValue,
           [clean.recordId]: {
             recordId: clean.recordId,
-            noResultMessage: NO_DATA_MESSAGES.NO_INSEE_CODE,
+            noResultMessage: NO_DATA_MESSAGES.NO_SIREN_CODE,
             result: clean,
           },
         }));

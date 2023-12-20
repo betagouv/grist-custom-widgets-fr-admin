@@ -1,7 +1,7 @@
 "use client";
 
 import { FC } from "react";
-import { NoResultInseeCodeRecord, NormalizedInseeResult } from "./types";
+import { NormalizedInseeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
@@ -9,13 +9,13 @@ import Image from "next/image";
 import doneSvg from "../../public/done.svg";
 import GenericChoiceBanner from "../../components/GenericChoiceBanner";
 import { DEPT } from "../../lib/util/constants";
-import { DirtyRecord } from "../../lib/util/types";
+import { DirtyRecord, NoResultRecord } from "../../lib/util/types";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
   dirtyData: DirtyRecord<NormalizedInseeResult> | null | undefined;
-  noResultData: NoResultInseeCodeRecord | null | undefined;
+  noResultData: NoResultRecord<NormalizedInseeResult> | null | undefined;
   passDataFromDirtyToClean: (
     inseeCodeSelected: NormalizedInseeResult,
     initalData: DirtyRecord<NormalizedInseeResult>,

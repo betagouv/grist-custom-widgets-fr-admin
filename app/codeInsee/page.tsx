@@ -10,11 +10,7 @@ import {
   getInseeCodeResultsForRecords,
   mappingsIsReady,
 } from "./lib";
-import {
-  CleanInseeCodeRecord,
-  NoResultInseeCodeRecord,
-  NormalizedInseeResult,
-} from "./types";
+import { CleanInseeCodeRecord, NormalizedInseeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
@@ -27,6 +23,7 @@ import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
 import {
   DirtyRecord,
+  NoResultRecord,
   UncleanedRecord,
   WidgetCleanDataSteps,
 } from "../../lib/util/types";
@@ -38,7 +35,7 @@ const InseeCode = () => {
     [recordId: number]: DirtyRecord<NormalizedInseeResult>;
   }>({});
   const [noResultData, setNoResultData] = useState<{
-    [recordId: number]: NoResultInseeCodeRecord;
+    [recordId: number]: NoResultRecord<NormalizedInseeResult>;
   }>({});
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
