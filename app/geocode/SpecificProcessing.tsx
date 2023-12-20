@@ -10,6 +10,7 @@ import doneSvg from "../../public/done.svg";
 import dynamic from "next/dynamic";
 import { DirtyRecord, NoResultRecord } from "../../lib/util/types";
 import GenericChoiceBanner from "../../components/GenericChoiceBanner";
+import RecordName from "../../components/RecordName";
 
 // react-leaflet is relies on browser APIs window. Dynamically load the component on the client side desabling ssr
 const MyAwesomeMap = dynamic(() => import("./Map"), { ssr: false });
@@ -38,28 +39,12 @@ export const SpecificProcessing: FC<{
   recordResearch,
   goBackToMenu,
 }) => {
-  const recordName = () => {
-    if (record && mappings) {
-      const columnName = mappings[COLUMN_MAPPING_NAMES.ADDRESS.name];
-      if (typeof columnName === "string") {
-        return record[columnName] ? (
-          <span className="tag validated semi-bold">
-            {String(record[columnName])}
-          </span>
-        ) : (
-          <span className="tag warning semi-bold">source manquante</span>
-        );
-      }
-      return (
-        <span className="tag warning semi-bold">
-          colonne illisible (type texte requis)
-        </span>
-      );
-    }
-    return (
-      <span className="tag warning semi-bold">ligne non sélectionnée</span>
-    );
-  };
+  const recordName = (
+    <RecordName
+      record={record}
+      columnName={mappings && mappings[COLUMN_MAPPING_NAMES.ADDRESS.name]}
+    />
+  );
 
   const isResultFind = () => {
     if (record && mappings) {
@@ -120,7 +105,7 @@ export const SpecificProcessing: FC<{
   ) : (
     <div className="centered-column">
       <h2>Traitement spécifique</h2>
-      <div>Adresse sélectionnée : {recordName()}</div>
+      <div>Adresse sélectionnée : {recordName}</div>
 
       {record && dirtyData && (
         <GenericChoiceBanner<NormalizedGeocodeResult>
