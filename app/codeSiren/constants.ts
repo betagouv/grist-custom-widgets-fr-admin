@@ -40,8 +40,8 @@ export const COLUMN_MAPPING_NAMES = {
 };
 
 export const NO_DATA_MESSAGES = {
-  NO_INSEE_CODE:
-    "Il n’existe pas de code INSEE dans les résultats pour la collectivité sélectionnée.",
+  NO_SIREN_CODE:
+    "Il n’existe pas de code SIREN dans les résultats pour la collectivité sélectionnée.",
   NO_RESULT:
     "Aucun résultat ne correspond à la collectivité sélectionnée. Veuillez vérifier si cette collectivité existe bien ou qu’il n’y a pas d’erreur.",
   NO_SOURCE_DATA:

@@ -1,15 +1,12 @@
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
-import {
-  CleanGeoCodeRecord,
-  NoResultGeoCodeRecord,
-  NormalizedGeocodeResult,
-} from "./types";
+import { CleanGeoCodeRecord, NormalizedGeocodeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { MESSAGES } from "../../lib/util/constants";
 import {
   DirtyRecord,
   MappedRecord,
+  NoResultRecord,
   UncleanedRecord,
 } from "../../lib/util/types";
 
@@ -115,7 +112,7 @@ export const getGeoCodeResultsForRecords = async (
 type ReduceReturnType = {
   dirty: { [recordId: number]: DirtyRecord<NormalizedGeocodeResult> };
   clean: { [recordId: number]: CleanGeoCodeRecord };
-  noResult: { [recordId: number]: NoResultGeoCodeRecord };
+  noResult: { [recordId: number]: NoResultRecord<NormalizedGeocodeResult> };
 };
 
 export const cleanRecordsData = (

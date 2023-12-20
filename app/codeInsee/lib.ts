@@ -4,13 +4,13 @@ import {
   CleanInseeCodeRecord,
   NormalizedInseeResult,
   NormalizedInseeResults,
-  NoResultInseeCodeRecord,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
 import {
   DirtyRecord,
   MappedRecord,
+  NoResultRecord,
   UncleanedRecord,
 } from "../../lib/util/types";
 
@@ -119,7 +119,7 @@ export const getInseeCodeResultsForRecords = async (
 type ReduceReturnType = {
   dirty: { [recordId: number]: DirtyRecord<NormalizedInseeResult> };
   clean: { [recordId: number]: CleanInseeCodeRecord };
-  noResult: { [recordId: number]: NoResultInseeCodeRecord };
+  noResult: { [recordId: number]: NoResultRecord<NormalizedInseeResult> };
 };
 
 export const cleanRecordsData = (

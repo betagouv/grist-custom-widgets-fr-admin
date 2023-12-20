@@ -3,14 +3,11 @@ import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MESSAGES } from "../../lib/util/constants";
-import {
-  CleanSirenCodeRecord,
-  NoResultSirenCodeRecord,
-  NormalizedSirenResult,
-} from "./types";
+import { CleanSirenCodeRecord, NormalizedSirenResult } from "./types";
 import {
   DirtyRecord,
   MappedRecord,
+  NoResultRecord,
   UncleanedRecord,
 } from "../../lib/util/types";
 
@@ -146,7 +143,7 @@ export const getSirenCodeResultsForRecords = async (
 type ReduceReturnType = {
   dirty: { [recordId: number]: DirtyRecord<NormalizedSirenResult> };
   clean: { [recordId: number]: CleanSirenCodeRecord };
-  noResult: { [recordId: number]: NoResultSirenCodeRecord };
+  noResult: { [recordId: number]: NoResultRecord<NormalizedSirenResult> };
 };
 
 export const cleanRecordsData = (
