@@ -9,6 +9,7 @@ import doneSvg from "../../public/done.svg";
 import { NormalizedSirenResult } from "./types";
 import GenericChoiceBanner from "../../components/GenericChoiceBanner";
 import { DirtyRecord, NoResultRecord } from "../../lib/util/types";
+import RecordName from "../../components/RecordName";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
@@ -30,28 +31,12 @@ export const SpecificProcessing: FC<{
   recordResearch,
   goBackToMenu,
 }) => {
-  const recordName = () => {
-    if (record && mappings) {
-      const columnName = mappings[COLUMN_MAPPING_NAMES.NAME.name];
-      if (typeof columnName === "string") {
-        return record[columnName] ? (
-          <span className="tag validated semi-bold">
-            {String(record[columnName])}
-          </span>
-        ) : (
-          <span className="tag warning semi-bold">source manquante</span>
-        );
-      }
-      return (
-        <span className="tag warning semi-bold">
-          colonne illisible (type texte requis)
-        </span>
-      );
-    }
-    return (
-      <span className="tag warning semi-bold">ligne non sélectionnée</span>
-    );
-  };
+  const recordName = (
+    <RecordName
+      record={record}
+      columnName={mappings && mappings[COLUMN_MAPPING_NAMES.NAME.name]}
+    />
+  );
 
   const isResultFind = () => {
     if (record && mappings) {
@@ -92,7 +77,7 @@ export const SpecificProcessing: FC<{
         style={{ marginBottom: "1rem" }}
         alt="traitement spécifique terminé"
       />
-      <div>Le code SIREN de {recordName()} a bien été rempli.</div>
+      <div>Le code SIREN de {recordName} a bien été rempli.</div>
       <div style={{ marginTop: "4rem" }}>
         {selectOtherLine}
         {actionsButton(false)}
@@ -101,7 +86,7 @@ export const SpecificProcessing: FC<{
   ) : (
     <div className="centered-column">
       <h2>Traitement spécifique</h2>
-      <div>Collectivité sélectionnée : {recordName()}</div>
+      <div>Collectivité sélectionnée : {recordName}</div>
 
       {record && dirtyData && (
         <GenericChoiceBanner<NormalizedSirenResult>
