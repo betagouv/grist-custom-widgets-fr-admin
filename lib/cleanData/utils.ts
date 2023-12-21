@@ -1,13 +1,19 @@
-import { MESSAGES } from "./constants";
-import { KeyValue, SortedRecords, UncleanedRecord } from "./types";
+import { KeyValue } from "../util/types";
+import { SortedRecords, UncleanedRecord } from "./types";
 
-export const cleanAndSortRecords = <NormalizedSirenResult extends KeyValue>(
-  recordsUncleanedData: UncleanedRecord<NormalizedSirenResult>[],
-  isDoubtfulResults: (data: NormalizedSirenResult[]) => boolean,
-  areTooCloseResults: (data: NormalizedSirenResult[]) => boolean,
-): SortedRecords<NormalizedSirenResult> => {
-  return recordsUncleanedData.reduce<SortedRecords<NormalizedSirenResult>>(
-    (acc: SortedRecords<NormalizedSirenResult>, record) => {
+export const MESSAGES = {
+  DOUBTFUL_RESULT: "Les scores de fiabilités sont douteux",
+  TOO_CLOSE_RESULT:
+    "Les scores de fiabilités sont trop proches pour sélectionner le bon groupement automatiquement",
+};
+
+export const cleanAndSortRecords = <NormalizedResult extends KeyValue>(
+  recordsUncleanedData: UncleanedRecord<NormalizedResult>[],
+  isDoubtfulResults: (data: NormalizedResult[]) => boolean,
+  areTooCloseResults: (data: NormalizedResult[]) => boolean,
+): SortedRecords<NormalizedResult> => {
+  return recordsUncleanedData.reduce<SortedRecords<NormalizedResult>>(
+    (acc: SortedRecords<NormalizedResult>, record) => {
       return record.toIgnore
         ? acc
         : !record.results.length

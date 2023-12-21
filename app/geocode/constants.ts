@@ -1,5 +1,5 @@
 import { LatLngExpression } from "leaflet";
-import { NoDataMessage } from "../../lib/util/types";
+import { NoDataMessage } from "../../lib/cleanData/types";
 
 export const TITLE = "Geocoder une adresse";
 

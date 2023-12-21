@@ -2,7 +2,8 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import { NormalizedGeocodeResult } from "./types";
 import { RowRecord } from "grist/GristData";
-import { MappedRecord, UncleanedRecord } from "../../lib/util/types";
+import { MappedRecord } from "../../lib/util/types";
+import { UncleanedRecord } from "../../lib/cleanData/types";
 
 //Return ltn, lng, address from a string
 export const callGeoCodeApi = async (

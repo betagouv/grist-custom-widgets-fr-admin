@@ -3,7 +3,8 @@ import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { NormalizedSirenResult } from "./types";
-import { MappedRecord, UncleanedRecord } from "../../lib/util/types";
+import { MappedRecord } from "../../lib/util/types";
+import { UncleanedRecord } from "../../lib/cleanData/types";
 
 const callSirenCodeApi = async (
   query: string,

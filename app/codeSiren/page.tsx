@@ -27,10 +27,10 @@ import {
   NoResultRecord,
   UncleanedRecord,
   WidgetCleanDataSteps,
-} from "../../lib/util/types";
+} from "../../lib/cleanData/types";
 import { CheckboxParams } from "../../components/CheckboxParams";
-import { cleanAndSortRecords } from "../../lib/util/utils";
-import GenericGlobalProcessing from "../../components/GenericGlobalProcessing";
+import { cleanAndSortRecords } from "../../lib/cleanData/utils";
+import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
