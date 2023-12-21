@@ -2,12 +2,8 @@ import { RowRecord } from "grist/GristData";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import { NormalizedInseeResult, NormalizedInseeResults } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { MESSAGES } from "../../lib/util/constants";
-import {
-  MappedRecord,
-  SortedRecords,
-  UncleanedRecord,
-} from "../../lib/util/types";
+import { MappedRecord } from "../../lib/util/types";
+import { UncleanedRecord } from "../../lib/cleanData/types";
 
 export const callInseeCodeApi = async (
   collectivity: string,

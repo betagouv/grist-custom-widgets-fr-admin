@@ -2,7 +2,8 @@
 
 import { ReactNode, useState } from "react";
 import "./genericChoiceBanner.css";
-import { DirtyRecord, KeyValue } from "../lib/util/types";
+import { KeyValue } from "../../lib/util/types";
+import { DirtyRecord } from "../../lib/cleanData/types";
 
 type Option = {
   choiceValueKey: string;

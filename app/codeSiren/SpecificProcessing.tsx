@@ -5,10 +5,10 @@ import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import { NormalizedSirenResult } from "./types";
-import GenericChoiceBanner from "../../components/GenericChoiceBanner";
-import { DirtyRecord, NoResultRecord } from "../../lib/util/types";
+import GenericChoiceBanner from "../../components/cleanData/GenericChoiceBanner";
+import { DirtyRecord, NoResultRecord } from "../../lib/cleanData/types";
 import RecordName from "../../components/RecordName";
-import GenericSpecificProcessing from "../../components/GenericSpecificProcessing";
+import GenericSpecificProcessing from "../../components/cleanData/GenericSpecificProcessing";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
