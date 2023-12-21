@@ -13,7 +13,6 @@ import { Title } from "../../components/Title";
 import Image from "next/image";
 import globalSvg from "../../public/global-processing.svg";
 import specificSvg from "../../public/specific-processing.svg";
-import doneSvg from "../../public/done.svg";
 import {
   areTooCloseResults,
   getGeoCodeResultsForRecord,
@@ -28,9 +27,9 @@ import {
   NoResultRecord,
   UncleanedRecord,
   WidgetCleanDataSteps,
-} from "../../lib/util/types";
-import { cleanAndSortRecords } from "../../lib/util/utils";
-import GenericGlobalProcessing from "../../components/GenericGlobalProcessing";
+} from "../../lib/cleanData/types";
+import { cleanAndSortRecords } from "../../lib/cleanData/utils";
+import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
 
 const GeoCodeur = () => {
   const [record, setRecord] = useState<RowRecord | null>();

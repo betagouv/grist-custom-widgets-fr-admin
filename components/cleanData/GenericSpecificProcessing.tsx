@@ -3,8 +3,9 @@
 import { ReactNode } from "react";
 import { RowRecord } from "grist/GristData";
 import Image from "next/image";
-import doneSvg from "../public/done.svg";
-import { KeyValue, NoResultRecord } from "../lib/util/types";
+import doneSvg from "../../public/done.svg";
+import { KeyValue } from "../../lib/util/types";
+import { NoResultRecord } from "../../lib/cleanData/types";
 
 function GenericSpecificProcessing<NormalizedResult extends KeyValue>({
   record,

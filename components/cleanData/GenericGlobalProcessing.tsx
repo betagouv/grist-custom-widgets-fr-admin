@@ -1,10 +1,9 @@
 "use client";
 
-import { ReactNode } from "react";
-import { RowRecord } from "grist/GristData";
 import Image from "next/image";
-import doneSvg from "../public/done.svg";
-import { DirtyRecord, KeyValue, NoResultRecord } from "../lib/util/types";
+import doneSvg from "../../public/done.svg";
+import { KeyValue } from "../../lib/util/types";
+import { DirtyRecord, NoResultRecord } from "../../lib/cleanData/types";
 
 function GenericGlobalProcessing<NormalizedResult extends KeyValue>({
   dirtyData,

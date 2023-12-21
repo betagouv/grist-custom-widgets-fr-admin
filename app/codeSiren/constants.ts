@@ -1,4 +1,4 @@
-import { NoDataMessage } from "../../lib/util/types";
+import { NoDataMessage } from "../../lib/cleanData/types";
 
 export const TITLE = "Ajouter les codes SIREN à partir d'un nom";
 
