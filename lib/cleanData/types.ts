@@ -10,7 +10,7 @@ export type WidgetCleanDataSteps =
 export type UncleanedRecord<NormalizedResult extends KeyValue> = {
   results: NormalizedResult[];
   recordId: number;
-  code_insee: string;
+  sourceData: string;
   noResultMessage?: string;
   toIgnore: boolean;
 };
