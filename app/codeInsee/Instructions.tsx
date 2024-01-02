@@ -15,8 +15,16 @@ export const Instructions = () => {
       </div>
       {isInfoActive && (
         <p className="accordion-body">
-          Cette Vue permet d'indiquer le code Insee correspondant à chaque
-          ligne.
+          Cette Vue permet de renseigner le code Insee correspondant à chaque
+          ligne. Elle utilise l'
+          <a
+            title="Api de découpage administratif - ouvre une nouvelle fenêtre"
+            href="https://geo.api.gouv.fr/decoupage-administratif"
+            target="_blank"
+          >
+            api de découpage administratif
+          </a>
+          .
           <br />
           Fonctionnement :
           <ul>
