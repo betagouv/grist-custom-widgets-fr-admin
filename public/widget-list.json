@@ -22,7 +22,7 @@
   },
   {
     "name": "Sirène",
-    "url": "https://betagouv.github.io/grist-custom-widgets-fr-admin/siren",
+    "url": "https://betagouv.github.io/grist-custom-widgets-fr-admin/codeSiren",
     "widgetId": "@anct/widget-sirene",
     "published": true,
     "accessLevel": "full"
