@@ -1,26 +1,23 @@
 "use client";
 
 import { FC } from "react";
-import { ChoiceBanner } from "./ChoiceBanner";
 import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
-import Image from "next/image";
-import doneSvg from "../../public/done.svg";
-import {
-  DirtySirenCodeRecord,
-  NoResultSirenCodeRecord,
-  NormalizedSirenResult,
-} from "./types";
+import { NormalizedSirenResult } from "./types";
+import GenericChoiceBanner from "../../components/cleanData/GenericChoiceBanner";
+import { DirtyRecord, NoResultRecord } from "../../lib/cleanData/types";
+import RecordName from "../../components/RecordName";
+import GenericSpecificProcessing from "../../components/cleanData/GenericSpecificProcessing";
 
 export const SpecificProcessing: FC<{
   mappings: WidgetColumnMap | null;
   record: RowRecord | null | undefined;
-  dirtyData: DirtySirenCodeRecord | null | undefined;
-  noResultData: NoResultSirenCodeRecord | null | undefined;
+  dirtyData: DirtyRecord<NormalizedSirenResult> | null | undefined;
+  noResultData: NoResultRecord<NormalizedSirenResult> | null | undefined;
   passDataFromDirtyToClean: (
     sirenCodeSelected: NormalizedSirenResult,
-    initalData: DirtySirenCodeRecord,
+    initalData: DirtyRecord<NormalizedSirenResult>,
   ) => void;
   recordResearch: () => void;
   goBackToMenu: () => void;
@@ -33,99 +30,58 @@ export const SpecificProcessing: FC<{
   recordResearch,
   goBackToMenu,
 }) => {
-  const recordName = () => {
-    if (record && mappings) {
-      const columnName = mappings[COLUMN_MAPPING_NAMES.NAME.name];
-      if (typeof columnName === "string") {
-        return record[columnName] ? (
-          <span className="tag validated semi-bold">
-            {String(record[columnName])}
-          </span>
-        ) : (
-          <span className="tag warning semi-bold">source manquante</span>
-        );
-      }
-      return (
-        <span className="tag warning semi-bold">
-          colonne illisible (type texte requis)
-        </span>
-      );
-    }
-    return (
-      <span className="tag warning semi-bold">ligne non sélectionnée</span>
-    );
-  };
+  const recordNameNode = (
+    <RecordName
+      record={record}
+      columnName={mappings && mappings[COLUMN_MAPPING_NAMES.NAME.name]}
+    />
+  );
 
   const isResultFind = () => {
     if (record && mappings) {
       const columnName = mappings[COLUMN_MAPPING_NAMES.SIREN.name];
-      return typeof columnName === "string" && record[columnName] && true;
+      if (typeof columnName === "string" && record[columnName]) {
+        return true;
+      }
     }
     return false;
   };
 
-  const selectOtherLine = (
-    <>
-      <p>Sélectionner une autre ligne à traiter spécifiquement</p>
-      <p>ou</p>
-    </>
+  const recordFindNode = (
+    <div>Le code SIREN de {recordNameNode} a bien été rempli.</div>
   );
 
-  const actionsButton = (isFirstResearch: boolean) => {
-    return (
-      <>
-        {record && (
-          <button className="primary" onClick={recordResearch}>
-            {isFirstResearch ? "Recherche spécifique" : "Réitérer la recherche"}
-          </button>
-        )}
-        <button className="secondary" onClick={goBackToMenu}>
-          Retour à l'accueil
-        </button>
-      </>
-    );
-  };
+  const choiceBannerNode = record && dirtyData && (
+    <GenericChoiceBanner<NormalizedSirenResult>
+      dirtyData={dirtyData}
+      passDataFromDirtyToClean={passDataFromDirtyToClean}
+      option={{
+        choiceValueKey: "siren",
+        withChoiceTagLegend: true,
+        choiceTagLegend: "Code SIREN",
+        choiceTagKey: "siren",
+      }}
+      itemDisplay={(item: NormalizedSirenResult) => {
+        return (
+          <div>
+            <b>{item.label}</b>
+            {item.code_commune && ` - ${item.code_commune}`}
+          </div>
+        );
+      }}
+    />
+  );
 
-  return isResultFind() ? (
-    <div className="centered-column">
-      <h2>Traitement spécifique terminé</h2>
-      <Image
-        priority
-        src={doneSvg}
-        style={{ marginBottom: "1rem" }}
-        alt="traitement spécifique terminé"
-      />
-      <div>Le code SIREN de {recordName()} a bien été rempli.</div>
-      <div style={{ marginTop: "4rem" }}>
-        {selectOtherLine}
-        {actionsButton(false)}
-      </div>
-    </div>
-  ) : (
-    <div className="centered-column">
-      <h2>Traitement spécifique</h2>
-      <div>Collectivité sélectionnée : {recordName()}</div>
-
-      {record && dirtyData && (
-        <ChoiceBanner
-          dirtyData={dirtyData}
-          passDataFromDirtyToClean={passDataFromDirtyToClean}
-        />
-      )}
-      {record && noResultData && (
-        <div className="py-2">
-          <span className="semi-bold">{noResultData.noResultMessage}</span>
-        </div>
-      )}
-      <div style={{ marginTop: "4rem" }}>
-        {record && noResultData ? (
-          <>
-            {selectOtherLine} {actionsButton(false)}
-          </>
-        ) : (
-          actionsButton(true)
-        )}
-      </div>
-    </div>
+  return (
+    <GenericSpecificProcessing<NormalizedSirenResult>
+      record={record}
+      recordNameNode={recordNameNode}
+      noResultData={noResultData}
+      recordResearch={recordResearch}
+      goBackToMenu={goBackToMenu}
+      isResultFind={isResultFind}
+      recordFindNode={recordFindNode}
+      choiceBannerNode={choiceBannerNode}
+    />
   );
 };

@@ -2,15 +2,9 @@ import { RowRecord } from "grist/GristData";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { MESSAGES } from "../../lib/util/constants";
-import {
-  CleanSirenCodeRecord,
-  DirtySirenCodeRecord,
-  NoResultSirenCodeRecord,
-  NormalizedSirenResult,
-  SirenCodeUncleanedRecord,
-} from "./types";
+import { NormalizedSirenResult } from "./types";
 import { MappedRecord } from "../../lib/util/types";
+import { UncleanedRecord } from "../../lib/cleanData/types";
 
 const callSirenCodeApi = async (
   query: string,
@@ -54,7 +48,7 @@ const getSirenCodeResults = async (
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
   isCollectiviteTerritoriale: boolean,
-): Promise<SirenCodeUncleanedRecord> => {
+): Promise<UncleanedRecord<NormalizedSirenResult>> => {
   let noResultMessage;
   let name = "";
   let sirenCodeResults: NormalizedSirenResult[] = [];
@@ -94,7 +88,7 @@ const getSirenCodeResults = async (
   }
   return {
     recordId: mappedRecord.id,
-    name,
+    sourceData: name,
     results: sirenCodeResults,
     noResultMessage,
     toIgnore,
@@ -121,7 +115,7 @@ export const getSirenCodeResultsForRecords = async (
   callBackFunction: Function,
   areCollectivitesTerritoriales: boolean,
 ) => {
-  const sirenCodeDataFromApi: SirenCodeUncleanedRecord[] = [];
+  const sirenCodeDataFromApi: UncleanedRecord<NormalizedSirenResult>[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
@@ -141,73 +135,11 @@ export const getSirenCodeResultsForRecords = async (
   }
 };
 
-type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtySirenCodeRecord };
-  clean: { [recordId: number]: CleanSirenCodeRecord };
-  noResult: { [recordId: number]: NoResultSirenCodeRecord };
-};
-
-export const cleanRecordsData = (
-  recordsUncleanedData: SirenCodeUncleanedRecord[],
-): ReduceReturnType => {
-  return recordsUncleanedData.reduce<ReduceReturnType>(
-    (acc: ReduceReturnType, record) => {
-      return record.toIgnore
-        ? acc
-        : !record.results.length
-          ? {
-              ...acc,
-              noResult: {
-                ...acc.noResult,
-                [record.recordId]: {
-                  recordId: record.recordId,
-                  noResultMessage: record.noResultMessage!,
-                },
-              },
-            }
-          : isDoubtfulResults(record.results)
-            ? {
-                ...acc,
-                dirty: {
-                  ...acc.dirty,
-                  [record.recordId]: {
-                    ...record,
-                    dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
-                  },
-                },
-              }
-            : areTooCloseResults(record.results)
-              ? {
-                  ...acc,
-                  dirty: {
-                    ...acc.dirty,
-                    [record.recordId]: {
-                      ...record,
-                      dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
-                    },
-                  },
-                }
-              : {
-                  ...acc,
-                  clean: {
-                    ...acc.clean,
-                    [record.recordId]: {
-                      recordId: record.recordId,
-                      name: record.name,
-                      ...record.results[0],
-                    },
-                  },
-                };
-    },
-    { dirty: {}, clean: {}, noResult: {} },
-  );
-};
-
-const isDoubtfulResults = (dataFromApi: NormalizedSirenResult[]) => {
+export const isDoubtfulResults = (dataFromApi: NormalizedSirenResult[]) => {
   return dataFromApi[0]?.score < 0.6;
 };
 
-const areTooCloseResults = (dataFromApi: NormalizedSirenResult[]) => {
+export const areTooCloseResults = (dataFromApi: NormalizedSirenResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
     const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;

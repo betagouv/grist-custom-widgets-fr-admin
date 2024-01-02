@@ -115,9 +115,3 @@ export const DEPT: KeyAsString = {
   "974": "La Réunion",
   "976": "Mayotte",
 };
-
-export const MESSAGES = {
-  DOUBTFUL_RESULT: "Les scores de fiabilités sont douteux",
-  TOO_CLOSE_RESULT:
-    "Les scores de fiabilités sont trop proches pour sélectionner le bon groupement automatiquement",
-};

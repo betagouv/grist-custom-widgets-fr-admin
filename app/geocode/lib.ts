@@ -1,15 +1,9 @@
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
-import {
-  CleanGeoCodeRecord,
-  DirtyGeoCodeRecord,
-  GeoCodeUncleanedRecord,
-  NoResultGeoCodeRecord,
-  NormalizedGeocodeResult,
-} from "./types";
+import { NormalizedGeocodeResult } from "./types";
 import { RowRecord } from "grist/GristData";
-import { MESSAGES } from "../../lib/util/constants";
 import { MappedRecord } from "../../lib/util/types";
+import { UncleanedRecord } from "../../lib/cleanData/types";
 
 //Return ltn, lng, address from a string
 export const callGeoCodeApi = async (
@@ -37,7 +31,7 @@ export const getGeoCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
-): Promise<GeoCodeUncleanedRecord> => {
+): Promise<UncleanedRecord<NormalizedGeocodeResult>> => {
   let noResultMessage;
   let address = "";
   let geoCodeResults: NormalizedGeocodeResult[] = [];
@@ -66,16 +60,9 @@ export const getGeoCodeResults = async (
   } else {
     noResultMessage = NO_DATA_MESSAGES.NO_SOURCE_DATA;
   }
-  console.log({
-    recordId: mappedRecord.id,
-    address,
-    results: geoCodeResults,
-    noResultMessage,
-    toIgnore,
-  });
   return {
     recordId: mappedRecord.id,
-    address,
+    sourceData: address,
     results: geoCodeResults,
     noResultMessage,
     toIgnore,
@@ -95,7 +82,7 @@ export const getGeoCodeResultsForRecords = async (
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
 ) => {
-  const geoCodeDataFromApi: GeoCodeUncleanedRecord[] = [];
+  const geoCodeDataFromApi: UncleanedRecord<NormalizedGeocodeResult>[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
@@ -110,74 +97,12 @@ export const getGeoCodeResultsForRecords = async (
   }
 };
 
-type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtyGeoCodeRecord };
-  clean: { [recordId: number]: CleanGeoCodeRecord };
-  noResult: { [recordId: number]: NoResultGeoCodeRecord };
-};
-
-export const cleanRecordsData = (
-  recordsUncleanedData: GeoCodeUncleanedRecord[],
-): ReduceReturnType => {
-  return recordsUncleanedData.reduce<ReduceReturnType>(
-    (acc: ReduceReturnType, record) => {
-      return record.toIgnore
-        ? acc
-        : !record.results.length
-          ? {
-              ...acc,
-              noResult: {
-                ...acc.noResult,
-                [record.recordId]: {
-                  recordId: record.recordId,
-                  noResultMessage: record.noResultMessage!,
-                },
-              },
-            }
-          : isDoubtfulResults(record.results)
-            ? {
-                ...acc,
-                dirty: {
-                  ...acc.dirty,
-                  [record.recordId]: {
-                    ...record,
-                    dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
-                  },
-                },
-              }
-            : areTooCloseResults(record.results)
-              ? {
-                  ...acc,
-                  dirty: {
-                    ...acc.dirty,
-                    [record.recordId]: {
-                      ...record,
-                      dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
-                    },
-                  },
-                }
-              : {
-                  ...acc,
-                  clean: {
-                    ...acc.clean,
-                    [record.recordId]: {
-                      recordId: record.recordId,
-                      address: record.address,
-                      ...record.results[0],
-                    },
-                  },
-                };
-    },
-    { dirty: {}, clean: {}, noResult: {} },
-  );
-};
-
 // TODO : check pertinance of score rules
-const isDoubtfulResults = (dataFromApi: NormalizedGeocodeResult[]) => {
+export const isDoubtfulResults = (dataFromApi: NormalizedGeocodeResult[]) => {
   return dataFromApi[0]?.score < 0.6;
 };
 
-const areTooCloseResults = (dataFromApi: NormalizedGeocodeResult[]) => {
+export const areTooCloseResults = (dataFromApi: NormalizedGeocodeResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
     const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;

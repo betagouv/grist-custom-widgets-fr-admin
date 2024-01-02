@@ -1,9 +1,15 @@
 # grist-custom-widgets-fr-admin
 "Widgets custom" pour Grist développés pour répondre aux besoins de l'administration française.
 
-L'ensemble des "Widgets custom" sont présents dans un même projet développé en [Next.js](https://nextjs.org/) et utilise le monde `/app`.
+L'ensemble des "Widgets custom" sont présents dans un même projet développé en [Next.js](https://nextjs.org/) et utilise le mode `/app`.
 
 Chaque dossier sous `/app` est un widget à part entière.
+
+## Liste des widgets existants
+Widgets de nettoyages de données :
+- [codeInsee](app/codeInsee/README.md)
+- [codeSiren](app/codeSiren/README.md) 
+- [geocode](app/geocode/README.md)
 
 
 ## En Prod
@@ -37,7 +43,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Pour contribuer
 
-Toute personne travaillant pour l'administration française peut contribuer à ce projet en créer de nouveau widget ou en proposant des corrections / améliorations à ceux existant. 
+Toute personne travaillant pour l'administration française peut contribuer à ce projet en créant de nouveaux widgets ou en proposant des corrections / améliorations à ceux existant. 
 
 ### Etapes d'un nouveau widget
 Créer un nouveau dossier sous `/app`.

@@ -1,17 +1,13 @@
 import { RowRecord } from "grist/GristData";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
 import {
-  DirtyInseeCodeRecord,
-  CleanInseeCodeRecord,
-  InseeCodeUncleanedRecord,
   NormalizedInseeResult,
   NormalizedInseeResults,
-  NoResultInseeCodeRecord,
   DecoupageAdmin,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { MESSAGES } from "../../lib/util/constants";
 import { MappedRecord } from "../../lib/util/types";
+import { UncleanedRecord } from "../../lib/cleanData/types";
 
 export const callInseeCodeApi = async (
   collectivity: string,
@@ -42,7 +38,7 @@ export const getInseeCodeResults = async (
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
   decoupageAdministratif: DecoupageAdmin,
-): Promise<InseeCodeUncleanedRecord> => {
+): Promise<UncleanedRecord<NormalizedInseeResult>> => {
   let noResultMessage;
   let collectivite = "";
   let inseeCodeResults: NormalizedInseeResult[] = [];
@@ -78,7 +74,7 @@ export const getInseeCodeResults = async (
   }
   return {
     recordId: mappedRecord.id,
-    collectivite,
+    sourceData: collectivite,
     results: inseeCodeResults,
     noResultMessage,
     toIgnore,
@@ -105,7 +101,7 @@ export const getInseeCodeResultsForRecords = async (
   callBackFunction: Function,
   decoupageAdministratif: DecoupageAdmin,
 ) => {
-  const inseeCodeDataFromApi: InseeCodeUncleanedRecord[] = [];
+  const inseeCodeDataFromApi: UncleanedRecord<NormalizedInseeResult>[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
@@ -125,69 +121,7 @@ export const getInseeCodeResultsForRecords = async (
   }
 };
 
-type ReduceReturnType = {
-  dirty: { [recordId: number]: DirtyInseeCodeRecord };
-  clean: { [recordId: number]: CleanInseeCodeRecord };
-  noResult: { [recordId: number]: NoResultInseeCodeRecord };
-};
-
-export const cleanRecordsData = (
-  recordsUncleanedData: InseeCodeUncleanedRecord[],
-): ReduceReturnType => {
-  return recordsUncleanedData.reduce<ReduceReturnType>(
-    (acc: ReduceReturnType, record) => {
-      return record.toIgnore
-        ? acc
-        : !record.results.length
-          ? {
-              ...acc,
-              noResult: {
-                ...acc.noResult,
-                [record.recordId]: {
-                  recordId: record.recordId,
-                  noResultMessage: record.noResultMessage!,
-                },
-              },
-            }
-          : isDoubtfulResults(record.results)
-            ? {
-                ...acc,
-                dirty: {
-                  ...acc.dirty,
-                  [record.recordId]: {
-                    ...record,
-                    dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
-                  },
-                },
-              }
-            : areTooCloseResults(record.results)
-              ? {
-                  ...acc,
-                  dirty: {
-                    ...acc.dirty,
-                    [record.recordId]: {
-                      ...record,
-                      dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
-                    },
-                  },
-                }
-              : {
-                  ...acc,
-                  clean: {
-                    ...acc.clean,
-                    [record.recordId]: {
-                      recordId: record.recordId,
-                      collectivite: record.collectivite,
-                      ...record.results[0],
-                    },
-                  },
-                };
-    },
-    { dirty: {}, clean: {}, noResult: {} },
-  );
-};
-
-const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
+export const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
   if (dataFromApi.length > 1) {
     return dataFromApi[0]?._score < 0.6;
   }
@@ -195,7 +129,7 @@ const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
   return false;
 };
 
-const areTooCloseResults = (dataFromApi: NormalizedInseeResult[]) => {
+export const areTooCloseResults = (dataFromApi: NormalizedInseeResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
     const deviation = firstChoice._score === 1.0 ? 0.02 : 0.09;

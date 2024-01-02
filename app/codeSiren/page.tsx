@@ -5,9 +5,10 @@ import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import {
-  cleanRecordsData,
+  areTooCloseResults,
   getSirenCodeResultsForRecord,
   getSirenCodeResultsForRecords,
+  isDoubtfulResults,
   mappingsIsReady,
 } from "./lib";
 import { RowRecord } from "grist/GristData";
@@ -17,32 +18,34 @@ import { Configuration } from "../../components/Configuration";
 import Image from "next/image";
 import globalSvg from "../../public/global-processing.svg";
 import specificSvg from "../../public/specific-processing.svg";
-import doneSvg from "../../public/done.svg";
 import { Instructions } from "./Instructions";
 import { SpecificProcessing } from "./SpecificProcessing";
+import { NormalizedSirenResult } from "./types";
 import {
-  CleanSirenCodeRecord,
-  DirtySirenCodeRecord,
-  NoResultSirenCodeRecord,
-  NormalizedSirenResult,
-  SirenCodeUncleanedRecord,
-} from "./types";
-import { WidgetStep } from "../../lib/util/types";
+  CleanRecord,
+  DirtyRecord,
+  NoResultRecord,
+  UncleanedRecord,
+  WidgetCleanDataSteps,
+} from "../../lib/cleanData/types";
 import { CheckboxParams } from "../../components/CheckboxParams";
+import { cleanAndSortRecords } from "../../lib/cleanData/utils";
+import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [dirtyData, setDirtyData] = useState<{
-    [recordId: number]: DirtySirenCodeRecord;
+    [recordId: number]: DirtyRecord<NormalizedSirenResult>;
   }>({});
   const [noResultData, setNoResultData] = useState<{
-    [recordId: number]: NoResultSirenCodeRecord;
+    [recordId: number]: NoResultRecord<NormalizedSirenResult>;
   }>({});
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [globalInProgress, setGlobalInProgress] = useState(false);
-  const [atOnProgress, setAtOnProgress] = useState([0, 0]);
-  const [currentStep, setCurrentStep] = useState<WidgetStep>("loading");
+  const [atOnProgress, setAtOnProgress] = useState<[number, number]>([0, 0]);
+  const [currentStep, setCurrentStep] =
+    useState<WidgetCleanDataSteps>("loading");
   const [areCollectivitesTerritoriales, setAreCollectivitesTerritoriales] =
     useState<boolean>(false);
 
@@ -77,12 +80,16 @@ const InseeCode = () => {
     setCurrentStep("global_processing");
     setGlobalInProgress(true);
     const callBackFunction = (
-      dataFromApi: SirenCodeUncleanedRecord[],
+      dataFromApi: UncleanedRecord<NormalizedSirenResult>[],
       at: number,
       on: number,
     ) => {
       setAtOnProgress([at, on]);
-      const { clean, dirty, noResult } = cleanRecordsData(dataFromApi);
+      const { clean, dirty, noResult } = cleanAndSortRecords(
+        dataFromApi,
+        isDoubtfulResults,
+        areTooCloseResults,
+      );
       writeCleanDataInTable(clean);
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
@@ -105,9 +112,11 @@ const InseeCode = () => {
         mappings!,
         areCollectivitesTerritoriales,
       );
-      const { clean, dirty, noResult } = cleanRecordsData([
-        recordUncleanedData,
-      ]);
+      const { clean, dirty, noResult } = cleanAndSortRecords(
+        [recordUncleanedData],
+        isDoubtfulResults,
+        areTooCloseResults,
+      );
       clean && writeCleanDataInTable(clean);
       dirty && setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       noResult &&
@@ -116,31 +125,33 @@ const InseeCode = () => {
   };
 
   const writeCleanDataInTable = (cleanData: {
-    [recordId: number]: CleanSirenCodeRecord;
+    [recordId: number]: CleanRecord<NormalizedSirenResult>;
   }) => {
-    Object.values(cleanData).forEach((clean: CleanSirenCodeRecord) => {
-      if (clean.siren) {
-        const data = {
-          [COLUMN_MAPPING_NAMES.SIREN.name]: clean.siren,
-          [COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name]: clean.label,
-        };
-        addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
-      } else {
-        setNoResultData((prevValue) => ({
-          ...prevValue,
-          [clean.recordId]: {
-            recordId: clean.recordId,
-            noResultMessage: NO_DATA_MESSAGES.NO_INSEE_CODE,
-            result: clean,
-          },
-        }));
-      }
-    });
+    Object.values(cleanData).forEach(
+      (clean: CleanRecord<NormalizedSirenResult>) => {
+        if (clean.siren) {
+          const data = {
+            [COLUMN_MAPPING_NAMES.SIREN.name]: clean.siren,
+            [COLUMN_MAPPING_NAMES.NORMALIZED_NAME.name]: clean.label,
+          };
+          addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
+        } else {
+          setNoResultData((prevValue) => ({
+            ...prevValue,
+            [clean.recordId]: {
+              recordId: clean.recordId,
+              noResultMessage: NO_DATA_MESSAGES.NO_DESTINATION_DATA,
+              result: clean,
+            },
+          }));
+        }
+      },
+    );
   };
 
   const passDataFromDirtyToClean = (
     inseeCodeSelected: NormalizedSirenResult,
-    initalData: DirtySirenCodeRecord,
+    initalData: DirtyRecord<NormalizedSirenResult>,
   ) => {
     // Remove the record from dirtyData
     setDirtyData(() => {
@@ -151,7 +162,7 @@ const InseeCode = () => {
       [initalData.recordId]: {
         ...inseeCodeSelected,
         recordId: initalData.recordId,
-        name: initalData.name,
+        sourceData: initalData.sourceData,
       },
     });
   };
@@ -213,40 +224,15 @@ const InseeCode = () => {
       <Title title={TITLE} />
       {collectivitesTerritorialesCheckbox}
       <Image priority src={globalSvg} alt="traitement global" />
-      {globalInProgress ? (
-        <div className="centered-column">
-          <h2>Traitement global en cours...</h2>
-          <span className="loader"></span>
-          <div className="px-2">
-            {atOnProgress[0]} / {atOnProgress[1]}
-          </div>
-        </div>
-      ) : (
-        <div>
-          <h2>Traitement global terminée</h2>
-          <Image
-            priority
-            src={doneSvg}
-            style={{ marginBottom: "1rem" }}
-            alt="traitement spécifique terminé"
-          />
-          <p>
-            Les codes SIREN de{" "}
-            {Object.keys(dirtyData).length + Object.keys(noResultData).length}{" "}
-            lignes n&apos;ont pu être trouvés automatiquement. Il se peut
-            qu&apos;aucun ou plusieurs résultats correspondent aux noms des
-            sources. Pour cela, utilisez la recherche spécifique.
-          </p>
-          <div>
-            <button className="primary" onClick={recordResearch}>
-              Recherche spécifique
-            </button>
-            <button className="secondary" onClick={goBackToMenu}>
-              Retour à l'accueil
-            </button>
-          </div>
-        </div>
-      )}
+      <GenericGlobalProcessing
+        dirtyData={dirtyData}
+        noResultData={noResultData}
+        globalInProgress={globalInProgress}
+        atOnProgress={atOnProgress}
+        recordResearch={recordResearch}
+        goBackToMenu={goBackToMenu}
+        researchObjectName="Les codes SIREN"
+      />
     </div>
   ) : (
     currentStep === "specific_processing" && (
