@@ -60,21 +60,6 @@ h3 {
   text-align: center;
 }
 
-.accordion-title {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  background-color: #d3d3d34d;
-  padding: 5px 10px;
-}
-
-.accordion-body {
-  background-color: #d3d3d32e;
-  padding: 5px 10px;
-  margin: 0;
-  font-size: 0.9rem;
-}
-
 .menu {
   display: flex;
   flex-direction: row;
