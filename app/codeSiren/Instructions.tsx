@@ -6,6 +6,15 @@ export const Instructions = () => {
   const instructions = (
     <>
       Cette Vue permet d'indiquer le code Sirène correspondant à chaque ligne.
+      Elle utilise l'
+      <a
+        title="Api Recherche d'entreprises - ouvre une nouvelle fenêtre"
+        href="https://recherche-entreprises.api.gouv.fr"
+        target="_blank"
+      >
+        api Recherche d'entreprises
+      </a>
+      .
       <br />
       Fonctionnement :
       <ul>
