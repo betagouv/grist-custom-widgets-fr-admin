@@ -89,7 +89,7 @@ export const getGeoCodeResultsForRecords = async (
     geoCodeDataFromApi.push(
       await getGeoCodeResults(grist.mapColumnNames(record), mappings, true),
     );
-    if (parseInt(i) % 100 === 0 || parseInt(i) === records.length - 1) {
+    if (parseInt(i) % 10 === 0 || parseInt(i) === records.length - 1) {
       callBackFunction(geoCodeDataFromApi, parseInt(i), records.length);
       // clear data
       geoCodeDataFromApi.length = 0;
