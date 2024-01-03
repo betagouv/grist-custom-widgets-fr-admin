@@ -6,7 +6,6 @@ import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import GenericChoiceBanner from "../../components/cleanData/GenericChoiceBanner";
-import { DEPT } from "../../lib/util/constants";
 import { DirtyRecord, NoResultRecord } from "../../lib/cleanData/types";
 import RecordName from "../../components/RecordName";
 import GenericSpecificProcessing from "../../components/cleanData/GenericSpecificProcessing";
@@ -57,18 +56,16 @@ export const SpecificProcessing: FC<{
       dirtyData={dirtyData}
       passDataFromDirtyToClean={passDataFromDirtyToClean}
       option={{
-        choiceValueKey: "code_insee",
+        choiceValueKey: "code",
         withChoiceTagLegend: true,
         choiceTagLegend: "Code INSEE",
-        choiceTagKey: "code_insee",
+        choiceTagKey: "code",
       }}
       itemDisplay={(item: NormalizedInseeResult) => {
         return (
           <div>
-            <b>
-              {item.nature_juridique} {item.lib_groupement}
-            </b>
-            {item.insee_dep && ` - ${DEPT[item.insee_dep]}`}
+            <b>{item.nom}</b>
+            {item.departement && ` - ${item.departement.nom}`}
           </div>
         );
       }}

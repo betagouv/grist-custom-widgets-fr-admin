@@ -1,13 +1,17 @@
 export type NormalizedInseeResult = {
-  lib_groupement: string;
-  siren_groupement: string;
-  nature_juridique: string;
-  code_insee: string;
-  insee_dep: string;
-  score: number;
+  nom: string;
+  code: string;
+  _score: number;
+  departement?: {
+    code: string;
+    nom: string;
+  };
 };
 
-export type NormalizedInseeResults = {
-  results: NormalizedInseeResult[];
-  query: string;
+export type NormalizedInseeResults = NormalizedInseeResult[];
+
+export type DecoupageAdmin = {
+  label: string;
+  apiUrl: string;
+  key: string;
 };
