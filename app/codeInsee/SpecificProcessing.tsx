@@ -56,10 +56,10 @@ export const SpecificProcessing: FC<{
       dirtyData={dirtyData}
       passDataFromDirtyToClean={passDataFromDirtyToClean}
       option={{
-        choiceValueKey: "code_insee",
+        choiceValueKey: "code",
         withChoiceTagLegend: true,
         choiceTagLegend: "Code INSEE",
-        choiceTagKey: "code_insee",
+        choiceTagKey: "code",
       }}
       itemDisplay={(item: NormalizedInseeResult) => {
         return (

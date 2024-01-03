@@ -132,7 +132,7 @@ export const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
 export const areTooCloseResults = (dataFromApi: NormalizedInseeResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
-    const deviation = firstChoice._score === 1.0 ? 0.02 : 0.09;
+    const deviation = firstChoice._score === 1.0 ? 0.09 : 0.15;
     return firstChoice._score - secondChoice._score < deviation;
   }
   return false;
