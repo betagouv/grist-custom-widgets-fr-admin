@@ -1,10 +1,17 @@
 import fetchMock from "jest-fetch-mock";
-import { callInseeCodeApi, cleanRecordsData, getInseeCodeResults } from "./lib";
-import { MESSAGES, NO_DATA_MESSAGES } from "./constants";
+import {
+  areTooCloseResults,
+  callInseeCodeApi,
+  getInseeCodeResults,
+  isDoubtfulResults,
+} from "./lib";
+import { NO_DATA_MESSAGES } from "./constants";
+import { MESSAGES, cleanAndSortRecords } from "../../lib/cleanData/utils";
 
 fetchMock.enableMocks();
 fetchMock.dontMock();
 
+// Mapped records utils
 const recordNoResult = {
   id: 66,
   code_insee: "",
@@ -86,9 +93,10 @@ describe("getInseeCodeResults", () => {
     const results = await getInseeCodeResults(recordNoResult, mappings, false);
     expect(results).toStrictEqual({
       recordId: recordNoResult.id,
-      collectivite: recordNoResult.collectivite,
+      sourceData: recordNoResult.collectivite,
       results: [],
       noResultMessage: NO_DATA_MESSAGES.NO_RESULT,
+      toIgnore: false,
     });
   });
   it("if no source data, should return NormalizedInseeResult with appropriate message", async () => {
@@ -99,9 +107,10 @@ describe("getInseeCodeResults", () => {
     );
     expect(results).toStrictEqual({
       recordId: recordNoSourceCode.id,
-      collectivite: recordNoSourceCode.collectivite,
+      sourceData: recordNoSourceCode.collectivite,
       results: [],
       noResultMessage: NO_DATA_MESSAGES.NO_SOURCE_DATA,
+      toIgnore: false,
     });
   });
   it("if destination already filled in and check it, should return NormalizedInseeResult with appropriate message", async () => {
@@ -112,9 +121,10 @@ describe("getInseeCodeResults", () => {
     );
     expect(results).toStrictEqual({
       recordId: recordWithDestinationFilledIn.id,
-      collectivite: "",
+      sourceData: "",
       results: [],
-      noResultMessage: NO_DATA_MESSAGES.DESTINATION_ALREADY_FILLED_IN,
+      noResultMessage: undefined,
+      toIgnore: true,
     });
   });
   it("if destination already filled in and dont check it, should return NormalizedInseeResult without specific message and results", async () => {
@@ -142,9 +152,10 @@ describe("getInseeCodeResults", () => {
     );
     expect(results).toStrictEqual({
       recordId: recordWithDestinationFilledIn.id,
-      collectivite: recordWithDestinationFilledIn.collectivite,
+      sourceData: recordWithDestinationFilledIn.collectivite,
       results: resultArray,
       noResultMessage: undefined,
+      toIgnore: false,
     });
   });
   it("if record has bad shape", async () => {
@@ -191,16 +202,19 @@ describe("getInseeCodeResults", () => {
     );
     expect(results).toStrictEqual({
       recordId: recordGivingFewResults.id,
-      collectivite: recordGivingFewResults.collectivite,
+      sourceData: recordGivingFewResults.collectivite,
       results: resultArray,
       noResultMessage: undefined,
+      toIgnore: false,
     });
   });
 });
 
-describe("cleanRecordsData", () => {
+describe("cleanAndSortRecords", () => {
   it("if parameter is empty", async () => {
-    expect(cleanRecordsData([])).toStrictEqual({
+    expect(
+      cleanAndSortRecords([], isDoubtfulResults, areTooCloseResults),
+    ).toStrictEqual({
       dirty: {},
       clean: {},
       noResult: {},
@@ -211,14 +225,15 @@ describe("cleanRecordsData", () => {
       {
         // No result data
         recordId: 1,
-        collectivite: "zzzzzzzzzzzz",
+        sourceData: "zzzzzzzzzzzz",
         results: [],
         noResultMessage: NO_DATA_MESSAGES.NO_RESULT,
+        toIgnore: false,
       },
       {
         // Several result without clear best score
         recordId: 2,
-        collectivite: "Saint-Martin",
+        sourceData: "Saint-Martin",
         results: [
           {
             lib_groupement: "Saint-Martin",
@@ -238,11 +253,12 @@ describe("cleanRecordsData", () => {
           },
         ],
         noResultMessage: undefined,
+        toIgnore: false,
       },
       {
         // Only one result
         recordId: 3,
-        collectivite: "La Turballe",
+        sourceData: "La Turballe",
         results: [
           {
             lib_groupement: "La Turballe",
@@ -254,11 +270,12 @@ describe("cleanRecordsData", () => {
           },
         ],
         noResultMessage: undefined,
+        toIgnore: false,
       },
       {
         // Several result but with best score
         recordId: 4,
-        collectivite: "Nanterre",
+        sourceData: "Nanterre",
         results: [
           {
             lib_groupement: "Nanterre",
@@ -285,12 +302,12 @@ describe("cleanRecordsData", () => {
             score: 0.4739488636363636,
           },
         ],
-        noResultMessage: NO_DATA_MESSAGES.DESTINATION_ALREADY_FILLED_IN,
+        toIgnore: false,
       },
       {
         // Several result without convincing score
         recordId: 5,
-        collectivite: "foobar",
+        sourceData: "foobar",
         results: [
           {
             lib_groupement: "L\u00e9obard",
@@ -302,13 +319,20 @@ describe("cleanRecordsData", () => {
           },
         ],
         noResultMessage: undefined,
+        toIgnore: false,
       },
     ];
-    expect(cleanRecordsData(recordsUncleanedData)).toStrictEqual({
+    expect(
+      cleanAndSortRecords(
+        recordsUncleanedData,
+        isDoubtfulResults,
+        areTooCloseResults,
+      ),
+    ).toStrictEqual({
       dirty: {
         2: {
           recordId: 2,
-          collectivite: "Saint-Martin",
+          sourceData: "Saint-Martin",
           results: [
             {
               lib_groupement: "Saint-Martin",
@@ -329,10 +353,11 @@ describe("cleanRecordsData", () => {
           ],
           noResultMessage: undefined,
           dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
+          toIgnore: false,
         },
         5: {
           recordId: 5,
-          collectivite: "foobar",
+          sourceData: "foobar",
           results: [
             {
               lib_groupement: "L\u00e9obard",
@@ -345,12 +370,13 @@ describe("cleanRecordsData", () => {
           ],
           noResultMessage: undefined,
           dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
+          toIgnore: false,
         },
       },
       clean: {
         3: {
           recordId: 3,
-          collectivite: "La Turballe",
+          sourceData: "La Turballe",
           lib_groupement: "La Turballe",
           siren_groupement: "214402117",
           nature_juridique: "COM",
@@ -360,7 +386,7 @@ describe("cleanRecordsData", () => {
         },
         4: {
           recordId: 4,
-          collectivite: "Nanterre",
+          sourceData: "Nanterre",
           lib_groupement: "Nanterre",
           siren_groupement: "219200508",
           nature_juridique: "COM",

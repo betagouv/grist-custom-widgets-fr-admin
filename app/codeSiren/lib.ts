@@ -127,7 +127,7 @@ export const getSirenCodeResultsForRecords = async (
         areCollectivitesTerritoriales,
       ),
     );
-    if (parseInt(i) % 100 === 0 || parseInt(i) === records.length - 1) {
+    if (parseInt(i) % 10 === 0 || parseInt(i) === records.length - 1) {
       callBackFunction(sirenCodeDataFromApi, parseInt(i), records.length);
       // clear data
       sirenCodeDataFromApi.length = 0;

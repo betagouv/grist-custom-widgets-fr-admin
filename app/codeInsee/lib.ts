@@ -113,7 +113,7 @@ export const getInseeCodeResultsForRecords = async (
         decoupageAdministratif,
       ),
     );
-    if (parseInt(i) % 100 === 0 || parseInt(i) === records.length - 1) {
+    if (parseInt(i) % 10 === 0 || parseInt(i) === records.length - 1) {
       callBackFunction(inseeCodeDataFromApi, parseInt(i), records.length);
       // clear data
       inseeCodeDataFromApi.length = 0;
