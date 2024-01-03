@@ -127,7 +127,7 @@ button.secondary:disabled {
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 1px solid var(--green, #009058);
 }
 
 .tag {
