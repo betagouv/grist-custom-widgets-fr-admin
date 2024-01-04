@@ -1,11 +1,13 @@
 "use client";
 
 import { Accordion } from "../../components/Accordion";
+import { NATURE_JURIDIQUE } from "./constants";
 
 export const Instructions = () => {
   const instructions = (
     <>
-      Cette Vue permet d'indiquer le code Insee correspondant à chaque ligne.
+      Cette Vue permet d'indiquer le code de la collectivité correspondant à
+      chaque ligne.
       <br />
       Fonctionnement :
       <ul>
@@ -31,6 +33,32 @@ export const Instructions = () => {
           cette vue.
         </li>
       </ul>
+      <br />
+      Voici la liste des <b>natures juridiques</b> valides dans l'API interrogée
+      et le type de code qui lui correspond. Si une nature juridique est
+      indiquée mais ne correspond à aucune présente dans cette liste elle sera
+      alors ignorée.
+      <br />
+      <table cellSpacing="0">
+        <thead>
+          <tr>
+            <th>Identifiant</th>
+            <th>Nom</th>
+            <th>Type de Code</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.values(NATURE_JURIDIQUE).map((nature) => {
+            return (
+              <tr key={nature.key}>
+                <th>{nature.key}</th>
+                <td>{nature.label}</td>
+                <td>{nature.typeCode}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </>
   );
 

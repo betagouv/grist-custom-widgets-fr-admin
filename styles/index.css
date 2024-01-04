@@ -227,3 +227,20 @@ footer {
   height: 80px;
   text-align: left;
 }
+
+table {
+  width: 100%;
+  border: 1px solid #333;
+}
+
+td,
+th {
+  border: 1px solid #333;
+  padding: 3px;
+}
+
+thead,
+tfoot {
+  background-color: var(--green, #009058);
+  color: #fff;
+}
