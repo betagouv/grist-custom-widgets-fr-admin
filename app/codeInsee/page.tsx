@@ -31,6 +31,7 @@ import {
 import { cleanAndSortRecords } from "../../lib/cleanData/utils";
 import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
 import { MyFooter } from "./Footer";
+import { CheckboxParams } from "../../components/CheckboxParams";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -46,6 +47,7 @@ const InseeCode = () => {
   const [atOnProgress, setAtOnProgress] = useState<[number, number]>([0, 0]);
   const [currentStep, setCurrentStep] =
     useState<WidgetCleanDataSteps>("loading");
+  const [acceptSirenCode, setAcceptSirenCode] = useState<boolean>(false);
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -129,9 +131,11 @@ const InseeCode = () => {
   }) => {
     Object.values(cleanData).forEach(
       (clean: CleanRecord<NormalizedInseeResult>) => {
-        if (clean.code_insee) {
+        if (acceptSirenCode || clean.code_insee) {
           const data = {
-            [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code_insee,
+            [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: acceptSirenCode
+              ? clean.code_insee || clean.siren_groupement
+              : clean.code_insee,
             [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.lib_groupement,
           };
           addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
@@ -167,6 +171,16 @@ const InseeCode = () => {
     });
   };
 
+  const sirenCodeCheckbox = (
+    <div className="centered-column">
+      <CheckboxParams
+        label="Accepter également les codes SIREN"
+        value={acceptSirenCode}
+        onChange={() => setAcceptSirenCode(!acceptSirenCode)}
+      />
+    </div>
+  );
+
   return currentStep === "loading" ? (
     <Title title={TITLE} />
   ) : currentStep === "config" ? (
@@ -180,13 +194,14 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
+      {sirenCodeCheckbox}
       <div className="menu">
         <div className="centered-column">
           <Image priority src={globalSvg} alt="Traitement global" />
           <h2>Traitement global</h2>
           <p>
             Lancer une recherche globale sur l&apos;ensemble des lignes
-            n&apos;ayant pas de code INSEE de renseigné.
+            n&apos;ayant pas de code de collectivité renseigné.
           </p>
           <button className="primary" onClick={globalResearch}>
             Recherche globale
@@ -197,8 +212,8 @@ const InseeCode = () => {
           <Image priority src={specificSvg} alt="Traitement spécifique" />
           <h2>Traitement spécifique</h2>
           <p>
-            Lancer une recherche spécifique du code INSEE de la ligne
-            sélectionnée.
+            Lancer une recherche spécifique du code de la collectivité de la
+            ligne sélectionnée.
           </p>
           <button className="primary" onClick={recordResearch}>
             Recherche spécifique
@@ -212,6 +227,7 @@ const InseeCode = () => {
     <div>
       <div className="centered-column">
         <Title title={TITLE} />
+        {sirenCodeCheckbox}
         <Image priority src={globalSvg} alt="traitement global" />
         <GenericGlobalProcessing
           dirtyData={dirtyData}
@@ -230,6 +246,7 @@ const InseeCode = () => {
       <div>
         <div className="centered-column">
           <Title title={TITLE} />
+          {sirenCodeCheckbox}
           <Image priority src={specificSvg} alt="traitement spécifique" />
           <SpecificProcessing
             mappings={mappings}

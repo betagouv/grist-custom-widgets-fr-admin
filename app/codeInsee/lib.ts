@@ -1,5 +1,9 @@
 import { RowRecord } from "grist/GristData";
-import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES } from "./constants";
+import {
+  COLUMN_MAPPING_NAMES,
+  NATURE_JURIDIQUE,
+  NO_DATA_MESSAGES,
+} from "./constants";
 import { NormalizedInseeResult, NormalizedInseeResults } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MappedRecord } from "../../lib/util/types";
@@ -47,10 +51,11 @@ export const getInseeCodeResults = async (
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
       const natureJuridique =
         mappedRecord[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name];
+      // natureJuridique is taken into account only if it's a valide value
       inseeCodeResults = await callInseeCodeApi(
         collectivite,
         departement,
-        natureJuridique,
+        NATURE_JURIDIQUE[natureJuridique] ? natureJuridique : undefined,
       );
       if (inseeCodeResults === undefined) {
         console.error(

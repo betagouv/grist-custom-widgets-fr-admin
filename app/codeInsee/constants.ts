@@ -1,4 +1,5 @@
 import { NoDataMessage } from "../../lib/cleanData/types";
+import { EntiteAdmin } from "./types";
 
 export const TITLE = "Ajouter les codes INSEE à partir d'une localité";
 
@@ -44,4 +45,69 @@ export const NO_DATA_MESSAGES: NoDataMessage = {
     "Afin de traiter la ligne sélectionnée, veuillez renseigner la collectivité recherchée.",
   API_ERROR:
     "Une erreur est survenue lors de l'appel à l'api, veuillez appeler le service technique.",
+};
+
+// Used for addok-admin API
+export const NATURE_JURIDIQUE: {
+  [key: string]: EntiteAdmin;
+} = {
+  COM: { label: "Commune", key: "COM", typeCode: "INSEE" },
+  CA: { label: "Communauté d’agglomération", key: "CA", typeCode: "SIREN" },
+  CC: { label: "Communauté de communes", key: "CC", typeCode: "SIREN" },
+  COLTER: {
+    label: "Collectivités territoriales",
+    key: "COLTER",
+    typeCode: "SIREN",
+  },
+  EPT: {
+    label: "Etablissement public territorial",
+    key: "EPT",
+    typeCode: "SIREN",
+  },
+  SMF: { label: "Syndicat mixte fermé", key: "SMF", typeCode: "SIREN" },
+  SMO: { label: "Syndicat mixte ouvert", key: "SMO", typeCode: "SIREN" },
+  SIVOS: {
+    label: "Syndicat intercommunal à vocation multiple",
+    key: "SIVOS",
+    typeCode: "SIREN",
+  },
+  SIVU: {
+    label: "Syndicat intercommunal à vocation unique",
+    key: "SIVU",
+    typeCode: "SIREN",
+  },
+  METRO: { label: "Métropole", key: "METRO", typeCode: "SIREN" },
+  DEP: { label: "Département", key: "DEP", typeCode: "INSEE" },
+  REG: { label: "Région", key: "REG", typeCode: "INSEE" },
+};
+
+// Used for api-geo API
+export const DECOUPAGE_ADMIN: {
+  [key: string]: EntiteAdmin;
+} = {
+  COM: {
+    label: "communes",
+    apiGeoUrl: "communes",
+    key: "COM",
+    typeCode: "INSEE",
+  },
+  COM_ASSOCIES_ET_DELEGUEES: {
+    label: "communes associées et déléguées",
+    apiGeoUrl: "communes_associees_deleguees",
+    key: "COM_ASSOCIES_ET_DELEGUEES",
+    typeCode: "INSEE",
+  },
+  EPCI: { label: "epci", apiGeoUrl: "epcis", key: "EPCI", typeCode: "SIREN" },
+  DEPT: {
+    label: "départements",
+    apiGeoUrl: "departements",
+    key: "DEPT",
+    typeCode: "INSEE",
+  },
+  REG: {
+    label: "régions",
+    apiGeoUrl: "regions",
+    key: "REG",
+    typeCode: "INSEE",
+  },
 };
