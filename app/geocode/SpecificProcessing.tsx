@@ -38,69 +38,69 @@ export const SpecificProcessing: FC<{
   recordResearch,
   goBackToMenu,
 }) => {
-    const recordNameNode = (
-      <RecordName
-        record={record}
-        columnName={mappings && mappings[COLUMN_MAPPING_NAMES.ADDRESS.name]}
-      />
-    );
+  const recordNameNode = (
+    <RecordName
+      record={record}
+      columnName={mappings && mappings[COLUMN_MAPPING_NAMES.ADDRESS.name]}
+    />
+  );
 
-    const isResultFind = () => {
-      if (record && mappings) {
-        const columnNameLat = mappings[COLUMN_MAPPING_NAMES.LATITUDE.name];
-        const columnNameLng = mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name];
-        if (
-          typeof columnNameLat === "string" &&
-          typeof columnNameLng === "string" &&
-          record[columnNameLat] &&
-          record[columnNameLng]
-        ) {
-          return true;
-        }
+  const isResultFind = () => {
+    if (record && mappings) {
+      const columnNameLat = mappings[COLUMN_MAPPING_NAMES.LATITUDE.name];
+      const columnNameLng = mappings[COLUMN_MAPPING_NAMES.LONGITUDE.name];
+      if (
+        typeof columnNameLat === "string" &&
+        typeof columnNameLng === "string" &&
+        record[columnNameLat] &&
+        record[columnNameLng]
+      ) {
+        return true;
       }
-      return false;
-    };
-
-    const recordFindNode = record && (
-      <MyAwesomeMap>
-        <DynamicMarker mappings={mappings} record={record} />
-      </MyAwesomeMap>
-    );
-
-    const choiceBannerNode = record && dirtyData && (
-      <GenericChoiceBanner<NormalizedGeocodeResult>
-        dirtyData={dirtyData}
-        passDataFromDirtyToClean={passDataFromDirtyToClean}
-        option={{
-          choiceValueKey: "address_normalized",
-          withChoiceTagLegend: false,
-          choiceTagLegend: "",
-          choiceTagKey: "",
-        }}
-        itemDisplay={(item: NormalizedGeocodeResult) => (
-          <div>
-            <b>{item.address_normalized}</b>
-            {item.departement && ` - ${item.departement}`}
-          </div>
-        )}
-        selectedDisplay={(selected: NormalizedGeocodeResult) => (
-          <MyAwesomeMap>
-            <ChoiceDynamicMarker address={selected} />
-          </MyAwesomeMap>
-        )}
-      />
-    );
-
-    return (
-      <GenericSpecificProcessing<NormalizedGeocodeResult>
-        record={record}
-        recordNameNode={recordNameNode}
-        noResultData={noResultData}
-        recordResearch={recordResearch}
-        goBackToMenu={goBackToMenu}
-        isResultFind={isResultFind}
-        recordFindNode={recordFindNode}
-        choiceBannerNode={choiceBannerNode}
-      />
-    );
+    }
+    return false;
   };
+
+  const recordFindNode = record && (
+    <MyAwesomeMap>
+      <DynamicMarker mappings={mappings} record={record} />
+    </MyAwesomeMap>
+  );
+
+  const choiceBannerNode = record && dirtyData && (
+    <GenericChoiceBanner<NormalizedGeocodeResult>
+      dirtyData={dirtyData}
+      passDataFromDirtyToClean={passDataFromDirtyToClean}
+      option={{
+        choiceValueKey: "address_normalized",
+        withChoiceTagLegend: false,
+        choiceTagLegend: "",
+        choiceTagKey: "",
+      }}
+      itemDisplay={(item: NormalizedGeocodeResult) => (
+        <div>
+          <b>{item.address_normalized}</b>
+          {item.departement && ` - ${item.departement}`}
+        </div>
+      )}
+      selectedDisplay={(selected: NormalizedGeocodeResult) => (
+        <MyAwesomeMap>
+          <ChoiceDynamicMarker address={selected} />
+        </MyAwesomeMap>
+      )}
+    />
+  );
+
+  return (
+    <GenericSpecificProcessing<NormalizedGeocodeResult>
+      record={record}
+      recordNameNode={recordNameNode}
+      noResultData={noResultData}
+      recordResearch={recordResearch}
+      goBackToMenu={goBackToMenu}
+      isResultFind={isResultFind}
+      recordFindNode={recordFindNode}
+      choiceBannerNode={choiceBannerNode}
+    />
+  );
+};
