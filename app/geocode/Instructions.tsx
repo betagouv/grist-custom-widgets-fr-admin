@@ -6,15 +6,7 @@ export const Instructions = () => {
   const instructions = (
     <>
       Cette Vue permet d'indiquer le Geocodage (longitude et latitude)
-      correspondant à chaque ligne. Elle utilise l'
-      <a
-        title="Api Adresse - ouvre une nouvelle fenêtre"
-        href="https://adresse.data.gouv.fr/api-doc/adresse"
-        target="_blank"
-      >
-        api Adresse
-      </a>
-      .
+      correspondant à chaque ligne.
       <br />
       Fonctionnement :
       <ul>

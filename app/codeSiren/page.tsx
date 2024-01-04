@@ -31,6 +31,7 @@ import {
 import { CheckboxParams } from "../../components/CheckboxParams";
 import { cleanAndSortRecords } from "../../lib/cleanData/utils";
 import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
+import { MyFooter } from "./Footer";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -187,6 +188,7 @@ const InseeCode = () => {
       <Configuration>
         <Instructions />
       </Configuration>
+      <MyFooter />
     </div>
   ) : currentStep === "menu" ? (
     <div>
@@ -218,37 +220,44 @@ const InseeCode = () => {
         </div>
       </div>
       <Instructions />
+      <MyFooter />
     </div>
   ) : currentStep === "global_processing" ? (
-    <div className="centered-column">
-      <Title title={TITLE} />
-      {collectivitesTerritorialesCheckbox}
-      <Image priority src={globalSvg} alt="traitement global" />
-      <GenericGlobalProcessing
-        dirtyData={dirtyData}
-        noResultData={noResultData}
-        globalInProgress={globalInProgress}
-        atOnProgress={atOnProgress}
-        recordResearch={recordResearch}
-        goBackToMenu={goBackToMenu}
-        researchObjectName="Les codes SIREN"
-      />
-    </div>
-  ) : (
-    currentStep === "specific_processing" && (
+    <div>
       <div className="centered-column">
         <Title title={TITLE} />
         {collectivitesTerritorialesCheckbox}
-        <Image priority src={specificSvg} alt="traitement spécifique" />
-        <SpecificProcessing
-          mappings={mappings}
-          record={record}
-          dirtyData={record && dirtyData[record.id]}
-          noResultData={record && noResultData[record.id]}
-          passDataFromDirtyToClean={passDataFromDirtyToClean}
+        <Image priority src={globalSvg} alt="traitement global" />
+        <GenericGlobalProcessing
+          dirtyData={dirtyData}
+          noResultData={noResultData}
+          globalInProgress={globalInProgress}
+          atOnProgress={atOnProgress}
           recordResearch={recordResearch}
           goBackToMenu={goBackToMenu}
+          researchObjectName="Les codes SIREN"
         />
+      </div>
+      <MyFooter />
+    </div>
+  ) : (
+    currentStep === "specific_processing" && (
+      <div>
+        <div className="centered-column">
+          <Title title={TITLE} />
+          {collectivitesTerritorialesCheckbox}
+          <Image priority src={specificSvg} alt="traitement spécifique" />
+          <SpecificProcessing
+            mappings={mappings}
+            record={record}
+            dirtyData={record && dirtyData[record.id]}
+            noResultData={record && noResultData[record.id]}
+            passDataFromDirtyToClean={passDataFromDirtyToClean}
+            recordResearch={recordResearch}
+            goBackToMenu={goBackToMenu}
+          />
+        </div>
+        <MyFooter />
       </div>
     )
   );
