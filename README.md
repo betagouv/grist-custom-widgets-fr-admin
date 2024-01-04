@@ -15,12 +15,14 @@ Widgets de nettoyages de données :
 ## En Prod
 Le projet est déployé via les Github Pages à partir de la branche `main` à l'adresse [https://betagouv.github.io/grist-custom-widgets-fr-admin/](https://betagouv.github.io/grist-custom-widgets-fr-admin/).
 
-*NB: les widgets custom ne font que transiter de la donnée entre l'appel à des API et la lecture et l'écriture dans le tableau Grist. Aucune donnée présente sur Grist n'est stocké dans les serveurs de github*
+*NB: les widgets customs ne font que transiter de la donnée entre l'appel à des API et la lecture et l'écriture dans le tableau Grist. Aucune donnée présente sur Grist n'est stocké dans les serveurs de github*
+
+Pour ajouter un widget à la liste de l'instance de l'ANCT il faut l'ajouter au fichier `public/widget-list.json`
 
 
 ## En local
 
-Install, run the development server:
+Installer et lancer le serveur de developpement:
 
 ```bash
 npm install
@@ -30,27 +32,22 @@ yarn install
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Puis (idéalement) depuis une instance local de Grist ajoutez une vue "custom" à une page correspdant au contexte de votre widget et indiquez l'url correspondant à votre widget. 
+Par exemple pour le geocodeur : [http://localhost:3000/geocode](http://localhost:3000/geocode)
 
-### Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Vous pouvez également ouvrir cet url directement dans une nouvelle page de votre navigateur, une vue étant en réalité un iFrame.
 
 ## Pour contribuer
 
-Toute personne travaillant pour l'administration française peut contribuer à ce projet en créant de nouveaux widgets ou en proposant des corrections / améliorations à ceux existant. 
+Toute personne travaillant pour l'administration française peut contribuer à ce projet en créant de nouveaux widgets ou en proposant des corrections / améliorations à ceux existants. 
 
-### Etapes d'un nouveau widget
-Créer un nouveau dossier sous `/app`.
+Pour créer un nouveau widget il suffit de créer un dossier sous `/app` et d'y développer le widget en question.
 
-TODO
+[Documentation Grist pour la création de widget](https://support.getgrist.com/widget-custom/)
 
-### Règles de commit
+
+**Règles de commit**
+
 Si le commit concerne un widget en particulier le préciser 
 
 [Nom du widget] : [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
