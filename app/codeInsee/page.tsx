@@ -99,7 +99,15 @@ const InseeCode = () => {
   const recordResearch = async () => {
     if (record) {
       setCurrentStep("specific_processing");
-      // TODO : delete data corresponding to this record in dirty and noResult states
+      // Delete data corresponding to this record in dirty and noResult states
+      setDirtyData((prevState) => {
+        delete prevState[record.id];
+        return prevState;
+      });
+      setNoResultData((prevState) => {
+        delete prevState[record.id];
+        return prevState;
+      });
       const recordUncleanedData = await getInseeCodeResultsForRecord(
         record,
         mappings!,
