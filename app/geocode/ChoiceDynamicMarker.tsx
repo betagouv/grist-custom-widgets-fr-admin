@@ -21,7 +21,7 @@ function ChoiceDynamicMarker({
   }
   return (
     <Marker position={[Number(address.lat), Number(address.lng)]}>
-      <Tooltip>{String(address.address_nomalized)}</Tooltip>
+      <Tooltip>{String(address.address_normalized)}</Tooltip>
     </Marker>
   );
 }
