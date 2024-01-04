@@ -20,7 +20,7 @@ export const callGeoCodeApi = async (
     return {
       lat: d.geometry.coordinates[1],
       lng: d.geometry.coordinates[0],
-      address_nomalized: d.properties.label,
+      address_normalized: d.properties.label,
       score: d.properties.score,
       departement: d.properties.context?.split(", ")[1],
     };

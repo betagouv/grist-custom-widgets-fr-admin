@@ -126,7 +126,7 @@ const GeoCodeur = () => {
             [COLUMN_MAPPING_NAMES.LATITUDE.name]: clean.lat,
             [COLUMN_MAPPING_NAMES.LONGITUDE.name]: clean.lng,
             [COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]:
-              clean.address_nomalized,
+              clean.address_normalized,
           };
           addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
         } else {

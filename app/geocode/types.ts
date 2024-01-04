@@ -1,7 +1,7 @@
 export type NormalizedGeocodeResult = {
   lat: number;
   lng: number;
-  address_nomalized: string;
+  address_normalized: string;
   score: number;
   departement: string;
 };
