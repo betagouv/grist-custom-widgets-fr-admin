@@ -36,9 +36,12 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 95vh;
+  position: relative;
 }
 
 h1 {
@@ -202,4 +205,25 @@ button:focus-visible {
 
 .semi-bold {
   font-weight: 600;
+}
+
+.smaller {
+  font-size: smaller;
+  line-height: 18px;
+}
+
+body::after {
+  content: '';
+  display: block;
+  height: 85px;
+  width: 100%;
+  /* Set same as footer's height */
+}
+
+footer {
+  position: absolute;
+  bottom: 2px;
+  width: 100%;
+  height: 80px;
+  text-align: left;
 }

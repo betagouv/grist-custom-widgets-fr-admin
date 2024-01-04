@@ -30,6 +30,7 @@ import {
 } from "../../lib/cleanData/types";
 import { cleanAndSortRecords } from "../../lib/cleanData/utils";
 import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
+import { MyFooter } from "./Footer";
 
 const GeoCodeur = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -168,6 +169,7 @@ const GeoCodeur = () => {
       <Configuration>
         <Instructions />
       </Configuration>
+      <MyFooter />
     </div>
   ) : currentStep === "menu" ? (
     <div>
@@ -198,35 +200,42 @@ const GeoCodeur = () => {
         </div>
       </div>
       <Instructions />
+      <MyFooter />
     </div>
   ) : currentStep === "global_processing" ? (
-    <div className="centered-column">
-      <Title title={TITLE} />
-      <Image priority src={globalSvg} alt="traitement global" />
-      <GenericGlobalProcessing
-        dirtyData={dirtyData}
-        noResultData={noResultData}
-        globalInProgress={globalInProgress}
-        atOnProgress={atOnProgress}
-        recordResearch={recordResearch}
-        goBackToMenu={goBackToMenu}
-        researchObjectName="Les GeoCodes"
-      />
+    <div>
+      <div className="centered-column">
+        <Title title={TITLE} />
+        <Image priority src={globalSvg} alt="traitement global" />
+        <GenericGlobalProcessing
+          dirtyData={dirtyData}
+          noResultData={noResultData}
+          globalInProgress={globalInProgress}
+          atOnProgress={atOnProgress}
+          recordResearch={recordResearch}
+          goBackToMenu={goBackToMenu}
+          researchObjectName="Les GeoCodes"
+        />
+      </div>
+      <MyFooter />
     </div>
   ) : (
     currentStep === "specific_processing" && (
-      <div className="centered-column">
-        <Title title={TITLE} />
-        <Image priority src={specificSvg} alt="traitement spécifique" />
-        <SpecificProcessing
-          mappings={mappings}
-          record={record}
-          dirtyData={record && dirtyData[record.id]}
-          noResultData={record && noResultData[record.id]}
-          passDataFromDirtyToClean={passDataFromDirtyToClean}
-          recordResearch={recordResearch}
-          goBackToMenu={goBackToMenu}
-        />
+      <div>
+        <div className="centered-column">
+          <Title title={TITLE} />
+          <Image priority src={specificSvg} alt="traitement spécifique" />
+          <SpecificProcessing
+            mappings={mappings}
+            record={record}
+            dirtyData={record && dirtyData[record.id]}
+            noResultData={record && noResultData[record.id]}
+            passDataFromDirtyToClean={passDataFromDirtyToClean}
+            recordResearch={recordResearch}
+            goBackToMenu={goBackToMenu}
+          />
+        </div>
+        <MyFooter />
       </div>
     )
   );
