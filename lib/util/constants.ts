@@ -1,17 +1,5 @@
 import { KeyAsString } from "./types";
 
-export const NATURE_JURIDIQUE: KeyAsString = {
-  COM: "Commune",
-  CA: "Communauté d’agglomération",
-  CC: "Communauté de communes",
-  SIVU: "SIVU",
-  DEP: "département",
-  COLTER: "Collectivités territoriales",
-  SMO: "SMO",
-  SMF: "SMF",
-  SIVOS: "SIVOS",
-};
-
 export const DEPT: KeyAsString = {
   "01": "Auvergne-Rhône-Alpes",
   "02": "Hauts-de-France",

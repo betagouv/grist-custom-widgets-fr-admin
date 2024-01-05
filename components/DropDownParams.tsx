@@ -12,8 +12,8 @@ type DropDownItem = {
 export const DropDownParams: FC<{
   label: string;
   list: DropDownItem[];
-  selected: DropDownItem;
-  onChange: (elem: DropDownItem) => void;
+  selected: DropDownItem | null;
+  onChange: (elem: DropDownItem | null) => void;
 }> = ({ label, list, selected, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -21,7 +21,7 @@ export const DropDownParams: FC<{
     setIsOpen(!isOpen);
   };
 
-  const closeDropdown = (elem: DropDownItem) => {
+  const closeDropdown = (elem: DropDownItem | null) => {
     onChange(elem);
     setIsOpen(false);
   };
@@ -30,7 +30,7 @@ export const DropDownParams: FC<{
       {label}
       <div className="dropdown">
         <button type="button" className="secondary" onClick={toggleDropdown}>
-          <span>{selected.label} </span>
+          <span>{selected ? selected.label : "Selectionner un choix"} </span>
           <span className="icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               {isOpen ? (
@@ -55,6 +55,15 @@ export const DropDownParams: FC<{
               aria-orientation="vertical"
               aria-labelledby="options-menu"
             >
+              <li>
+                <a
+                  href="#"
+                  className="dropdown-elem dropdown-no-selected"
+                  onClick={() => closeDropdown(null)}
+                >
+                  Selectionner un choix
+                </a>
+              </li>
               {list.map((elem, index) => {
                 return (
                   <li key={index}>

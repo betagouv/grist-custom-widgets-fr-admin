@@ -19,15 +19,17 @@
 .dropdown-list {
   position: absolute;
   top: 100%;
-  left: 0;
-  width: 30rem;
+  right: 0;
   box-shadow: 0 10px 15px -3px black;
   background-color: white;
   border-radius: 0.5rem;
+  text-align: left;
+  width: max-content;
 }
 
 .dropdown-list ul {
   list-style-type: none;
+  padding: 5px;
 }
 
 .dropdown-elem {
@@ -40,4 +42,12 @@
 .dropdown-elem:hover {
   color: black;
   background-color: var(--lighter-grey, #F7F7F7);
+}
+
+.dropdown-no-selected {
+  color: var(--light-grey, #D9D9D9);
+}
+
+.dropdown-no-selected:hover {
+  color: var(--grey, #686565);
 }
