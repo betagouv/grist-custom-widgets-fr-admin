@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
-import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
+import {
+  COLUMN_MAPPING_NAMES,
+  NATURE_JURIDIQUE,
+  NO_DATA_MESSAGES,
+  TITLE,
+} from "./constants";
 import {
   areTooCloseResults,
   getInseeCodeResultsForRecord,
@@ -11,7 +16,7 @@ import {
   isDoubtfulResults,
   mappingsIsReady,
 } from "./lib";
-import { NormalizedInseeResult } from "./types";
+import { EntiteAdmin, NormalizedInseeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
@@ -32,6 +37,7 @@ import { cleanAndSortRecords } from "../../lib/cleanData/utils";
 import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
 import { MyFooter } from "./Footer";
 import { CheckboxParams } from "../../components/CheckboxParams";
+import { DropDownParams } from "../../components/DropDownParams";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -48,6 +54,8 @@ const InseeCode = () => {
   const [currentStep, setCurrentStep] =
     useState<WidgetCleanDataSteps>("loading");
   const [acceptSirenCode, setAcceptSirenCode] = useState<boolean>(false);
+  const [generalNatureJuridique, setGeneralNatureJuridique] =
+    useState<EntiteAdmin | null>(null);
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -55,6 +63,9 @@ const InseeCode = () => {
     grist.onRecords((records, gristMappings) => {
       setRecords(records);
       setMappings(gristMappings);
+      if (gristMappings && gristMappings.nature_juridique) {
+        setGeneralNatureJuridique(null);
+      }
     });
   }, []);
 
@@ -94,7 +105,12 @@ const InseeCode = () => {
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     };
-    await getInseeCodeResultsForRecords(records, mappings!, callBackFunction);
+    await getInseeCodeResultsForRecords(
+      records,
+      mappings!,
+      callBackFunction,
+      generalNatureJuridique,
+    );
     setGlobalInProgress(false);
   };
 
@@ -113,6 +129,7 @@ const InseeCode = () => {
       const recordUncleanedData = await getInseeCodeResultsForRecord(
         record,
         mappings!,
+        generalNatureJuridique,
       );
       const { clean, dirty, noResult } = cleanAndSortRecords(
         [recordUncleanedData],
@@ -181,6 +198,18 @@ const InseeCode = () => {
     </div>
   );
 
+  const generalNatureJuridiqueChoice = mappings &&
+    !mappings[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name] && (
+      <DropDownParams
+        label="Nature juridique commune à toute votre table (optionel) : "
+        list={Object.values(NATURE_JURIDIQUE)}
+        selected={generalNatureJuridique}
+        onChange={(item) => {
+          setGeneralNatureJuridique(item as EntiteAdmin | null);
+        }}
+      />
+    );
+
   return currentStep === "loading" ? (
     <Title title={TITLE} />
   ) : currentStep === "config" ? (
@@ -195,6 +224,7 @@ const InseeCode = () => {
     <div>
       <Title title={TITLE} />
       {sirenCodeCheckbox}
+      {generalNatureJuridiqueChoice}
       <div className="menu">
         <div className="centered-column">
           <Image priority src={globalSvg} alt="Traitement global" />
@@ -228,6 +258,7 @@ const InseeCode = () => {
       <div className="centered-column">
         <Title title={TITLE} />
         {sirenCodeCheckbox}
+        {generalNatureJuridiqueChoice}
         <Image priority src={globalSvg} alt="traitement global" />
         <GenericGlobalProcessing
           dirtyData={dirtyData}
@@ -247,6 +278,7 @@ const InseeCode = () => {
         <div className="centered-column">
           <Title title={TITLE} />
           {sirenCodeCheckbox}
+          {generalNatureJuridiqueChoice}
           <Image priority src={specificSvg} alt="traitement spécifique" />
           <SpecificProcessing
             mappings={mappings}
