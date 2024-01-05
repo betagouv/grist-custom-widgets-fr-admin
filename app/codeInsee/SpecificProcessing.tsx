@@ -49,7 +49,7 @@ export const SpecificProcessing: FC<{
   };
 
   const recordFindNode = (
-    <div>Le code INSEE de {recordName} a bien été rempli.</div>
+    <div>Le code INSEE/SIREN de {recordName} a bien été rempli.</div>
   );
 
   const choiceBannerNode = record && dirtyData && (
@@ -59,8 +59,9 @@ export const SpecificProcessing: FC<{
       option={{
         choiceValueKey: "code_insee",
         withChoiceTagLegend: true,
-        choiceTagLegend: "Code INSEE",
+        choiceTagLegend: "Code INSEE / SIREN",
         choiceTagKey: "code_insee",
+        choiceTagKey2: "siren_groupement",
       }}
       itemDisplay={(item: NormalizedInseeResult) => {
         return (

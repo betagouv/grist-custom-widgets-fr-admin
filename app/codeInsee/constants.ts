@@ -1,7 +1,8 @@
 import { NoDataMessage } from "../../lib/cleanData/types";
 import { EntiteAdmin } from "./types";
 
-export const TITLE = "Ajouter les codes INSEE à partir d'une localité";
+export const TITLE =
+  "Ajouter les codes INSEE (et SIREN) à partir d'une localité";
 
 export const COLUMN_MAPPING_NAMES = {
   COLLECTIVITE: {
