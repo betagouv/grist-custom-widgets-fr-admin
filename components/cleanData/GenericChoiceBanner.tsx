@@ -10,6 +10,7 @@ type Option = {
   withChoiceTagLegend: boolean;
   choiceTagLegend: string;
   choiceTagKey: string;
+  choiceTagKey2?: string;
 };
 
 type GenericChoiceBannerParams<NormalizedResult extends KeyValue> = {
@@ -71,7 +72,10 @@ function GenericChoiceBanner<NormalizedResult extends KeyValue>({
                   </label>
                 </div>
                 {option.withChoiceTagLegend && (
-                  <div className="tag info">{item[option.choiceTagKey]}</div>
+                  <div className="tag info">
+                    {item[option.choiceTagKey] ||
+                      (option.choiceTagKey2 && item[option.choiceTagKey2])}
+                  </div>
                 )}
               </div>
             </div>
