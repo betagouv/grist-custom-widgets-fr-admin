@@ -4,7 +4,11 @@ import {
   NATURE_JURIDIQUE,
   NO_DATA_MESSAGES,
 } from "./constants";
-import { NormalizedInseeResult, NormalizedInseeResults } from "./types";
+import {
+  EntiteAdmin,
+  NormalizedInseeResult,
+  NormalizedInseeResults,
+} from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MappedRecord } from "../../lib/util/types";
 import { UncleanedRecord } from "../../lib/cleanData/types";
@@ -34,6 +38,7 @@ export const getInseeCodeResults = async (
   mappedRecord: MappedRecord,
   mappings: WidgetColumnMap,
   checkDestinationIsEmpty: boolean,
+  generalNatureJuridique: EntiteAdmin | null,
 ): Promise<UncleanedRecord<NormalizedInseeResult>> => {
   let noResultMessage;
   let collectivite = "";
@@ -51,11 +56,15 @@ export const getInseeCodeResults = async (
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
       const natureJuridique =
         mappedRecord[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name];
-      // natureJuridique is taken into account only if it's a valide value
+      // natureJuridique is taken into account only if it's a valide value, otherwize we use the general one if it's define
       inseeCodeResults = await callInseeCodeApi(
         collectivite,
         departement,
-        NATURE_JURIDIQUE[natureJuridique] ? natureJuridique : undefined,
+        NATURE_JURIDIQUE[natureJuridique]
+          ? natureJuridique
+          : generalNatureJuridique
+            ? generalNatureJuridique.key
+            : undefined,
       );
       if (inseeCodeResults === undefined) {
         console.error(
@@ -83,11 +92,13 @@ export const getInseeCodeResults = async (
 export const getInseeCodeResultsForRecord = async (
   record: RowRecord,
   mappings: WidgetColumnMap,
+  generalNatureJuridique: EntiteAdmin | null,
 ) => {
   return await getInseeCodeResults(
     grist.mapColumnNames(record),
     mappings,
     false,
+    generalNatureJuridique,
   );
 };
 
@@ -96,13 +107,19 @@ export const getInseeCodeResultsForRecords = async (
   mappings: WidgetColumnMap,
   // eslint-disable-next-line @typescript-eslint/ban-types
   callBackFunction: Function,
+  generalNatureJuridique: EntiteAdmin | null,
 ) => {
   const inseeCodeDataFromApi: UncleanedRecord<NormalizedInseeResult>[] = [];
   for (const i in records) {
     const record = records[i];
     // We call the API only if the source column is filled and if the destination column are not
     inseeCodeDataFromApi.push(
-      await getInseeCodeResults(grist.mapColumnNames(record), mappings, true),
+      await getInseeCodeResults(
+        grist.mapColumnNames(record),
+        mappings,
+        true,
+        generalNatureJuridique,
+      ),
     );
     if (parseInt(i) % 10 === 0 || parseInt(i) === records.length - 1) {
       callBackFunction(inseeCodeDataFromApi, parseInt(i), records.length);
