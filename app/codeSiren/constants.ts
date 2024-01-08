@@ -45,7 +45,7 @@ export const NO_DATA_MESSAGES: NoDataMessage = {
   NO_DESTINATION_DATA:
     "Il n’existe pas de code SIREN dans les résultats pour le nom sélectionné.",
   NO_RESULT:
-    "Aucun résultat ne correspond à au nom sélectionné. Veuillez vérifier si ce nom existe bien ou qu’il n’y a pas d’erreur.",
+    "Aucun résultat ne correspond au nom sélectionné. Veuillez vérifier si ce nom existe bien ou qu’il n’y a pas d’erreur.",
   NO_SOURCE_DATA:
     "Afin de traiter la ligne sélectionnée, veuillez renseigner le nom recherchée.",
   API_ERROR:

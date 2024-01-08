@@ -12,7 +12,7 @@ const callSirenCodeApi = async (
   dept?: string,
   codeCommune?: string,
   codePostal?: string,
-): Promise<NormalizedSirenResult[]> => {
+): Promise<NormalizedSirenResult[] | undefined> => {
   const url = new URL("https://recherche-entreprises.api.gouv.fr/search");
   url.searchParams.set("q", query);
   // TODO : check constrainte of shape : code commune strings of lenght 5, dept strings of lenght 2 or 3
@@ -23,24 +23,28 @@ const callSirenCodeApi = async (
   dept && url.searchParams.set("departement", dept);
   codeCommune && url.searchParams.set("code_commune", codeCommune);
   codePostal && url.searchParams.set("code_postal", codePostal);
-  const response = await fetch(url.toString());
-  if (!response.ok) {
-    console.error(
-      "The call to the recherche-entreprises.api.gouv.fr api is not 200 status",
-      response,
-    );
+  try {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const error = await response.json();
+      console.log(error);
+      return undefined;
+    }
+    const data = await response.json();
+    // @ts-expect-error result in any type
+    return (data.results ?? []).map((result) => {
+      return {
+        label: result.nom_complet,
+        siren: result.siren,
+        code_commune: result.siege.code_postal,
+        siret: result.siege.siret,
+        score: result.score,
+      };
+    });
+  } catch (error) {
+    console.log(error);
+    return undefined;
   }
-  const data = await response.json();
-  // @ts-expect-error result in any type
-  return (data.results ?? []).map((result) => {
-    return {
-      label: result.nom_complet,
-      siren: result.siren,
-      code_commune: result.siege.code_postal,
-      siret: result.siege.siret,
-      score: result.score,
-    };
-  });
 };
 
 const getSirenCodeResults = async (
@@ -51,9 +55,9 @@ const getSirenCodeResults = async (
 ): Promise<UncleanedRecord<NormalizedSirenResult>> => {
   let noResultMessage;
   let name = "";
-  let sirenCodeResults: NormalizedSirenResult[] = [];
+  let sirenCodeResults: NormalizedSirenResult[] | undefined = [];
   let toIgnore = false;
-  if (mappedRecord[COLUMN_MAPPING_NAMES.NAME.name]) {
+  mainIf: if (mappedRecord[COLUMN_MAPPING_NAMES.NAME.name]) {
     // Call the api if we don't have to check the destination column or if there are empty
     if (
       !checkDestinationIsEmpty ||
@@ -65,6 +69,17 @@ const getSirenCodeResults = async (
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
       const codeCommune = mappedRecord[COLUMN_MAPPING_NAMES.CODE_COMMUNE.name];
       const codePostal = mappedRecord[COLUMN_MAPPING_NAMES.CODE_POSTAL.name];
+      // Check the format of params before calling the API
+      if (codeCommune && !checkCodeList(codeCommune, 5)) {
+        noResultMessage =
+          "Un code INSEE de commune doit contenir exactement 5 caractères, vérifier l'information dans la colonne concernée";
+        break mainIf;
+      }
+      if (codePostal && !checkCodeList(codePostal, 5)) {
+        noResultMessage =
+          "Un code Postal de commune doit contenir exactement 5 caractères, vérifier l'information dans la colonne concernée";
+        break mainIf;
+      }
       sirenCodeResults = await callSirenCodeApi(
         name,
         isCollectiviteTerritoriale,
@@ -89,7 +104,7 @@ const getSirenCodeResults = async (
   return {
     recordId: mappedRecord.id,
     sourceData: name,
-    results: sirenCodeResults,
+    results: sirenCodeResults || [],
     noResultMessage,
     toIgnore,
   };
@@ -154,4 +169,11 @@ export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
     mappings[COLUMN_MAPPING_NAMES.NAME.name] &&
     mappings[COLUMN_MAPPING_NAMES.SIREN.name]
   );
+};
+
+const checkCodeList = (codeList: [], numberOfChar: number) => {
+  return codeList
+    .toString()
+    .split(",")
+    .every((e: string) => e.length === numberOfChar);
 };
