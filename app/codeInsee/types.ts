@@ -11,3 +11,10 @@ export type NormalizedInseeResults = {
   results: NormalizedInseeResult[];
   query: string;
 };
+
+export type EntiteAdmin = {
+  label: string;
+  apiGeoUrl?: string;
+  key: string;
+  typeCode: string;
+};

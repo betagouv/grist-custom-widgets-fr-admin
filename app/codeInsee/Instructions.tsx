@@ -1,18 +1,29 @@
 "use client";
 
 import { Accordion } from "../../components/Accordion";
+import { NATURE_JURIDIQUE } from "./constants";
 
 export const Instructions = () => {
   const instructions = (
     <>
-      Cette Vue permet d'indiquer le code Insee correspondant à chaque ligne.
+      Cette Vue permet d'indiquer le code de la collectivité correspondant à
+      chaque ligne.
       <br />
       Fonctionnement :
       <ul>
         <li>
           Indiquer la colonne respondant au nom de la collectivité ainsi que la
-          colonne à remplir pour les code Insee (colonne de type Texte). Il est
+          colonne à remplir pour les codes Insee (colonne de type Texte). Il est
           possible d'indiquer d'autre colonne pour aider à désambiguer.
+        </li>
+        <li>
+          Indiquez si vous souhaitez accepter les codes SIREN en plus des codes
+          INSEE.
+        </li>
+        <li>
+          Si vous n'avez pas indiqué de colonne permettant de désanbiguer sur la
+          nature juridique de la collectivité à rechercher, vous pouvez le
+          définir globalement via la liste déroulante appropriée.
         </li>
         <li>
           Faire une recherche globale afin de faire une première passe sur
@@ -31,6 +42,32 @@ export const Instructions = () => {
           cette vue.
         </li>
       </ul>
+      <br />
+      Voici la liste des <b>natures juridiques</b> valides dans l'API interrogée
+      et le type de code qui lui correspond. Si une nature juridique est
+      indiquée mais ne correspond à aucune présente dans cette liste elle sera
+      alors ignorée.
+      <br />
+      <table cellSpacing="0">
+        <thead>
+          <tr>
+            <th>Identifiant</th>
+            <th>Nom</th>
+            <th>Type de Code</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.values(NATURE_JURIDIQUE).map((nature) => {
+            return (
+              <tr key={nature.key}>
+                <th>{nature.key}</th>
+                <td>{nature.label}</td>
+                <td>{nature.typeCode}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </>
   );
 

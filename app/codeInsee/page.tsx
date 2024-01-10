@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
-import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
+import {
+  COLUMN_MAPPING_NAMES,
+  NATURE_JURIDIQUE,
+  NO_DATA_MESSAGES,
+  TITLE,
+} from "./constants";
 import {
   areTooCloseResults,
   getInseeCodeResultsForRecord,
@@ -11,7 +16,7 @@ import {
   isDoubtfulResults,
   mappingsIsReady,
 } from "./lib";
-import { NormalizedInseeResult } from "./types";
+import { EntiteAdmin, NormalizedInseeResult } from "./types";
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
@@ -31,6 +36,8 @@ import {
 import { cleanAndSortRecords } from "../../lib/cleanData/utils";
 import GenericGlobalProcessing from "../../components/cleanData/GenericGlobalProcessing";
 import { MyFooter } from "./Footer";
+import { CheckboxParams } from "../../components/CheckboxParams";
+import { DropDownParams } from "../../components/DropDownParams";
 
 const InseeCode = () => {
   const [record, setRecord] = useState<RowRecord | null>();
@@ -46,6 +53,9 @@ const InseeCode = () => {
   const [atOnProgress, setAtOnProgress] = useState<[number, number]>([0, 0]);
   const [currentStep, setCurrentStep] =
     useState<WidgetCleanDataSteps>("loading");
+  const [acceptSirenCode, setAcceptSirenCode] = useState<boolean>(false);
+  const [generalNatureJuridique, setGeneralNatureJuridique] =
+    useState<EntiteAdmin | null>(null);
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -53,6 +63,9 @@ const InseeCode = () => {
     grist.onRecords((records, gristMappings) => {
       setRecords(records);
       setMappings(gristMappings);
+      if (gristMappings && gristMappings.nature_juridique) {
+        setGeneralNatureJuridique(null);
+      }
     });
   }, []);
 
@@ -92,17 +105,31 @@ const InseeCode = () => {
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     };
-    await getInseeCodeResultsForRecords(records, mappings!, callBackFunction);
+    await getInseeCodeResultsForRecords(
+      records,
+      mappings!,
+      callBackFunction,
+      generalNatureJuridique,
+    );
     setGlobalInProgress(false);
   };
 
   const recordResearch = async () => {
     if (record) {
       setCurrentStep("specific_processing");
-      // TODO : delete data corresponding to this record in dirty and noResult states
+      // Delete data corresponding to this record in dirty and noResult states
+      setDirtyData((prevState) => {
+        delete prevState[record.id];
+        return prevState;
+      });
+      setNoResultData((prevState) => {
+        delete prevState[record.id];
+        return prevState;
+      });
       const recordUncleanedData = await getInseeCodeResultsForRecord(
         record,
         mappings!,
+        generalNatureJuridique,
       );
       const { clean, dirty, noResult } = cleanAndSortRecords(
         [recordUncleanedData],
@@ -121,9 +148,11 @@ const InseeCode = () => {
   }) => {
     Object.values(cleanData).forEach(
       (clean: CleanRecord<NormalizedInseeResult>) => {
-        if (clean.code_insee) {
+        if (acceptSirenCode || clean.code_insee) {
           const data = {
-            [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code_insee,
+            [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: acceptSirenCode
+              ? clean.code_insee || clean.siren_groupement
+              : clean.code_insee,
             [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.lib_groupement,
           };
           addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
@@ -159,6 +188,28 @@ const InseeCode = () => {
     });
   };
 
+  const sirenCodeCheckbox = (
+    <div className="centered-column">
+      <CheckboxParams
+        label="Accepter également les codes SIREN"
+        value={acceptSirenCode}
+        onChange={() => setAcceptSirenCode(!acceptSirenCode)}
+      />
+    </div>
+  );
+
+  const generalNatureJuridiqueChoice = mappings &&
+    !mappings[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name] && (
+      <DropDownParams
+        label="Nature juridique commune à toute votre table (optionel) : "
+        list={Object.values(NATURE_JURIDIQUE)}
+        selected={generalNatureJuridique}
+        onChange={(item) => {
+          setGeneralNatureJuridique(item as EntiteAdmin | null);
+        }}
+      />
+    );
+
   return currentStep === "loading" ? (
     <Title title={TITLE} />
   ) : currentStep === "config" ? (
@@ -172,13 +223,15 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
+      {sirenCodeCheckbox}
+      {generalNatureJuridiqueChoice}
       <div className="menu">
         <div className="centered-column">
           <Image priority src={globalSvg} alt="Traitement global" />
           <h2>Traitement global</h2>
           <p>
             Lancer une recherche globale sur l&apos;ensemble des lignes
-            n&apos;ayant pas de code INSEE de renseigné.
+            n&apos;ayant pas de code de collectivité renseigné.
           </p>
           <button className="primary" onClick={globalResearch}>
             Recherche globale
@@ -189,8 +242,8 @@ const InseeCode = () => {
           <Image priority src={specificSvg} alt="Traitement spécifique" />
           <h2>Traitement spécifique</h2>
           <p>
-            Lancer une recherche spécifique du code INSEE de la ligne
-            sélectionnée.
+            Lancer une recherche spécifique du code de la collectivité de la
+            ligne sélectionnée.
           </p>
           <button className="primary" onClick={recordResearch}>
             Recherche spécifique
@@ -204,6 +257,8 @@ const InseeCode = () => {
     <div>
       <div className="centered-column">
         <Title title={TITLE} />
+        {sirenCodeCheckbox}
+        {generalNatureJuridiqueChoice}
         <Image priority src={globalSvg} alt="traitement global" />
         <GenericGlobalProcessing
           dirtyData={dirtyData}
@@ -222,6 +277,8 @@ const InseeCode = () => {
       <div>
         <div className="centered-column">
           <Title title={TITLE} />
+          {sirenCodeCheckbox}
+          {generalNatureJuridiqueChoice}
           <Image priority src={specificSvg} alt="traitement spécifique" />
           <SpecificProcessing
             mappings={mappings}
