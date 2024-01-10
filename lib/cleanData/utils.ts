@@ -2,9 +2,9 @@ import { KeyValue } from "../util/types";
 import { SortedRecords, UncleanedRecord } from "./types";
 
 export const MESSAGES = {
-  DOUBTFUL_RESULT: "Les scores de fiabilités sont douteux",
+  DOUBTFUL_RESULT: "Les scores sont douteux",
   TOO_CLOSE_RESULT:
-    "Les scores de fiabilités sont trop proches pour sélectionner le bon groupement automatiquement",
+    "Les scores sont trop proches pour sélectionner le bon groupement automatiquement",
 };
 
 export const cleanAndSortRecords = <NormalizedResult extends KeyValue>(

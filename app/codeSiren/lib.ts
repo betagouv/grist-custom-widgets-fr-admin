@@ -16,6 +16,8 @@ const callSirenCodeApi = async (
   const url = new URL("https://recherche-entreprises.api.gouv.fr/search");
   url.searchParams.set("q", query);
   // TODO : check constrainte of shape : code commune strings of lenght 5, dept strings of lenght 2 or 3
+  url.searchParams.set("minimal", "true");
+  url.searchParams.set("include", "score,siege");
   url.searchParams.set(
     "est_collectivite_territoriale",
     isCollectiviteTerritoriale.toString(),
@@ -32,7 +34,7 @@ const callSirenCodeApi = async (
   }
   const data = await response.json();
   // @ts-expect-error result in any type
-  return (data.results ?? []).map((result) => {
+  return (data.results ?? []).slice(0, 5).map((result) => {
     return {
       label: result.nom_complet,
       siren: result.siren,
@@ -135,15 +137,23 @@ export const getSirenCodeResultsForRecords = async (
   }
 };
 
-export const isDoubtfulResults = (dataFromApi: NormalizedSirenResult[]) => {
-  return dataFromApi[0]?.score < 0.6;
+/**
+ * Réponse à la question de l'utilisation du score de l'API par un responsable de celle-ci :
+ *
+ * Il est important de noter que ce score n'est pas une mesure de fiabilité au sens strict du terme.
+ * Il est généré par Elasticsearch en fonction de notre algorithme de recherche, utilisé pour classer les résultats.
+ * Ce score n'est pas standardisé et peut varier considérablement d'un résultat à l'autre.
+ * Il est donc recommandé de l'utiliser avec prudence.
+ */
+export const isDoubtfulResults = (_: NormalizedSirenResult[]) => {
+  return false;
 };
 
 export const areTooCloseResults = (dataFromApi: NormalizedSirenResult[]) => {
   if (dataFromApi.length > 1) {
     const [firstChoice, secondChoice] = dataFromApi;
-    const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;
-    return firstChoice.score - secondChoice.score < deviation;
+    const ratio = secondChoice.score / firstChoice.score;
+    return ratio > 0.8;
   }
   return false;
 };
