@@ -56,7 +56,7 @@ export const getInseeCodeResults = async (
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
       const natureJuridique =
         mappedRecord[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name];
-      // natureJuridique is taken into account only if it's a valide value, otherwize we use the general one if it's define
+      // natureJuridique is taken into account only if it's a valid value, otherwise we use the general one if it's defined
       inseeCodeResults = await callInseeCodeApi(
         collectivite,
         departement,
