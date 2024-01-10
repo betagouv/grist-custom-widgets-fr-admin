@@ -13,8 +13,17 @@ export const Instructions = () => {
       <ul>
         <li>
           Indiquer la colonne respondant au nom de la collectivité ainsi que la
-          colonne à remplir pour les code Insee (colonne de type Texte). Il est
+          colonne à remplir pour les codes Insee (colonne de type Texte). Il est
           possible d'indiquer d'autre colonne pour aider à désambiguer.
+        </li>
+        <li>
+          Indiquez si vous souhaitez accepter les codes SIREN en plus des codes
+          INSEE.
+        </li>
+        <li>
+          Si vous n'avez pas indiqué de colonne permettant de désanbiguer sur la
+          nature juridique de la collectivité à rechercher, vous pouvez le
+          définir globalement via la liste déroulante appropriée.
         </li>
         <li>
           Faire une recherche globale afin de faire une première passe sur
