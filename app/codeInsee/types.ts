@@ -17,4 +17,5 @@ export type EntiteAdmin = {
   apiGeoUrl?: string;
   key: string;
   typeCode: string;
+  echelonGeo?: string;
 };

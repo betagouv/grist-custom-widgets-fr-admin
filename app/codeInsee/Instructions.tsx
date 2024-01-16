@@ -53,6 +53,7 @@ export const Instructions = () => {
           <tr>
             <th>Identifiant</th>
             <th>Nom</th>
+            <th>Echelon géo</th>
             <th>Type de Code</th>
           </tr>
         </thead>
@@ -62,6 +63,7 @@ export const Instructions = () => {
               <tr key={nature.key}>
                 <th>{nature.key}</th>
                 <td>{nature.label}</td>
+                <td>{nature.echelonGeo}</td>
                 <td>{nature.typeCode}</td>
               </tr>
             );

@@ -52,34 +52,91 @@ export const NO_DATA_MESSAGES: NoDataMessage = {
 export const NATURE_JURIDIQUE: {
   [key: string]: EntiteAdmin;
 } = {
-  COM: { label: "Commune", key: "COM", typeCode: "INSEE" },
-  CA: { label: "Communauté d’agglomération", key: "CA", typeCode: "SIREN" },
-  CC: { label: "Communauté de communes", key: "CC", typeCode: "SIREN" },
+  COM: {
+    label: "Commune",
+    key: "COM",
+    typeCode: "INSEE",
+    echelonGeo: "commune",
+  },
+  CA: {
+    label: "Communauté d’agglomération",
+    key: "CA",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
+  CC: {
+    label: "Communauté de communes",
+    key: "CC",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
+  CU: {
+    label: "Communauté urbaine",
+    key: "CU",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
   COLTER: {
     label: "Collectivités territoriales",
     key: "COLTER",
     typeCode: "SIREN",
+    echelonGeo: "",
   },
   EPT: {
     label: "Etablissement public territorial",
     key: "EPT",
     typeCode: "SIREN",
+    echelonGeo: "epci",
   },
-  SMF: { label: "Syndicat mixte fermé", key: "SMF", typeCode: "SIREN" },
-  SMO: { label: "Syndicat mixte ouvert", key: "SMO", typeCode: "SIREN" },
-  SIVOS: {
-    label: "Syndicat intercommunal à vocation multiple",
-    key: "SIVOS",
+  PETR: {
+    label: "Pôle d'équilibre territorial et rural",
+    key: "PETR",
     typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
+  POLEM: {
+    label: "Pôle métropolitain",
+    key: "POLEM",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
+  SMF: {
+    label: "Syndicat mixte fermé",
+    key: "SMF",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
+  SMO: {
+    label: "Syndicat mixte ouvert",
+    key: "SMO",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
+  SIVOM: {
+    label: "Syndicat intercommunal à vocation multiple",
+    key: "SIVOM",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
   },
   SIVU: {
     label: "Syndicat intercommunal à vocation unique",
     key: "SIVU",
     typeCode: "SIREN",
+    echelonGeo: "epci",
   },
-  METRO: { label: "Métropole", key: "METRO", typeCode: "SIREN" },
-  DEP: { label: "Département", key: "DEP", typeCode: "INSEE" },
-  REG: { label: "Région", key: "REG", typeCode: "INSEE" },
+  METRO: {
+    label: "Métropole",
+    key: "METRO",
+    typeCode: "SIREN",
+    echelonGeo: "epci",
+  },
+  DEP: {
+    label: "Département",
+    key: "DEP",
+    typeCode: "INSEE",
+    echelonGeo: "département",
+  },
+  REG: { label: "Région", key: "REG", typeCode: "INSEE", echelonGeo: "région" },
 };
 
 // Used for api-geo API
