@@ -7,7 +7,7 @@
     "accessLevel": "read table"
   },
   {
-    "name": "Codes INSEE",
+    "name": "Codes collectivités territoriales",
     "url": "https://betagouv.github.io/grist-custom-widgets-fr-admin/codeInsee",
     "widgetId": "@anct/widget-codes",
     "published": true,
@@ -21,7 +21,7 @@
     "accessLevel": "full"
   },
   {
-    "name": "Sirène",
+    "name": "Codes SIREN",
     "url": "https://betagouv.github.io/grist-custom-widgets-fr-admin/codeSiren",
     "widgetId": "@anct/widget-sirene",
     "published": true,
