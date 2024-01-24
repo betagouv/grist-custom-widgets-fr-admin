@@ -21,7 +21,7 @@ export const Instructions = () => {
           toutes vos lignes.
         </li>
         <li>
-          Désanbiguer ligne par ligne. La raison de pourquoi la Vue n'a pas
+          Désambiguer ligne par ligne. La raison de pourquoi la Vue n'a pas
           réussi à remplir le géocodage automatiquement vous sera indiqué.
           Attention: si la ligne selectionnée reste bloquée sur la première de
           votre table c'est que le lien entre la Vue et la table est manquant.

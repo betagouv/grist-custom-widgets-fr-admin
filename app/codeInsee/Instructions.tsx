@@ -13,8 +13,9 @@ export const Instructions = () => {
       <ul>
         <li>
           Indiquer la colonne respondant au nom de la collectivité ainsi que la
-          colonne à remplir pour les codes Insee (colonne de type Texte). Il est
-          possible d'indiquer d'autre colonne pour aider à désambiguer.
+          colonne à remplir pour les codes INSEE ou SIREN (colonne de type
+          Texte). Il est possible d'indiquer d'autre colonne pour aider à
+          désambiguer.
         </li>
         <li>
           Indiquez si vous souhaitez accepter les codes SIREN en plus des codes
@@ -30,7 +31,7 @@ export const Instructions = () => {
           toutes vos lignes.
         </li>
         <li>
-          Désanbiguer ligne par ligne. La raison de pourquoi la Vue n'a pas
+          Désambiguer ligne par ligne. La raison de pourquoi la Vue n'a pas
           réussi à remplir le code Insee automatiquement vous sera indiqué.
           Attention: si la ligne selectionnée reste bloquée sur la première de
           votre table c'est que le lien entre la Vue et la table est manquant.
