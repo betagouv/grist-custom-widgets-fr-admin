@@ -1,7 +1,7 @@
 [
   {
     "name": "Carte",
-    "url": "https://infrastructure.pages.sit.incubateur.tech/grist-widgets/carte/index.html",
+    "url": "https://infrastructure.pages.gitlab.donnees.incubateur.anct.gouv.fr/grist-widgets/carte/index.html",
     "widgetId": "@anct/widget-map#map",
     "published": true,
     "accessLevel": "read table"
