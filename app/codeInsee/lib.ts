@@ -19,7 +19,7 @@ export const callInseeCodeApi = async (
   natureJuridique?: string,
 ): Promise<NormalizedInseeResult[]> => {
   // The only use of this endpoint is here ! If we change the API used, we could delete the addokadmin service.
-  const url = new URL("https://addok.donnees.incubateur.anct.gouv.fr/");
+  const url = new URL("https://addok.donnees.incubateur.anct.gouv.fr/search");
   url.searchParams.set("q", collectivity);
   dept && url.searchParams.set("insee_dep", dept);
   natureJuridique && url.searchParams.set("nature_juridique", natureJuridique);
