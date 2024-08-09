@@ -166,5 +166,19 @@
     "published": true,
     "accessLevel": "full",
     "renderAfterReady": true
+  },
+  {
+    "name": "Advanced Charts",
+    "url": "https://gristlabs.github.io/grist-widget/chart/index.html",
+    "widgetId": "@gristlabs/widget-chart",
+    "published": true,
+    "accessLevel": "full"
+  },
+  {
+    "name": "JupyterLite Notebook",
+    "url": "https://gristlabs.github.io/grist-widget/jupyterlite/lab/index.html",
+    "widgetId": "@gristlabs/widget-jupyterlite",
+    "published": true,
+    "accessLevel": "read table"
   }
 ]
