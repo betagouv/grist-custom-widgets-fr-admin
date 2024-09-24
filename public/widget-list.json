@@ -313,7 +313,7 @@
     "lastUpdatedAt": "2024-08-18T17:58:38-04:00"
   },
   {
-    "name": "Bloc note",
+    "name": "Bloc-note",
     "url": "https://gristlabs.github.io/grist-widget/notepad",
     "widgetId": "@gristlabs/widget-notepad",
     "published": true,
