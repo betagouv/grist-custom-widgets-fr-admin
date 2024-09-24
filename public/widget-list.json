@@ -235,7 +235,7 @@
     "widgetId": "@gristlabs/widget-inspect#api",
     "published": true,
     "renderAfterReady": true,
-    "description": "Une introduction intéractive à l'API des custom widgets de Grist.",
+    "description": "Une introduction interactive à l'API des widgets personnalisés de Grist.",
     "authors": [
       {
         "name": "Grist Labs",
