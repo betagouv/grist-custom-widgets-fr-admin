@@ -6,7 +6,7 @@
     "published": true,
     "accessLevel": "full",
     "renderAfterReady": true,
-    "description": "Permet à grist d'intéragir avec les données de data.gouv.fr. Nécessite votre clé API data.gouv.",
+    "description": "Permet à grist d'interagir avec les données de data.gouv.fr. Nécessite votre clé API data.gouv.",
     "authors": [
       {
         "name": "Etalab",
