@@ -74,7 +74,7 @@
     "published": true,
     "accessLevel": "full",
     "renderAfterReady": true,
-    "description": "Construire un ou plusieurs boutons pur envoyer des actions customs (e.g. \"AddRecord\") au moteur de données de Grist.",
+    "description": "Construire un ou plusieurs boutons pour envoyer des actions customs (e.g. \"AddRecord\") au moteur de données de Grist.",
     "authors": [
       {
         "name": "Grist Labs",
