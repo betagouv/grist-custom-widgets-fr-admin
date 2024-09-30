@@ -13,8 +13,8 @@ const HomePage = () => (
           longitude) à partir d'une adresse
         </li>
         <li>
-          <b>/siren</b> : permet de déterminer le code siren d'une entreprise ou
-          d'une collectivité territoriale
+          <b>/codeSiren</b> : permet de déterminer le code siren d'une
+          entreprise ou d'une collectivité territoriale
         </li>
       </ul>
     </p>
