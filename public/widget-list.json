@@ -445,5 +445,39 @@
     ],
     "isGristLabsMaintained": true,
     "lastUpdatedAt": "2024-08-18T17:58:38-04:00"
+  },
+  {
+    "name": "Custom widget builder",
+    "url": "https://gristlabs.github.io/grist-widget/custom-widget-builder/index.html",
+    "widgetId": "@berhalak/custom-widget-builder",
+    "published": true,
+    "accessLevel": "none",
+    "renderAfterReady": true,
+    "description": "Build custom widgets with HTML and JavaScript, right inside Grist.",
+    "isGristLabsMaintained": false,
+    "authors": [
+      {
+        "name": "berhalak",
+        "url": "https://github.com/berhalak"
+      }
+    ],
+    "lastUpdatedAt": "2024-10-11T13:58:02+02:00"
+  },
+  {
+    "name": "Drop-down Widget",
+    "url": "https://gristlabs.github.io/grist-widget/drop-down/index.html",
+    "widgetId": "@gristlabs/widget-drop-down",
+    "published": true,
+    "accessLevel": "read table",
+    "renderAfterReady": true,
+    "description": "Display a drop-down menu with options from a column.",
+    "authors": [
+      {
+        "name": "Antol Peshkov",
+        "url": "https://github.com/Antol"
+      }
+    ],
+    "isGristLabsMaintained": false,
+    "lastUpdatedAt": "2024-10-09T14:36:40+02:00"
   }
 ]
