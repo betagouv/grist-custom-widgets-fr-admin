@@ -13,9 +13,9 @@ jobs:
         run: |
           curl -s https://gristlabs.github.io/grist-widget/manifest.json | \
             jq \
-              --argfile gl /dev/stdin \
-              --argfile cur ./public/widget-list.json \
-              -n '$cur + [($gl[] | select(([$gl[].url] - [$cur[].url])[] == .url))]' > ./public/widget-list.json2 \
+            --slurpfile gl /dev/stdin \
+            --slurpfile cur ./public/widget-list.json \
+              -n '$cur[0] + [($gl[0][] | select(([$gl[0][].url] - [$cur[0][].url])[] == .url))]' > ./public/widget-list.json2 \
               && mv ./public/widget-list.json{2,}
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
