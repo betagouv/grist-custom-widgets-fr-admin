@@ -19,16 +19,18 @@ function DynamicMarker({
     useState<string>("");
   const map = useMap();
 
-  const getGeoAsNumber = (lat: boolean, long: boolean): number | null => {
+  function getGeoAsNumber(lat: boolean, long: boolean): number | null {
     const columnName = lat ? latColumnName : long ? longColumnName : "";
     if (!record || !record[columnName]) {
       return null;
     }
     // Grist in French version use "," as decimal separator, it could break geo api
-    return typeof record[columnName] === "string" && record[columnName].includes(",") ?
+    /* tslint:disable-next-line */
+    return typeof record[columnName] === "string" &&
+      record[columnName].includes(",") ?
       Number(record[columnName].replace(",", ".")) :
       Number(record[columnName]);
-  }
+  };
 
   const [lat, setLat] = useState<number | null>(getGeoAsNumber(true, false));
   const [long, setLong] = useState<number | null>(getGeoAsNumber(false, true));
@@ -40,17 +42,17 @@ function DynamicMarker({
       setNormAddressColumnName(
         String(mappings[COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]),
       );
-      setLat(getGeoAsNumber(true, false))
-      setLong(getGeoAsNumber(false, true))
+      setLat(getGeoAsNumber(true, false));
+      setLong(getGeoAsNumber(false, true));
       if (
         lat && long && lat !== 0 && long !== 0
       ) {
         map.flyTo([lat, long]);
       }
     }
-  }, [record, map, mappings, latColumnName, longColumnName]);
+  }, [record, map, mappings, latColumnName, longColumnName, getGeoAsNumber, lat, long]);
 
-  if (!record || lat === null || long === null || (lat === 0 && long === 0) ) {
+  if (!record || lat === null || long === null || (lat === 0 && long === 0)) {
     return null;
   }
   return (
