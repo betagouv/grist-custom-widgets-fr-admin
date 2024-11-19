@@ -12,9 +12,9 @@ export const Instructions = () => {
       <ul>
         <li>
           Indiquer la colonne respondant à l'adresse ainsi que les colonnes de
-          longitude et latitude (colonne de type Numérique). Il est possible
-          d'ajouter la colonne Adresse Normalisée pour indiquer le nom officiel
-          du géocodage trouvé.
+          longitude et latitude (Attention, elles doivent être de type Texte).
+          Il est possible d'ajouter la colonne Adresse Normalisée pour indiquer
+          le nom officiel du géocodage trouvé.
         </li>
         <li>
           Faire une recherche globale afin de faire une première passe sur
