@@ -2,7 +2,7 @@
 
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { RowRecord } from "grist/GristData";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Marker, Tooltip, useMap } from "react-leaflet";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 
@@ -19,18 +19,20 @@ function DynamicMarker({
     useState<string>("");
   const map = useMap();
 
-  function getGeoAsNumber(lat: boolean, long: boolean): number | null {
-    const columnName = lat ? latColumnName : long ? longColumnName : "";
-    if (!record || !record[columnName]) {
-      return null;
-    }
-    // Grist in French version use "," as decimal separator, it could break geo api
-    /* tslint:disable-next-line */
-    return typeof record[columnName] === "string" &&
-      record[columnName].includes(",") ?
-      Number(record[columnName].replace(",", ".")) :
-      Number(record[columnName]);
-  };
+  const getGeoAsNumber = useCallback(
+    (lat: boolean, long: boolean): number | null => {
+      const columnName = lat ? latColumnName : long ? longColumnName : "";
+      if (!record || !record[columnName]) {
+        return null;
+      }
+      // Grist in French version use "," as decimal separator, it could break geo api
+      return typeof record[columnName] === "string" &&
+        (record[columnName]! as string).includes(",")
+        ? Number((record[columnName]! as string).replace(",", "."))
+        : Number(record[columnName]);
+    },
+    [record, latColumnName, longColumnName],
+  );
 
   const [lat, setLat] = useState<number | null>(getGeoAsNumber(true, false));
   const [long, setLong] = useState<number | null>(getGeoAsNumber(false, true));
@@ -44,21 +46,26 @@ function DynamicMarker({
       );
       setLat(getGeoAsNumber(true, false));
       setLong(getGeoAsNumber(false, true));
-      if (
-        lat && long && lat !== 0 && long !== 0
-      ) {
+      if (lat && long && lat !== 0 && long !== 0) {
         map.flyTo([lat, long]);
       }
     }
-  }, [record, map, mappings, latColumnName, longColumnName, getGeoAsNumber, lat, long]);
+  }, [
+    record,
+    map,
+    mappings,
+    latColumnName,
+    longColumnName,
+    getGeoAsNumber,
+    lat,
+    long,
+  ]);
 
   if (!record || lat === null || long === null || (lat === 0 && long === 0)) {
     return null;
   }
   return (
-    <Marker
-      position={[lat, long]}
-    >
+    <Marker position={[lat, long]}>
       <Tooltip>{String(record[normAddressColumnName])}</Tooltip>
     </Marker>
   );
