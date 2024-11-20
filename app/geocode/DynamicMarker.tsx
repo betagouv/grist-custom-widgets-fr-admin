@@ -25,11 +25,11 @@ function DynamicMarker({
       if (!record || !record[columnName]) {
         return null;
       }
+      const value = record[columnName];
       // Grist in French version use "," as decimal separator, it could break geo api
-      return typeof record[columnName] === "string" &&
-        (record[columnName]! as string).includes(",")
-        ? Number((record[columnName]! as string).replace(",", "."))
-        : Number(record[columnName]);
+      return typeof value === "number"
+        ? value
+        : Number(value.toString().replace(",", "."));
     },
     [record, latColumnName, longColumnName],
   );
