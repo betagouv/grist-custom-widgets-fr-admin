@@ -16,6 +16,9 @@ const HomePage = () => (
           <b>/codeSiren</b> : permet de déterminer le code siren d'une
           entreprise ou d'une collectivité territoriale
         </li>
+        <li>
+          <b>/pdfFiller</b>: permet de remplir des formulaires PDF automatiquement
+        </li>
       </ul>
     </p>
   </div>
