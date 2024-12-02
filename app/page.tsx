@@ -17,7 +17,8 @@ const HomePage = () => (
           entreprise ou d'une collectivité territoriale
         </li>
         <li>
-          <b>/pdfFiller</b>: permet de remplir des formulaires PDF automatiquement
+          <b>/pdfFiller</b>: permet de remplir des formulaires PDF
+          automatiquement
         </li>
       </ul>
     </p>
