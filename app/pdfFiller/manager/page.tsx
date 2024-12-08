@@ -165,17 +165,19 @@ const ManagerSignatureWidget = () => {
     };
   }, [previewUrl]);
 
-  if (!gristData?.mappings || !gristData.mappings[MANAGER_COLUMN_MAPPING.PDF_INPUT.name]) {
+  if (!gristData?.records[0] || !gristData?.mappings || !gristData.mappings[MANAGER_COLUMN_MAPPING.PDF_INPUT.name]) {
     return (
-      <div>
-        <Title title="Manager Signature" />
-        <div className="error-message">
-          PDF_INPUT mapping is missing. Please configure the widget settings.
+        <div>
+            <Title title="Manager Signature" />
+            <div className="error-message">
+                {!gristData?.records[0] 
+                    ? "Please select a record to process."
+                    : "PDF_INPUT mapping is missing. Please configure the widget settings."}
+            </div>
+            <Footer dataSource={<span>PDF Filler powered by pdf-lib</span>} />
         </div>
-        <Footer dataSource={<span>PDF Filler powered by pdf-lib</span>} />
-      </div>
     );
-  }
+}
 
   return (
     <div
