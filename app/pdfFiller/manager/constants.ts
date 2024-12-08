@@ -14,7 +14,7 @@ export const COLUMN_MAPPING_NAMES = {
         x: 400,
         y: 50,
         maxHeight: 30,
-      }
+      },
     },
   },
   PDF_INPUT: {

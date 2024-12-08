@@ -17,7 +17,9 @@ export const uploadAttachment = async (blob: Blob, filename: string) => {
   return response[0];
 };
 
-export const downloadAttachment = async (attachmentId: number): Promise<ArrayBuffer> => {
+export const downloadAttachment = async (
+  attachmentId: number,
+): Promise<ArrayBuffer> => {
   const tokenInfo = await grist.docApi.getAccessToken({ readOnly: true });
   const downloadUrl = `${tokenInfo.baseUrl}/attachments/${attachmentId}/download?auth=${tokenInfo.token}`;
 
@@ -27,4 +29,4 @@ export const downloadAttachment = async (attachmentId: number): Promise<ArrayBuf
   }
 
   return await response.arrayBuffer();
-}; 
+};

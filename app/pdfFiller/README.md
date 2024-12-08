@@ -11,6 +11,7 @@ Ce widget utilise la bibliothèque pdf-lib pour la manipulation des PDFs.
 ## Fonctionnement
 
 Le widget permet de :
+
 - Remplir automatiquement les champs de formulaire PDF à partir des données Grist
 - Ajouter des signatures numériques aux emplacements spécifiés
 - Gérer les cases à cocher et les champs de date/heure
@@ -22,6 +23,7 @@ Le widget permet de :
 Chaque sous-widget nécessite une configuration spécifique des colonnes dans Grist pour faire correspondre les données aux champs du formulaire PDF. Les mappings sont définis dans les fichiers constants.ts de chaque sous-widget.
 
 Les champs supportés incluent :
+
 - Champs texte
 - Cases à cocher
 - Dates et heures
@@ -37,4 +39,4 @@ Si votre formulaire PDF nécessite des champs supplémentaires ou différents, v
 3. Vérifier l'aperçu du PDF généré
 4. Cliquer sur "Save to Grist" pour enregistrer le PDF comme pièce jointe
 
-Une fois le PDF généré et sauvegardé, il peut être traité par le widget suivant dans le workflow (signature manager ou état de frais). 
+Une fois le PDF généré et sauvegardé, il peut être traité par le widget suivant dans le workflow (signature manager ou état de frais).

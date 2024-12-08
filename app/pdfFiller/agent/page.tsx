@@ -1,12 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  PDFDocument,
-  PDFTextField,
-  PDFCheckBox,
-  rgb,
-} from "pdf-lib";
+import { useState, useEffect, useCallback } from "react";
+import { PDFDocument, PDFTextField, PDFCheckBox, rgb } from "pdf-lib";
 import { useGristEffect } from "../../../lib/grist/hooks";
 import { Title } from "../../../components/Title";
 import { Configuration } from "../../../components/Configuration";
@@ -62,12 +57,6 @@ const PdfFillerWidget = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (gristData) {
-      previewFirstPage();
-    }
-  }, [gristData]);
-
   const loadPdfTemplate = async () => {
     try {
       // Fetch the PDF template once and store the bytes
@@ -86,7 +75,7 @@ const PdfFillerWidget = () => {
     }
   };
 
-  const previewFirstPage = async () => {
+  const previewFirstPage = useCallback(async () => {
     if (!templateBytes) {
       console.error("Template bytes not loaded.");
       return;
@@ -353,7 +342,13 @@ const PdfFillerWidget = () => {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [gristData, templateBytes]);
+
+  useEffect(() => {
+    if (gristData) {
+      previewFirstPage();
+    }
+  }, [gristData, previewFirstPage]);
 
   // Cleanup URL when component unmounts or URL changes
   useEffect(() => {
@@ -370,10 +365,10 @@ const PdfFillerWidget = () => {
     try {
       setIsProcessing(true);
       await savePdfToGrist(
-        completePdfBytes, 
-        gristData!, 
+        completePdfBytes,
+        gristData!,
         COLUMN_MAPPING_NAMES.PDF_OUTPUT.name,
-        "filled"
+        "filled",
       );
       alert("PDF saved successfully!");
     } catch (error) {
