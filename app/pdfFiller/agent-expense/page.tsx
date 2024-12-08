@@ -266,12 +266,14 @@ const AgentExpenseWidget = () => {
         };
     }, [previewUrl]);
 
-    if (!gristData?.mappings || !gristData.mappings[COLUMN_MAPPING_NAMES.PDF_INPUT.name]) {
+    if (!gristData?.records[0] || !gristData?.mappings || !gristData.mappings[COLUMN_MAPPING_NAMES.PDF_INPUT.name]) {
         return (
             <div>
                 <Title title="Agent Expense Form" />
                 <div className="error-message">
-                    PDF_INPUT mapping is missing. Please configure the widget settings.
+                    {!gristData?.records[0] 
+                        ? "Please select a record to process."
+                        : "PDF_INPUT mapping is missing. Please configure the widget settings."}
                 </div>
                 <Footer dataSource={<span>PDF Filler powered by pdf-lib</span>} />
             </div>
