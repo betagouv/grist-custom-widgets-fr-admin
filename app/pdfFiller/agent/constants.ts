@@ -152,7 +152,7 @@ export const COLUMN_MAPPING_NAMES = {
       maxHeight: 30, // Maximum height for signature image
     },
   },
-  DATE_SIGNATURE: {
+  SIGNATURE_DATE: {
     name: "date_signature",
     title: "Date de signature",
     type: "Date",
