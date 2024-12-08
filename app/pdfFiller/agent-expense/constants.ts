@@ -103,4 +103,4 @@ export const COLUMN_MAPPING_NAMES = {
     optional: false,
     form_field: null,
   },
-} as const; 
+} as const;

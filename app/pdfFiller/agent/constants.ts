@@ -153,7 +153,7 @@ export const COLUMN_MAPPING_NAMES = {
     },
   },
   SIGNATURE_DATE: {
-    name: "date_signature",
+    name: "signature_date",
     title: "Date de signature",
     type: "Date",
     optional: true,

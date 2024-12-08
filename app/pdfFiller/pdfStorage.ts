@@ -12,12 +12,9 @@ export const savePdfToGrist = async (
   pdfBytes: Uint8Array,
   gristData: GristData,
   outputColumnName: string,
-  prefix: string = "form"
+  prefix: string = "form",
 ) => {
-  if (
-    !gristData?.records[0] ||
-    !gristData.mappings[outputColumnName]
-  ) {
+  if (!gristData?.records[0] || !gristData.mappings[outputColumnName]) {
     throw new Error("Missing required Grist data");
   }
 
@@ -27,14 +24,11 @@ export const savePdfToGrist = async (
   const attachmentId = await uploadAttachment(blob, fileName);
 
   const data = {
-    [outputColumnName]: [
-      grist.GristObjCode.List,
-      attachmentId,
-    ],
+    [outputColumnName]: [grist.GristObjCode.List, attachmentId],
   };
 
   await addObjectInRecord(
     gristData.records[0].id,
-    grist.mapColumnNamesBack(data)
+    grist.mapColumnNamesBack(data),
   );
 };
