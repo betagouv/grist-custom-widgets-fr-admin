@@ -7,13 +7,15 @@ import {
   PDFCheckBox,
   rgb,
 } from "pdf-lib";
-import { useGristEffect } from "../../lib/grist/hooks";
-import { addObjectInRecord } from "../../lib/grist/plugin-api";
-import { Title } from "../../components/Title";
-import { Configuration } from "../../components/Configuration";
-import { Footer } from "../../components/Footer";
+import { useGristEffect } from "../../../lib/grist/hooks";
+import { Title } from "../../../components/Title";
+import { Configuration } from "../../../components/Configuration";
+import { Footer } from "../../../components/Footer";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { RowRecord } from "grist/GristData";
+import { PdfPreview } from "../PdfPreview";
+import { downloadAttachment } from "../attachments";
+import { savePdfToGrist } from "../pdfStorage";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -84,82 +86,6 @@ const PdfFillerWidget = () => {
     }
   };
 
-  const uploadAttachment = async (blob: Blob, filename: string) => {
-    const tokenInfo = await grist.docApi.getAccessToken({ readOnly: false });
-    const gristUrl = `${tokenInfo.baseUrl}/attachments?auth=${tokenInfo.token}`;
-
-    const formData = new FormData();
-    formData.set("upload", blob, filename);
-
-    const gristResponse = await fetch(gristUrl, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-      },
-    });
-
-    const response = await gristResponse.json();
-    console.log(response);
-    return response[0];
-  };
-
-  const downloadAttachment = async (
-    attachmentId: number,
-  ): Promise<ArrayBuffer> => {
-    try {
-      // Get access token for downloading attachment
-      const tokenInfo = await grist.docApi.getAccessToken({ readOnly: true });
-      const downloadUrl = `${tokenInfo.baseUrl}/attachments/${attachmentId}/download?auth=${tokenInfo.token}`;
-
-      // Fetch the attachment file
-      const response = await fetch(downloadUrl);
-      if (!response.ok) {
-        throw new Error(
-          `Failed to download attachment: ${response.statusText}`,
-        );
-      }
-
-      // Return the file data as ArrayBuffer
-      return await response.arrayBuffer();
-    } catch (error) {
-      console.error("Error downloading attachment:", error);
-      throw error;
-    }
-  };
-
-  const savePdfToGrist = async (pdfBytes: Uint8Array) => {
-    if (
-      !gristData?.records[0] ||
-      !gristData.mappings[COLUMN_MAPPING_NAMES.PDF_OUTPUT.name]
-    ) {
-      console.error("Missing required Grist data");
-      return;
-    }
-
-    try {
-      const fileName = `filled_form_${new Date().toISOString()}.pdf`;
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-
-      // Upload the file and get its ID
-      const attachmentId = await uploadAttachment(blob, fileName);
-
-      // Update record using addObjectInRecord
-      const data: RowRecord = {
-        id: gristData.records[0].id,
-        [gristData.mappings[COLUMN_MAPPING_NAMES.PDF_OUTPUT.name] as string]: [
-          grist.GristObjCode.List,
-          attachmentId,
-        ],
-      };
-
-      addObjectInRecord(gristData.records[0].id, data);
-    } catch (error) {
-      console.error("Error saving PDF to Grist:", error);
-      alert("Failed to save PDF to Grist. Please try again.");
-    }
-  };
-
   const previewFirstPage = async () => {
     if (!templateBytes) {
       console.error("Template bytes not loaded.");
@@ -192,7 +118,7 @@ const PdfFillerWidget = () => {
           try {
             // Special handling for date signature
             if (
-              key === "DATE_SIGNATURE" &&
+              key === "SIGNATURE_DATE" &&
               value &&
               value instanceof Date &&
               typeof fieldMapping === "object"
@@ -443,7 +369,12 @@ const PdfFillerWidget = () => {
 
     try {
       setIsProcessing(true);
-      await savePdfToGrist(completePdfBytes);
+      await savePdfToGrist(
+        completePdfBytes, 
+        gristData!, 
+        COLUMN_MAPPING_NAMES.PDF_OUTPUT.name,
+        "filled"
+      );
       alert("PDF saved successfully!");
     } catch (error) {
       console.error("Error saving PDF:", error);
@@ -507,27 +438,7 @@ const PdfFillerWidget = () => {
         {isProcessing && <div>Generating preview...</div>}
         {previewUrl ? (
           <>
-            <div
-              className="pdf-preview"
-              style={{
-                flex: 1,
-                width: "100%",
-                minHeight: 0,
-                marginBottom: "10px",
-              }}
-            >
-              <iframe
-                src={`${previewUrl}#view=FitV&zoom=page-fit&scrollbar=0&toolbar=0&navpanes=0`}
-                width="100%"
-                height="calc(100vh - 200px)"
-                style={{
-                  width: "100%",
-                  height: "calc(100vh - 200px)",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-            </div>
+            <PdfPreview previewUrl={previewUrl} />
             <div
               style={{
                 padding: "10px 0 20px 0",
