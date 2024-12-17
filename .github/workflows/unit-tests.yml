@@ -1,0 +1,33 @@
+name: Run unit tests
+
+on:
+  push:
+    branches: ["main"]
+    # Allows running this workflow manually from the Actions tab
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install Node.js packages
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build the app
+        run: npm run build
+
+      - name: Run the tests
+        run: npm test
