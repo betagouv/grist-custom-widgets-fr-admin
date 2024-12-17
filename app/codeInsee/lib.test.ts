@@ -61,12 +61,12 @@ describe("callInseeCodeApi", () => {
     fetchMock.resetMocks();
     fetchMock.dontMock();
   });
-  it("should call fetch with the données&territoires addokadmin API", async () => {
+  it("should call fetch with the données&territoires addok API", async () => {
     // api response
     fetchMock.mockResponse(JSON.stringify({}));
     await callInseeCodeApi("foo bar", "92", "COM");
     expect(fetchMock.mock.lastCall![0]).toBe(
-      "https://addokadmin.sit.incubateur.tech/search?q=foo+bar&insee_dep=92&nature_juridique=COM",
+      "https://addok.donnees.incubateur.anct.gouv.fr/search?q=foo+bar&insee_dep=92&nature_juridique=COM",
     );
   });
 });
