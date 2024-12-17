@@ -22,10 +22,11 @@ function DynamicMarker({
   const getGeoAsNumber = useCallback(
     (lat: boolean, long: boolean): number | null => {
       const columnName = lat ? latColumnName : long ? longColumnName : "";
-      if (!record || !record[columnName]) {
+      // Record may be null, use the optional chaining operator to access to the column value
+      const value = record?.[columnName];
+      if (!value) {
         return null;
       }
-      const value = record[columnName];
       // Grist in French version use "," as decimal separator, it could break geo api
       return typeof value === "number"
         ? value
