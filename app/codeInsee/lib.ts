@@ -18,7 +18,7 @@ export const callInseeCodeApi = async (
   dept?: string,
   natureJuridique?: string,
 ): Promise<NormalizedInseeResult[]> => {
-  // The only use of this endpoint is here ! If we change the API used, we could delete the addokadmin service.
+  // The only use of this endpoint is here ! If we change the API used, we could delete the addok service.
   const url = new URL("https://addok.donnees.incubateur.anct.gouv.fr/search");
   url.searchParams.set("q", collectivity);
   dept && url.searchParams.set("insee_dep", dept);
@@ -27,7 +27,7 @@ export const callInseeCodeApi = async (
   const response = await fetch(url.toString());
   if (!response.ok) {
     console.error(
-      "The call to the addokadmin.sit.incubateur.tech api is not 200 status",
+      "The call to the addok.donnees.incubateur.anct.gouv.fr api is not 200 status",
       response,
     );
   }
