@@ -1,10 +1,10 @@
-# PDF Filler
+# OM Filler
 
 Ce widget permet de remplir automatiquement des formulaires PDF avec les données présentes dans Grist. Il est composé de trois sous-widgets :
 
-- `/pdfFiller/agent` : Permet à un agent de remplir un ordre de mission
-- `/pdfFiller/manager` : Permet à un manager de signer l'ordre de mission et l'état de frais associé
-- `/pdfFiller/agent-expense` : Permet à l'agent de remplir l'état de frais associé
+- `/omFiller/agent` : Permet à un agent de remplir un ordre de mission
+- `/omFiller/manager` : Permet à un manager de signer l'ordre de mission et l'état de frais associé
+- `/omFiller/agent-expense` : Permet à l'agent de remplir l'état de frais associé
 
 Ce widget utilise la bibliothèque pdf-lib pour la manipulation des PDFs.
 

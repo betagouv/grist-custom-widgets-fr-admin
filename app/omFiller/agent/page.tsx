@@ -17,14 +17,14 @@ import * as pdfjsLib from "pdfjs-dist";
 // Initialize PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-const TEMPLATE_PATH = "/templates/OM-EF-Chorus-DT_PDF_modifiable_V01_2024.pdf";
+const TEMPLATE_PATH = "/templates/om.pdf";
 
 interface GristData {
   records: RowRecord[];
   mappings: WidgetColumnMap;
 }
 
-const PdfFillerWidget = () => {
+const OmFillerWidget = () => {
   const [currentStep, setCurrentStep] = useState("loading");
   const [isProcessing, setIsProcessing] = useState(false);
   const [gristData, setGristData] = useState<GristData | null>(null);
@@ -406,7 +406,7 @@ const PdfFillerWidget = () => {
         <Configuration>
           <p>{NO_DATA_MESSAGES.NO_MAPPING}</p>
         </Configuration>
-        <Footer dataSource={<span>PDF Filler powered by pdf-lib</span>} />
+        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
       </div>
     );
   }
@@ -420,7 +420,7 @@ const PdfFillerWidget = () => {
         flexDirection: "column",
       }}
     >
-      <Title title="PDF Filler" />
+      <Title title="OM Filler" />
       <div
         style={{
           padding: "0 10px",
@@ -455,9 +455,9 @@ const PdfFillerWidget = () => {
           <div>Loading preview...</div>
         )}
       </div>
-      <Footer dataSource={<span>PDF Filler powered by pdf-lib</span>} />
+      <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
     </div>
   );
 };
 
-export default PdfFillerWidget;
+export default OmFillerWidget;

@@ -1,26 +1,28 @@
 "use client";
 
-const PdfFillerHome = () => (
+const OmFillerHome = () => (
   <div style={{ padding: "20px" }}>
-    <h1>PDF Filler - Widgets de remplissage de formulaires PDF</h1>
+    <h1>
+      OM Filler - Widgets de remplissage de formulaires PDF d'ordre de mission
+    </h1>
     <p>
       Cette collection de widgets permet de gérer le workflow complet des ordres
       de mission et états de frais :
     </p>
     <ul>
       <li>
-        <b>/pdfFiller/agent</b> : Widget permettant à un agent de remplir son
+        <b>/omFiller/agent</b> : Widget permettant à un agent de remplir son
         ordre de mission. Les données de Grist sont utilisées pour remplir
         automatiquement le formulaire PDF, incluant la signature de l'agent.
       </li>
       <li>
-        <b>/pdfFiller/manager</b> : Widget permettant au manager de signer
+        <b>/omFiller/manager</b> : Widget permettant au manager de signer
         l'ordre de mission précédemment rempli par l'agent. Le manager peut
         ajouter sa signature numérique au document. Les états de frais sont
         gérés de manière similaire.
       </li>
       <li>
-        <b>/pdfFiller/agent-expense</b> : Widget permettant à l'agent de remplir
+        <b>/omFiller/agent-expense</b> : Widget permettant à l'agent de remplir
         l'état de frais associé à sa mission, en utilisant les données de Grist
         et en ajoutant sa signature.
       </li>
@@ -47,4 +49,4 @@ const PdfFillerHome = () => (
   </div>
 );
 
-export default PdfFillerHome;
+export default OmFillerHome;

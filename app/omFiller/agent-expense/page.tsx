@@ -292,7 +292,7 @@ const AgentExpenseWidget = () => {
             ? "Please select a record to process."
             : "PDF_INPUT mapping is missing. Please configure the widget settings."}
         </div>
-        <Footer dataSource={<span>PDF Filler powered by pdf-lib</span>} />
+        <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
       </div>
     );
   }
@@ -341,7 +341,7 @@ const AgentExpenseWidget = () => {
           <div>Loading preview...</div>
         )}
       </div>
-      <Footer dataSource={<span>PDF Filler powered by pdf-lib</span>} />
+      <Footer dataSource={<span>OM Filler powered by pdf-lib</span>} />
     </div>
   );
 };
