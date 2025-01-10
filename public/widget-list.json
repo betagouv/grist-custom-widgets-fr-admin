@@ -479,22 +479,5 @@
     ],
     "isGristLabsMaintained": false,
     "lastUpdatedAt": "2024-10-09T14:36:40+02:00"
-  },
-  {
-    "name": "PDF Filler",
-    "url": "http://localhost:3000/pdfFiller",
-    "widgetId": "@anct/widget-pdffiller",
-    "published": true,
-    "accessLevel": "full",
-    "renderAfterReady": true,
-    "description": "Fill PDFs with form data.",
-    "authors": [
-      {
-        "name": "Grist Gouv",
-        "url": "https://github.com/betagouv/grist-custom-widgets-fr-admin"
-      }
-    ],
-    "isGristLabsMaintained": false,
-    "lastUpdatedAt": "2024-10-12T17:58:38-04:00"
   }
 ]

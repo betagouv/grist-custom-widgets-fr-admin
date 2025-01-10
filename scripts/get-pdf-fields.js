@@ -33,5 +33,5 @@ async function getFormFields(pdfPath) {
 }
 
 // Use the script
-const pdfPath = './public/templates/OM-EF-Chorus-DT_PDF_modifiable_V01_2024.pdf';
+const pdfPath = './public/templates/om.pdf';
 getFormFields(pdfPath); 
