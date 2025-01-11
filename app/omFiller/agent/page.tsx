@@ -12,11 +12,6 @@ import { PdfPreview } from "../PdfPreview";
 import { downloadAttachment } from "../attachments";
 import { savePdfToGrist } from "../pdfStorage";
 import { COLUMN_MAPPING_NAMES, NO_DATA_MESSAGES, TITLE } from "./constants";
-import * as pdfjsLib from "pdfjs-dist";
-
-// Initialize PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
 const TEMPLATE_PATH = "/templates/om.pdf";
 
 interface GristData {
