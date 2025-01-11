@@ -257,7 +257,7 @@ const OmFillerWidget = () => {
             ) {
               const attachmentId = Number(value[0]);
               const imageBytes = await downloadAttachment(attachmentId);
-              const image = await pdfDoc.embedPng(Buffer.from(imageBytes));
+              const image = await pdfDoc.embedPng(new Uint8Array(imageBytes));
 
               const { x, y, maxHeight } = fieldMapping as {
                 x: number;

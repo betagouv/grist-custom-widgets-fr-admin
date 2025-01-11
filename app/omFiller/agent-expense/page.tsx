@@ -177,7 +177,7 @@ const AgentExpenseWidget = () => {
                 };
                 const attachmentId = Number(value[0]);
                 const imageBytes = await downloadAttachment(attachmentId);
-                const image = await pdfDoc.embedPng(Buffer.from(imageBytes));
+                const image = await pdfDoc.embedPng(new Uint8Array(imageBytes));
 
                 const aspectRatio = image.width / image.height;
                 const width = maxHeight * aspectRatio;

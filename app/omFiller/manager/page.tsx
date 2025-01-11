@@ -96,7 +96,7 @@ const ManagerSignatureWidget = () => {
           ],
         );
         const imageBytes = await downloadAttachment(signatureAttachmentId);
-        const image = await pdfDoc.embedPng(Buffer.from(imageBytes));
+        const image = await pdfDoc.embedPng(new Uint8Array(imageBytes));
 
         const aspectRatio = image.width / image.height;
         const width = maxHeight * aspectRatio;
