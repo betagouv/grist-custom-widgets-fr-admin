@@ -77,9 +77,11 @@ const InseeCode = () => {
 
   useEffect(() => {
     if (["loading", "config"].includes(currentStep)) {
-      mappingsIsReady(mappings)
-        ? setCurrentStep("menu")
-        : setCurrentStep("config");
+      if (mappingsIsReady(mappings)) {
+        setCurrentStep("menu");
+      } else {
+        setCurrentStep("config");
+      }
     }
   }, [mappings, currentStep]);
 
@@ -136,9 +138,9 @@ const InseeCode = () => {
         isDoubtfulResults,
         areTooCloseResults,
       );
-      clean && writeCleanDataInTable(clean);
-      dirty && setDirtyData((prevState) => ({ ...prevState, ...dirty }));
-      noResult &&
+      if (clean) writeCleanDataInTable(clean);
+      if (dirty) setDirtyData((prevState) => ({ ...prevState, ...dirty }));
+      if (noResult)
         setNoResultData((prevState) => ({ ...prevState, ...noResult }));
     }
   };
