@@ -22,9 +22,15 @@ const callSirenCodeApi = async (
     "est_collectivite_territoriale",
     isCollectiviteTerritoriale.toString(),
   );
-  if (dept) url.searchParams.set("departement", dept);
-  if (codeCommune) url.searchParams.set("code_commune", codeCommune);
-  if (codePostal) url.searchParams.set("code_postal", codePostal);
+  if (dept) {
+    url.searchParams.set("departement", dept);
+  }
+  if (codeCommune) {
+    url.searchParams.set("code_commune", codeCommune);
+  }
+  if (codePostal) {
+    url.searchParams.set("code_postal", codePostal);
+  }
   const response = await fetch(url.toString());
   if (!response.ok) {
     console.error(
