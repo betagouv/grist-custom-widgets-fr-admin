@@ -79,8 +79,11 @@ export const getGeoCodeResultsForRecord = async (
 export const getGeoCodeResultsForRecords = async (
   records: RowRecord[],
   mappings: WidgetColumnMap,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  callBackFunction: Function,
+  callBackFunction: (
+    data: UncleanedRecord<NormalizedGeocodeResult>[],
+    i: number,
+    length: number,
+  ) => void,
 ) => {
   const geoCodeDataFromApi: UncleanedRecord<NormalizedGeocodeResult>[] = [];
   for (const i in records) {
