@@ -10,6 +10,7 @@ Widgets de nettoyages de données :
 - [codeInsee](app/codeInsee/README.md)
 - [codeSiren](app/codeSiren/README.md) 
 - [geocode](app/geocode/README.md)
+- [omFiller](app/omFiller/README.md)
 
 
 ## En Prod
