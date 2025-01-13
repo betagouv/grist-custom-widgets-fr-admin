@@ -119,10 +119,15 @@ const GeoCodeur = () => {
         isDoubtfulResults,
         areTooCloseResults,
       );
-      if (clean) writeCleanDataInTable(clean);
-      if (dirty) setDirtyData((prevState) => ({ ...prevState, ...dirty }));
-      if (noResult)
+      if (clean) {
+        writeCleanDataInTable(clean);
+      }
+      if (dirty) {
+        setDirtyData((prevState) => ({ ...prevState, ...dirty }));
+      }
+      if (noResult) {
         setNoResultData((prevState) => ({ ...prevState, ...noResult }));
+      }
     }
   };
 

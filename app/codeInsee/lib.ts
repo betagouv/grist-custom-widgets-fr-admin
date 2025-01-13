@@ -21,9 +21,12 @@ export const callInseeCodeApi = async (
   // The only use of this endpoint is here ! If we change the API used, we could delete the addok service.
   const url = new URL("https://addok.donnees.incubateur.anct.gouv.fr/search");
   url.searchParams.set("q", collectivity);
-  if (dept) url.searchParams.set("insee_dep", dept);
-  if (natureJuridique)
+  if (dept) {
+    url.searchParams.set("insee_dep", dept);
+  }
+  if (natureJuridique) {
     url.searchParams.set("nature_juridique", natureJuridique);
+  }
 
   const response = await fetch(url.toString());
   if (!response.ok) {
@@ -108,7 +111,7 @@ export const getInseeCodeResultsForRecords = async (
   records: RowRecord[],
   mappings: WidgetColumnMap,
   callBackFunction: (
-    code: UncleanedRecord<NormalizedInseeResult>[],
+    data: UncleanedRecord<NormalizedInseeResult>[],
     i: number,
     length: number,
   ) => void,
