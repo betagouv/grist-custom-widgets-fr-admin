@@ -80,7 +80,9 @@ const AgentExpenseWidget = () => {
 
         // Process each field mapping
         for (const [key, config] of Object.entries(COLUMN_MAPPING_NAMES)) {
-          if (key === "PDF_OUTPUT") continue;
+          if (key === "PDF_OUTPUT") {
+            continue;
+          }
 
           const columnId = config.name;
           const fieldMapping = config.form_field;
@@ -246,7 +248,9 @@ const AgentExpenseWidget = () => {
   }, [gristData]);
 
   const savePdf = async () => {
-    if (!completePdfBytes || !gristData) return;
+    if (!completePdfBytes || !gristData) {
+      return;
+    }
 
     try {
       setIsProcessing(true);
