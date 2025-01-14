@@ -137,7 +137,9 @@ const ManagerSignatureWidget = () => {
   };
 
   const savePdf = async () => {
-    if (!completePdfBytes || !gristData) return;
+    if (!completePdfBytes || !gristData) {
+      return;
+    }
 
     try {
       setIsProcessing(true);

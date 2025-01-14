@@ -90,7 +90,9 @@ const OmFillerWidget = () => {
         console.log("Filling fields with record:", record);
 
         for (const [key, config] of Object.entries(COLUMN_MAPPING_NAMES)) {
-          if (key === "PDF_OUTPUT") continue;
+          if (key === "PDF_OUTPUT") {
+            continue;
+          }
 
           const columnId = config.name;
           const fieldMapping = config.form_field;
@@ -355,7 +357,9 @@ const OmFillerWidget = () => {
   }, [previewUrl]);
 
   const savePdf = async () => {
-    if (!completePdfBytes) return;
+    if (!completePdfBytes) {
+      return;
+    }
 
     try {
       setIsProcessing(true);
