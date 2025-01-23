@@ -17,6 +17,11 @@ export const Instructions = () => {
           le nom officiel du géocodage trouvé.
         </li>
         <li>
+          Vérifiez que vous avez bien créer un lien entre la vue et la table :
+          dans Données Source &gt; Sélectionner par : choisir la table qui
+          contient vos adresses.
+        </li>
+        <li>
           Faire une recherche globale afin de faire une première passe sur
           toutes vos lignes.
         </li>

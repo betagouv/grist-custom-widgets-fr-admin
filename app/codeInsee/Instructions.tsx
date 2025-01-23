@@ -27,6 +27,11 @@ export const Instructions = () => {
           définir globalement via la liste déroulante appropriée.
         </li>
         <li>
+          Vérifiez que vous avez bien créer un lien entre la vue et la table :
+          dans Données Source &gt; Sélectionner par : choisir la table qui
+          contient vos communes.
+        </li>
+        <li>
           Faire une recherche globale afin de faire une première passe sur
           toutes vos lignes.
         </li>

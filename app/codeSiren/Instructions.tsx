@@ -15,6 +15,11 @@ export const Instructions = () => {
           possible d'indiquer d'autre colonne pour aider à désambiguer.
         </li>
         <li>
+          Vérifiez que vous avez bien créer un lien entre la vue et la table :
+          dans Données Source &gt; Sélectionner par : choisir la table qui
+          contient vos entités pour lesquels il faut définir le code SIREN.
+        </li>
+        <li>
           Faire une recherche globale afin de faire une première passe sur
           toutes vos lignes.
         </li>
