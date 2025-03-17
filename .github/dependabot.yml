@@ -9,11 +9,3 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "monthly"
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    groups:
-      npm:
-        dependency-type: production
-        applies-to: "security-updates"
-    schedule:
-      interval: "monthly"
