@@ -16,7 +16,7 @@
     "next": "^15.2.3",
     "pdf-lib": "^1.17.1",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react-dom": "19.1.0",
     "react-leaflet": "5.0.0"
   },
   "devDependencies": {
