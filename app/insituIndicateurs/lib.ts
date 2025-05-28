@@ -92,7 +92,10 @@ const getQueryFragmentForRecord = (
     /^\w+$/.test(inseeCode) &&
     (maille as MailleLabel)
   ) {
-    if (!checkDestinationIsEmpty || !indicateurValue) {
+    if (
+      !checkDestinationIsEmpty ||
+      (!indicateurValue && indicateurValue !== 0)
+    ) {
       return generateQueryFragmentByTerritoire(
         maille,
         inseeCode,
