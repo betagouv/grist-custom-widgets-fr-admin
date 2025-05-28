@@ -12,6 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "graphql-request": "^7.1.2",
     "leaflet": "1.9.4",
     "next": "^15.2.4",
     "pdf-lib": "^1.17.1",

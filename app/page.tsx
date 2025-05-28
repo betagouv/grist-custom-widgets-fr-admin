@@ -20,6 +20,10 @@ const HomePage = () => (
           <b>/omFiller</b>: permet de remplir des formulaires PDF
           automatiquement
         </li>
+        <li>
+          <b>/insituIndicateurs</b>: permet de remplir les indicateurs pour des
+          codes Insee donnés
+        </li>
       </ul>
     </p>
   </div>
