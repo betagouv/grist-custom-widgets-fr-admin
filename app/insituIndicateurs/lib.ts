@@ -10,9 +10,6 @@ import {
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MappedRecord } from "../../lib/util/types";
 
-const NEXT_PUBLIC_APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || "";
-const NEXT_PUBLIC_APP_COMMIT_SHA = process.env.NEXT_PUBLIC_APP_COMMIT_SHA || "";
-
 export const callInsituIndicateurApi = async (
   query: string,
   identifiant: string,
@@ -23,8 +20,7 @@ export const callInsituIndicateurApi = async (
     query,
     params,
     {
-      ["x-client-name"]: "Wiget Grist",
-      ["x-client-version"]: `${NEXT_PUBLIC_APP_VERSION}-${NEXT_PUBLIC_APP_COMMIT_SHA}`,
+      ["x-client-name"]: "Widget Grist insituIndicateur",
     },
   );
 
@@ -61,7 +57,21 @@ const generateQueryFragmentByTerritoire = (
       }`;
 };
 
-const generateQuery = (listQueryTerritoires: string[]) => {
+export const generateQuery = (
+  records: RowRecord[],
+  checkDestinationIsEmpty: boolean,
+) => {
+  const queryRecordList = [];
+  for (const i in records) {
+    const record = records[i];
+    const queryFragmentForRecord = getQueryFragmentForRecord(
+      grist.mapColumnNames(record),
+      checkDestinationIsEmpty,
+    );
+    if (queryFragmentForRecord) {
+      queryRecordList.push(queryFragmentForRecord);
+    }
+  }
   return gql`
 query IndicateurCountQuery($identifiant: String!) {
   indicateurs(filtre: { identifiants: [$identifiant] }) {
@@ -70,7 +80,7 @@ query IndicateurCountQuery($identifiant: String!) {
       mailles
     }
     mailles {
-      ${listQueryTerritoires.join(" ")}
+      ${queryRecordList.join(" ")}
     }
   }
 }
@@ -115,18 +125,7 @@ export const getInsituIndicateursResultsForRecords = async (
   ) => void,
   checkDestinationIsEmpty: boolean,
 ) => {
-  const queryRecordList = [];
-  for (const i in records) {
-    const record = records[i];
-    const queryFragmentForRecord = await getQueryFragmentForRecord(
-      grist.mapColumnNames(record),
-      checkDestinationIsEmpty,
-    );
-    if (queryFragmentForRecord) {
-      queryRecordList.push(queryFragmentForRecord);
-    }
-  }
-  const query = generateQuery(queryRecordList);
+  const query = generateQuery(records, checkDestinationIsEmpty);
   const identifiant = mappings[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name];
   if (typeof identifiant === "string") {
     const insituIndicateursResults = await callInsituIndicateurApi(
