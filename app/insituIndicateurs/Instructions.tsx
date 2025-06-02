@@ -23,7 +23,7 @@ export const Instructions = () => {
         </li>
         <li>
           Lancer une recherche pour remplir la colonne dédiée à l'indicateur.
-          Vous pouvez choisir de remplir que les valeur vides ou bien faire une
+          Vous pouvez choisir de remplir que les valeurs vides ou bien faire une
           mise à jour globale
         </li>
         <li>
