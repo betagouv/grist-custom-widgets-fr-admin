@@ -5,7 +5,7 @@ import { Accordion } from "../../components/Accordion";
 export const Instructions = () => {
   const instructions = (
     <>
-      Cette Vue à pour but de pouvoir ajouter la valeur d'un indicateur présent
+      Cette Vue a pour but de rajouter la valeur d'un indicateur présent
       dans le Catalogue d'indicateur pour chaque territoire de la table. Une
       ligne égale un territoire. Fonctionnement :
       <ul>
