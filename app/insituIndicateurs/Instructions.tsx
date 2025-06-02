@@ -19,7 +19,7 @@ export const Instructions = () => {
           Indiquer la colonne devant recevoir la valeur de l'indicateur. Le nom
           de la colonne doit impérativement être l'identifiant de l'indicateur
           qui vous intéresse. Vous pouvez trouver cet identifiant dans le
-          catalogue d'indicateur lorsque vous êtes sur l'indicateur en question
+          catalogue d'indicateurs lorsque vous êtes sur l'indicateur en question
         </li>
         <li>
           Lancer une recherche pour remplir la colonne dédié à l'indicateur.
