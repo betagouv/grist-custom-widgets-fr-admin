@@ -28,7 +28,7 @@ export const NO_DATA_MESSAGES: NoDataMessage = {
   NO_DESTINATION_DATA:
     "Il n’existe pas de code INSEE dans les résultats pour la collectivité sélectionnée.",
   NO_RESULT:
-    "Aucun résultat ne correspond à la collectivité sélectionnée. Veuillez vérifier si cette collectivité existe bien ou qu’il n’y ai pas d’erreur.",
+    "Aucun résultat ne correspond à la collectivité sélectionnée. Veuillez vérifier que cette collectivité existe bien et qu’il n’y ait pas d’erreur.",
   NO_SOURCE_DATA:
     "Afin de traiter la ligne sélectionnée, veuillez renseigner la collectivité recherchée.",
   API_ERROR:
