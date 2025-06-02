@@ -1,7 +1,7 @@
 import { NoDataMessage } from "../../lib/cleanData/types";
 
 export const TITLE =
-  "Ajouter la valeur d'un indicateur Inisut pour un code INSEE et une maille donnés";
+  "Ajouter la valeur d'un indicateur Insitu pour un code INSEE et une maille donnés";
 
 export const COLUMN_MAPPING_NAMES = {
   CODE_INSEE: {
