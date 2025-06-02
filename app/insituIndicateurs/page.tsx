@@ -50,10 +50,15 @@ const InseeCode = () => {
     const callBackFunction = (
       dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null,
       error: string | null,
+      errorByRecord: { recordId: number; error: string }[] | null,
     ) => {
       if (dataFromApi) {
         writeDataInTable(dataFromApi);
-      } else if (error) {
+      }
+      if (errorByRecord) {
+        writeErrorsInTable(errorByRecord);
+      }
+      if (error) {
         addObjectInRecord(
           records[0].id,
           grist.mapColumnNamesBack({
@@ -68,6 +73,17 @@ const InseeCode = () => {
       callBackFunction,
       checkDestinationIsEmpty,
     );
+  };
+
+  const writeErrorsInTable = (
+    errorByRecord: { recordId: number; error: string }[],
+  ) => {
+    errorByRecord.forEach((error) => {
+      const data = {
+        [COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]: error.error,
+      };
+      addObjectInRecord(error.recordId, grist.mapColumnNamesBack(data));
+    });
   };
 
   const writeDataInTable = (

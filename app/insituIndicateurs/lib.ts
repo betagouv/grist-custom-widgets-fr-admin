@@ -5,6 +5,7 @@ import {
   FetchIndicateurReturnType,
   FetchIndicateursReturnType,
   MailleLabel,
+  mailleLabelValues,
   NarrowedTypeIndicateur,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
@@ -60,19 +61,24 @@ const generateQueryFragmentByTerritoire = (
 export const generateQuery = (
   records: RowRecord[],
   checkDestinationIsEmpty: boolean,
-) => {
+): { query: string; errors: { recordId: number; error: string }[] } => {
   const queryRecordList = [];
+  const errorRecordList = [];
   for (const i in records) {
     const record = records[i];
-    const queryFragmentForRecord = getQueryFragmentForRecord(
+    const { query, error } = getQueryFragmentForRecord(
       grist.mapColumnNames(record),
       checkDestinationIsEmpty,
     );
-    if (queryFragmentForRecord) {
-      queryRecordList.push(queryFragmentForRecord);
+    if (query) {
+      queryRecordList.push(query);
+    }
+    if (error) {
+      errorRecordList.push({ recordId: record.id, error });
     }
   }
-  return gql`
+  return {
+    query: gql`
 query IndicateurCountQuery($identifiant: String!) {
   indicateurs(filtre: { identifiants: [$identifiant] }) {
     metadata {
@@ -84,36 +90,42 @@ query IndicateurCountQuery($identifiant: String!) {
     }
   }
 }
-`;
+`,
+    errors: errorRecordList,
+  };
 };
 
 const getQueryFragmentForRecord = (
   mappedRecord: MappedRecord,
   checkDestinationIsEmpty: boolean,
-) => {
+): { query: string; error: string } => {
   const inseeCode = mappedRecord[COLUMN_MAPPING_NAMES.CODE_INSEE.name];
   const maille = mappedRecord[COLUMN_MAPPING_NAMES.MAILLE.name];
   const indicateurValue =
     mappedRecord[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name];
-  // Vérifier la validité des colonnes insee code et maille
-  if (
-    inseeCode &&
-    maille &&
-    /^\w+$/.test(inseeCode) &&
-    (maille as MailleLabel)
-  ) {
-    if (
-      !checkDestinationIsEmpty ||
-      (!indicateurValue && indicateurValue !== 0)
-    ) {
-      return generateQueryFragmentByTerritoire(
+  const response = { query: "", error: "" };
+  // On s'intéresse à la ligne seulement si la colonne de destination est vide
+  // ou si on doit ignorer cette information
+  if (!checkDestinationIsEmpty || (!indicateurValue && indicateurValue !== 0)) {
+    // Vérifier la validité des colonnes insee code et maille
+    if (!inseeCode) {
+      response.error = "Le code insee est vide";
+    } else if (!/^\w+$/.test(inseeCode)) {
+      response.error = "Le code insee n'est pas valide";
+    } else if (!maille) {
+      response.error = "La maille est vide";
+    } else if (!mailleLabelValues.includes(maille)) {
+      response.error = "La maille n'est pas valide";
+    } else {
+      response.query = generateQueryFragmentByTerritoire(
         maille,
         inseeCode,
         mappedRecord.id,
       );
     }
   }
-  // TODO : else afficher une erreur ou un message
+
+  return response;
 };
 
 export const getInsituIndicateursResultsForRecords = async (
@@ -122,21 +134,23 @@ export const getInsituIndicateursResultsForRecords = async (
   callBackFunction: (
     data: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null,
     error: string | null,
+    errorByRecord: { recordId: number; error: string }[] | null,
   ) => void,
   checkDestinationIsEmpty: boolean,
 ) => {
-  const query = generateQuery(records, checkDestinationIsEmpty);
+  const { query, errors } = generateQuery(records, checkDestinationIsEmpty);
   const identifiant = mappings[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name];
   if (typeof identifiant === "string") {
     const insituIndicateursResults = await callInsituIndicateurApi(
       query,
       identifiant,
     );
-    callBackFunction(insituIndicateursResults, null);
+    callBackFunction(insituIndicateursResults, null, errors);
   } else {
     callBackFunction(
       null,
       "L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant le l'indicateur insitu",
+      null,
     );
   }
 };

@@ -5,6 +5,15 @@ export type MailleLabel =
   | "commune"
   | "epci";
 
+enum MailleLabelEnum {
+  Reg = "région",
+  Dep = "département",
+  Pays = "pays",
+  Com = "commune",
+  Epci = "epci",
+}
+export const mailleLabelValues = Object.values(MailleLabelEnum);
+
 export type InsituIndicSteps =
   | "loading"
   | "config"
