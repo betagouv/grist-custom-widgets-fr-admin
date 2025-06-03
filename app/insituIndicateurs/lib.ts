@@ -141,11 +141,19 @@ export const getInsituIndicateursResultsForRecords = async (
   const { query, errors } = generateQuery(records, checkDestinationIsEmpty);
   const identifiant = mappings[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name];
   if (typeof identifiant === "string") {
-    const insituIndicateursResults = await callInsituIndicateurApi(
-      query,
-      identifiant,
-    );
-    callBackFunction(insituIndicateursResults, null, errors);
+    try {
+      const insituIndicateursResults = await callInsituIndicateurApi(
+        query,
+        identifiant,
+      );
+      callBackFunction(insituIndicateursResults, null, errors);
+    } catch (e) {
+      let errorMessage = "La requête à Insitu a échoué";
+      if (e instanceof Error) {
+        errorMessage = e.message.slice(0, 200) + "...";
+      }
+      callBackFunction(null, errorMessage, null);
+    }
   } else {
     callBackFunction(
       null,

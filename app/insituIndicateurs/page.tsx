@@ -26,6 +26,7 @@ const InseeCode = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [currentStep, setCurrentStep] = useState<InsituIndicSteps>("loading");
+  const [globalError, setGlobalError] = useState<string>("");
 
   useGristEffect(() => {
     gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
@@ -59,14 +60,10 @@ const InseeCode = () => {
         writeErrorsInTable(errorByRecord);
       }
       if (error) {
-        addObjectInRecord(
-          records[0].id,
-          grist.mapColumnNamesBack({
-            [COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]: error,
-          }),
-        );
+        setGlobalError(error);
       }
     };
+    setGlobalError("");
     getInsituIndicateursResultsForRecords(
       records,
       mappings!,
@@ -131,6 +128,13 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
+      {/* {globalError && ( */}
+      <div className="alert-error">
+        <div>
+          <span>Erreur</span> : {globalError}
+        </div>
+      </div>
+      {/* )} */}
       <div className="menu">
         <div className="centered-column">
           <h2>Compléter les champs vides</h2>
