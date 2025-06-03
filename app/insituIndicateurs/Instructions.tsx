@@ -5,9 +5,9 @@ import { Accordion } from "../../components/Accordion";
 export const Instructions = () => {
   const instructions = (
     <>
-      Cette Vue a pour but de rajouter la valeur d'un indicateur présent
-      dans le Catalogue d'indicateurs pour chaque territoire de la table. Une
-      ligne égale un territoire. Fonctionnement :
+      Cette Vue a pour but de rajouter la valeur d'un indicateur présent dans le
+      Catalogue d'indicateurs pour chaque territoire de la table. Une ligne
+      égale un territoire. Fonctionnement :
       <ul>
         <li>
           Indiquer la colonne corespondant au code INSEE ainsi que la colonne
