@@ -244,3 +244,8 @@ tfoot {
   background-color: var(--green, #009058);
   color: #fff;
 }
+
+.alert-error {
+  border: 1px solid red;
+  padding: 10px;
+}
