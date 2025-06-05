@@ -7,11 +7,6 @@ import { COLUMN_MAPPING_NAMES, TITLE } from "./constants";
 import { getInsituIndicateursResultsForRecords, mappingsIsReady } from "./lib";
 import {
   FetchIndicateurReturnType,
-  IndicateurListe,
-  IndicateurListeGeo,
-  IndicateurOneValue,
-  IndicateurRow,
-  IndicateurRows,
   InsituIndicSteps,
   NarrowedTypeIndicateur,
 } from "./types";
@@ -89,16 +84,16 @@ const InseeCode = () => {
     Object.entries(dataFromApi.mailles).forEach(([recordId, indicateur]) => {
       let valeurIndicateur;
       if (indicateur) {
-        switch (indicateur) {
-          case indicateur as IndicateurOneValue:
+        switch (indicateur.__typename) {
+          case "IndicateurOneValue":
             valeurIndicateur = indicateur.valeur;
             break;
-          case indicateur as IndicateurRow:
+          case "IndicateurRow":
             valeurIndicateur = new String(Object.values(indicateur.row)[0]);
             break;
-          case indicateur as IndicateurRows:
-          case indicateur as IndicateurListe:
-          case indicateur as IndicateurListeGeo:
+          case "IndicateurRows":
+          case "IndicateurListe":
+          case "IndicateurListeGeo":
             valeurIndicateur = indicateur.count;
             break;
           default:
@@ -128,13 +123,13 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
-      {/* {globalError && ( */}
-      <div className="alert-error">
-        <div>
-          <span>Erreur</span> : {globalError}
+      {globalError && (
+        <div className="alert-error">
+          <div>
+            <span>Erreur</span> : {globalError}
+          </div>
         </div>
-      </div>
-      {/* )} */}
+      )}
       <div className="menu">
         <div className="centered-column">
           <h2>Compléter les champs vides</h2>
