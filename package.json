@@ -12,9 +12,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "graphql-request": "^7.1.2",
+    "graphql-request": "^7.2.0",
     "leaflet": "1.9.4",
-    "next": "^15.2.4",
+    "next": "^15.3.3",
     "pdf-lib": "^1.17.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
