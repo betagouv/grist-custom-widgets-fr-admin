@@ -14,7 +14,7 @@
   "dependencies": {
     "graphql-request": "^7.2.0",
     "leaflet": "1.9.4",
-    "next": "^15.3.3",
+    "next": "^15.3.4",
     "pdf-lib": "^1.17.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
