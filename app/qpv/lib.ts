@@ -87,12 +87,11 @@ export function checkPointInQPV(
         });
       }
     } catch (error: unknown) {
-      console.error("Erreur lors de la vérification d'un polygone: ", error);
-      if (error instanceof Error) {
-        console.error(
-          "Erreur lors de la vérification d'un polygone: " + error.message,
-        );
-      }
+      logError(
+        "Erreur lors de la vérification d'un polygone",
+        error,
+        undefined,
+      );
     }
   }
 
@@ -114,17 +113,16 @@ export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
 };
 
 export const logError = (
+  context: string,
   error: unknown,
-  setResultMessage: ({
-    message,
-    type,
-  }: {
-    message: string;
-    type: string;
-  }) => void,
+  setResultMessage:
+    | (({ message, type }: { message: string; type: string }) => void)
+    | undefined,
 ) => {
   const errorMessage = error instanceof Error ? error.message : error;
-  const message = `Erreur lors de l'analyse: ${errorMessage}`;
+  const message = `${context}: ${errorMessage}`;
   console.error(message);
-  setResultMessage({ message: message, type: "error" });
+  if (setResultMessage) {
+    setResultMessage({ message: message, type: "error" });
+  }
 };

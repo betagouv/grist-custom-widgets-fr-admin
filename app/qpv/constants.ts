@@ -1,15 +1,17 @@
+export const TITLE = "Vérificateur QPV";
+
 export const COLUMN_MAPPING_NAMES = {
   LATITUDE: {
     name: "latitude",
     title: "Latitude",
-    description: "Colonne contenant les coordonnées de latitude",
+    description: "Indiquez la colonne contenant la latitude à vérifier",
     optional: false,
     type: "Any",
   },
   LONGITUDE: {
     name: "longitude",
     title: "Longitude",
-    description: "Colonne contenant les coordonnées de longitude",
+    description: "Indiquez la colonne contenant la longitude à vérifier",
     optional: false,
     type: "Any",
   },
@@ -17,14 +19,15 @@ export const COLUMN_MAPPING_NAMES = {
     name: "est_qpv",
     title: "Est en QPV",
     description:
-      "Colonne qui contiendra true si l'adresse est en QPV, false sinon",
+      "Indiquez la colonne (de type booléen) qui affichera Vrai si l'adresse est en QPV",
     optional: false,
     type: "Any",
   },
   NOM_QPV: {
     name: "nom_qpv",
     title: "Nom du QPV",
-    description: "Colonne qui contiendra le nom du QPV si l'adresse s'y trouve",
+    description:
+      "Indiquez la colonne qui affichera le nom du QPV, si l'adresse s'y trouve",
     optional: false,
     type: "Any",
   },
@@ -32,7 +35,7 @@ export const COLUMN_MAPPING_NAMES = {
     name: "code_qpv",
     title: "Code du QPV",
     description:
-      "Colonne qui contiendra le code du QPV si l'adresse s'y trouve",
+      "Sélectionnez la colonne qui affichera le code du QPV, si l'adresse s'y trouve",
     optional: false,
     type: "Any",
   },
