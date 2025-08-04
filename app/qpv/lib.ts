@@ -112,3 +112,19 @@ export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
     mappings[COLUMN_MAPPING_NAMES.CODE_QPV.name]
   );
 };
+
+export const logError = (
+  error: unknown,
+  setResultMessage: ({
+    message,
+    type,
+  }: {
+    message: string;
+    type: string;
+  }) => void,
+) => {
+  const errorMessage = error instanceof Error ? error.message : error;
+  const message = `Erreur lors de l'analyse: ${errorMessage}`;
+  console.error(message);
+  setResultMessage({ message: message, type: "error" });
+};

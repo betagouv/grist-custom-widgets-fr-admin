@@ -6,6 +6,7 @@ export type QPVCheckResult = {
 export type QPVWidgetSteps =
   | "loading"
   | "config"
+  | "qpv_data_loading"
   | "update_processing"
   | "menu";
 

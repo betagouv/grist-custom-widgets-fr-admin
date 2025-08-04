@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { gristReady } from "../../lib/grist/plugin-api";
@@ -5,7 +7,7 @@ import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
 import "./page.css";
-import { checkPointInQPV, loadQPVData, mappingsIsReady } from "./lib";
+import { checkPointInQPV, loadQPVData, logError, mappingsIsReady } from "./lib";
 import { QPVData, QPVWidgetSteps } from "./types";
 
 const Qpv = () => {
@@ -16,9 +18,11 @@ const Qpv = () => {
     message: `Cliquez sur "Analyser les coordonnées" pour lancer l'analyse.`,
     type: "neutral",
   });
-  const [qpvData, setQpvData] = useState<QPVData>();
-  const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
+  const [percentLoaded, setPercentLoaded] = useState<number>(0);
+  const [summary, setSummary] = useState<string>("");
+
+  const [qpvData, setQpvData] = useState<QPVData | undefined>(undefined);
 
   useGristEffect(() => {
     console.log("Données reçues:", records.length, "enregistrements");
@@ -32,73 +36,62 @@ const Qpv = () => {
   }, []);
 
   useEffect(() => {
+    //  Vérification du mapping des colonnes pour le bon fonctionnement du widget
     if (["loading", "config"].includes(currentStep)) {
       if (mappingsIsReady(mappings)) {
-        setCurrentStep("menu");
+        setCurrentStep("qpv_data_loading");
       } else {
         setCurrentStep("config");
       }
     }
   }, [mappings, currentStep]);
 
-  // Charger les données QPV dès le début
-  if (!isDataLoaded) {
-    loadQPVData2().catch((error) => {
-      console.error(`Erreur lors du chargement initial: ${error.message}`);
-    });
-  }
+  useEffect(() => {
+    // Charger les données QPV dès le composant est mounted et que le mapping des colonnes est validé
+    if (currentStep === "qpv_data_loading") {
+      const loadData = async () => {
+        console.log("Chargement des données QPV...");
+        try {
+          setIsDataLoading(true);
+          const loadedQpvData = await loadQPVData((percentLoadedTmp) => {
+            setPercentLoaded(percentLoadedTmp);
+          });
 
-  async function loadQPVData2() {
-    const progressBar = document.querySelector(".progress-bar");
+          if (loadedQpvData && loadedQpvData.features) {
+            console.log(
+              `Données QPV chargées: ${loadedQpvData.features.length} quartiers prioritaires`,
+            );
+            setQpvData(loadedQpvData);
+            setCurrentStep("menu");
+            setResultMessage({
+              message:
+                "Données QPV chargées avec succès. Cliquez sur 'Analyser les coordonnées' pour lancer l'analyse.",
+              type: "success",
+            });
+          } else {
+            console.error(
+              "Les données QPV sont vides alors qu'elles ne devraient pas l'être : ",
+              loadedQpvData,
+            );
+            throw new Error(
+              "Les données QPV ont été chargé et pourtant qpvData est vide",
+            );
+          }
+        } catch (error) {
+          logError(error, setResultMessage);
+        } finally {
+          setIsDataLoading(false);
+        }
+      };
 
-    console.log("Chargement des données QPV...");
-
-    try {
-      setIsDataLoading(true);
-      // TODO : ca va pas du tout !!! il faut que ce soit intégré à la fonction setQPVData
-      setQpvData(
-        await loadQPVData((percentLoaded) => {
-          progressBar.style.width = percentLoaded + "%";
-          progressBar.textContent = percentLoaded + "%";
-        }),
-      );
-
-      console.log(
-        `Données QPV chargées: ${qpvData.features.length} quartiers prioritaires`,
-      );
-      setIsDataLoading(false);
-      setIsDataLoaded(true);
-
-      setResultMessage({
-        message:
-          "Données QPV chargées avec succès. Cliquez sur 'Analyser les coordonnées' pour lancer l'analyse.",
-        type: "success",
-      });
-
-      return qpvData;
-    } catch (error) {
-      setIsDataLoading(false);
-      console.error(
-        `Erreur lors du chargement des données QPV: ${error.message}`,
-      );
-      setResultMessage({
-        message: `Erreur lors du chargement des données QPV: ${error.message}`,
-        type: "error",
-      });
-      throw error;
+      loadData();
     }
-  }
+  }, [currentStep]);
 
   // Analyser les coordonnées et mettre à jour les colonnes
   async function analyzeAllCoordinates() {
+    console.log("Début de l'analyse des coordonnées...");
     try {
-      console.log("Début de l'analyse des coordonnées...");
-
-      // Charger les données QPV si ce n'est pas déjà fait
-      if (!isDataLoaded || qpvData === undefined) {
-        await loadQPVData2();
-      }
-
       // Récupérer l'objet de table actif et son ID
       const table = await grist.getTable();
       const tableId = await table.getTableId();
@@ -118,7 +111,6 @@ const Qpv = () => {
         // Vérifier si les coordonnées sont valides
         const latValue = mappedRecord[COLUMN_MAPPING_NAMES.LATITUDE.name];
         const lonValue = mappedRecord[COLUMN_MAPPING_NAMES.LONGITUDE.name];
-
         const lat = parseFloat(latValue);
         const lon = parseFloat(lonValue);
 
@@ -128,7 +120,7 @@ const Qpv = () => {
 
         if (!isNaN(lat) && !isNaN(lon)) {
           validCount++;
-          const result = checkPointInQPV(lon, lat, qpvData);
+          const result = checkPointInQPV(lon, lat, qpvData!);
 
           if (result.inQPV && result.qpvInfo.length > 0) {
             qpvCount++;
@@ -140,6 +132,7 @@ const Qpv = () => {
             );
           }
         } else {
+          // TODO : injecter cette information directement dans la ligne de la table grist
           invalidCount++;
           console.warn(
             `Coordonnées invalides pour ID ${recordId}: Latitude=${latValue}, Longitude=${lonValue}`,
@@ -152,11 +145,6 @@ const Qpv = () => {
           [COLUMN_MAPPING_NAMES.NOM_QPV.name]: isInQPV ? qpvName : "",
           [COLUMN_MAPPING_NAMES.CODE_QPV.name]: isInQPV ? qpvCode : "",
         };
-
-        console.log(`Mise à jour préparée pour l'enregistrement ${recordId}:`);
-        console.log(`Est QPV: ${isInQPV}`);
-        console.log(`Nom QPV: ${isInQPV ? qpvName : "(vide)"}`);
-        console.log(`Code QPV: ${isInQPV ? qpvCode : "(vide)"}`);
 
         // Ajouter à la liste des mises à jour
         updates.push({
@@ -190,24 +178,14 @@ const Qpv = () => {
           type: "success",
         });
 
-        document.getElementById("summaryContainer").style.display = "block";
-        document.getElementById("summary").textContent =
-          `Total: ${totalCount} | En QPV: ${qpvCount} | Hors QPV: ${validCount - qpvCount} | Invalides: ${invalidCount}`;
-      } catch (error) {
-        console.error(
-          `Erreur lors de la mise à jour des enregistrements: ${error.message}`,
+        setSummary(
+          `Total: ${totalCount} | En QPV: ${qpvCount} | Hors QPV: ${validCount - qpvCount} | Invalides: ${invalidCount}`,
         );
-        setResultMessage({
-          message: `Erreur lors de la mise à jour des enregistrements: ${error.message}`,
-          type: "error",
-        });
+      } catch (error) {
+        logError(error, setResultMessage);
       }
     } catch (error) {
-      console.error(`Erreur lors de l'analyse: ${error.message}`);
-      setResultMessage({
-        message: `Erreur lors de l'analyse: ${error.message}`,
-        type: "error",
-      });
+      logError(error, setResultMessage);
     }
   }
 
@@ -261,8 +239,9 @@ const Qpv = () => {
                 className="progress-bar"
                 role="progressbar"
                 aria-label="barre de progression"
+                style={{ width: percentLoaded + "%" }}
               >
-                0%
+                {percentLoaded}%
               </div>
             </div>
           </div>
@@ -274,9 +253,13 @@ const Qpv = () => {
           </div>
         </div>
 
-        <div id="summaryContainer" className="summary-container">
-          <div className="summary" id="summary"></div>
-        </div>
+        {summary != "" && (
+          <div id="summaryContainer" className="summary-container">
+            <div className="summary" id="summary">
+              {summary}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
