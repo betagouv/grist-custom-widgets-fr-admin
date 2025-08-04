@@ -7,12 +7,18 @@ import { RowRecord } from "grist/GristData";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES, TITLE } from "./constants";
 import "./page.css";
-import { checkPointInQPV, loadQPVData, logError, mappingsIsReady } from "./lib";
+import {
+  checkIfRecordsCoordinatesAreInQpv,
+  loadQPVData,
+  logError,
+  mappingsIsReady,
+  writeInGrist,
+} from "./lib";
 import { QPVData, QPVWidgetSteps } from "./types";
 import { Title } from "../../components/Title";
-import { Configuration } from "../../components/Configuration";
 import { MyFooter } from "./Footer";
 import { Instructions } from "./Instructions";
+import { MappedRecordForUpdate } from "../../lib/util/types";
 
 const Qpv = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
@@ -22,6 +28,7 @@ const Qpv = () => {
     message: `Cliquez sur "Analyser les coordonnées" pour lancer l'analyse.`,
     type: "neutral",
   });
+  // TODO : faire fonctionner l'affichage du pourcentage de chargement
   const [percentLoaded, setPercentLoaded] = useState<number>(0);
   const [summary, setSummary] = useState<string>("");
 
@@ -40,11 +47,11 @@ const Qpv = () => {
 
   useEffect(() => {
     //  Vérification du mapping des colonnes pour le bon fonctionnement du widget
-    if (["loading", "config"].includes(currentStep)) {
+    if (["loading"].includes(currentStep)) {
       if (mappingsIsReady(mappings)) {
         setCurrentStep("qpv_data_loading");
       } else {
-        setCurrentStep("config");
+        setCurrentStep("loading");
       }
     }
   }, [mappings, currentStep]);
@@ -94,94 +101,32 @@ const Qpv = () => {
   async function analyzeAllCoordinates() {
     console.log("Début de l'analyse des coordonnées...");
     try {
-      // Récupérer l'objet de table actif et son ID
-      const table = await grist.getTable();
-      const tableId = await table.getTableId();
-      console.log(`Table ID: ${tableId}`);
-
       // Préparer les mises à jour
-      const updates = [];
-      let validCount = 0;
-      let qpvCount = 0;
-      let invalidCount = 0;
+      const updates: MappedRecordForUpdate[] = [];
+      const stats = {
+        validCount: 0,
+        qpvCount: 0,
+        invalidCount: 0,
+      };
 
-      // Traiter chaque enregistrement
-      for (const record of records) {
-        const mappedRecord = grist.mapColumnNames(record);
-        const recordId = record.id;
+      checkIfRecordsCoordinatesAreInQpv(records, qpvData!, updates, stats);
 
-        // Vérifier si les coordonnées sont valides
-        const latValue = mappedRecord[COLUMN_MAPPING_NAMES.LATITUDE.name];
-        const lonValue = mappedRecord[COLUMN_MAPPING_NAMES.LONGITUDE.name];
-        const lat = parseFloat(latValue);
-        const lon = parseFloat(lonValue);
-
-        let isInQPV = false;
-        let qpvName = "";
-        let qpvCode = "";
-
-        if (!isNaN(lat) && !isNaN(lon)) {
-          validCount++;
-          const result = checkPointInQPV(lon, lat, qpvData!);
-
-          if (result.inQPV && result.qpvInfo.length > 0) {
-            qpvCount++;
-            isInQPV = true;
-            qpvName = result.qpvInfo[0].nom;
-            qpvCode = result.qpvInfo[0].code;
-            console.log(
-              `Adresse en QPV trouvée pour ID ${recordId}: ${qpvName} (${qpvCode})`,
-            );
-          }
-        } else {
-          // TODO : injecter cette information directement dans la ligne de la table grist
-          invalidCount++;
-          console.warn(
-            `Coordonnées invalides pour ID ${recordId}: Latitude=${latValue}, Longitude=${lonValue}`,
-          );
-        }
-
-        // Préparer la mise à jour
-        const updateFields = {
-          [COLUMN_MAPPING_NAMES.EST_QPV.name]: isInQPV,
-          [COLUMN_MAPPING_NAMES.NOM_QPV.name]: isInQPV ? qpvName : "",
-          [COLUMN_MAPPING_NAMES.CODE_QPV.name]: isInQPV ? qpvCode : "",
-        };
-
-        // Ajouter à la liste des mises à jour
-        updates.push({
-          id: recordId,
-          fields: updateFields,
-        });
-      }
-
+      // TODO : mettre cette partie là dans une fonction à part comme dans les autres widgets - pour améliorer la lisibilité
       // Effectuer les mises à jour en bloc avec docApi.applyUserActions
       try {
-        // Construire les actions utilisateur
-        const actions = [];
-
-        for (const update of updates) {
-          actions.push(["UpdateRecord", tableId, update.id, update.fields]);
-        }
-
-        // Appliquer toutes les actions en une seule transaction
-        await grist.docApi.applyUserActions(actions);
-
-        // Rafraîchir la vue
-        await grist.viewApi.fetchSelectedTable();
-        console.log("Vue rafraîchie avec fetchSelectedTable");
+        await writeInGrist(updates);
 
         // Afficher le résumé
         const totalCount = records.length;
         setResultMessage({
           message: `Analyse terminée pour ${totalCount} enregistrements. ${updates.length} enregistrements mis à jour avec succès. 
           Rafraîchissez la page si les mises à jour ne sont pas visibles.\n
-          Résultats: ${qpvCount} sur ${validCount} adresses en QPV (${invalidCount} adresses avec coordonnées invalides)`,
+          Résultats: ${stats.qpvCount} sur ${stats.validCount} adresses en QPV (${stats.invalidCount} adresses avec coordonnées invalides)`,
           type: "success",
         });
 
         setSummary(
-          `Total: ${totalCount} | En QPV: ${qpvCount} | Hors QPV: ${validCount - qpvCount} | Invalides: ${invalidCount}`,
+          `Total: ${totalCount} | En QPV: ${stats.qpvCount} | Hors QPV: ${stats.validCount - stats.qpvCount} | Invalides: ${stats.invalidCount}`,
         );
       } catch (error) {
         logError(
@@ -197,14 +142,6 @@ const Qpv = () => {
 
   return currentStep === "loading" ? (
     <Title title={TITLE} />
-  ) : currentStep === "config" ? (
-    <div>
-      <Title title={TITLE} />
-      <Configuration>
-        <Instructions />
-      </Configuration>
-      <MyFooter />
-    </div>
   ) : currentStep === "qpv_data_loading" ? (
     <div>
       <Title title={TITLE} />
@@ -244,11 +181,9 @@ const Qpv = () => {
               </button>
             </div>
 
-            {summary != "" && (
-              <div id="summaryContainer" className="summary-container">
-                <div className="summary" id="summary">
-                  {summary}
-                </div>
+            {summary !== "" && (
+              <div className="summary" id="summary">
+                {summary}
               </div>
             )}
           </div>

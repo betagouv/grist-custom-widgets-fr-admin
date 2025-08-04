@@ -5,7 +5,6 @@ export type QPVCheckResult = {
 
 export type QPVWidgetSteps =
   | "loading"
-  | "config"
   | "qpv_data_loading"
   | "update_processing"
   | "menu";
@@ -21,4 +20,10 @@ export type QPVInfo = {
 
 export type QPVData = {
   features: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>[];
+};
+
+export type ResultStats = {
+  validCount: number;
+  qpvCount: number;
+  invalidCount: number;
 };

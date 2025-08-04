@@ -1,7 +1,9 @@
 import * as turf from "@turf/turf";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { COLUMN_MAPPING_NAMES } from "./constants";
-import { QPVData, QPVInfo } from "./types";
+import { QPVData, QPVInfo, ResultStats } from "./types";
+import { RowRecord } from "grist/GristData";
+import { MappedRecordForUpdate } from "../../lib/util/types";
 
 const QPV_DATA_URL =
   "https://www.data.gouv.fr/fr/datasets/r/942d4ee8-8142-4556-8ea1-335537ce1119";
@@ -58,7 +60,7 @@ export async function loadQPVData(
 }
 
 // Vérifier si un point est dans un QPV
-export function checkPointInQPV(
+function checkPointInQPV(
   lon: number,
   lat: number,
   qpvData: QPVData,
@@ -100,6 +102,78 @@ export function checkPointInQPV(
     qpvInfo: qpvInfo,
   };
 }
+
+export const checkIfRecordsCoordinatesAreInQpv = (
+  records: RowRecord[],
+  qpvData: QPVData,
+  updates: MappedRecordForUpdate[],
+  stats: ResultStats,
+) => {
+  // Traiter chaque enregistrement
+  for (const record of records) {
+    const mappedRecord = grist.mapColumnNames(record);
+    const recordId = record.id;
+
+    // Vérifier si les coordonnées sont valides
+    const latValue = mappedRecord[COLUMN_MAPPING_NAMES.LATITUDE.name];
+    const lonValue = mappedRecord[COLUMN_MAPPING_NAMES.LONGITUDE.name];
+    const lat = parseFloat(latValue);
+    const lon = parseFloat(lonValue);
+
+    let isInQPV: boolean | string = false;
+    let qpvName = "";
+    let qpvCode = "";
+
+    if (!isNaN(lat) && !isNaN(lon)) {
+      stats.validCount++;
+      const result = checkPointInQPV(lon, lat, qpvData!);
+
+      if (result.inQPV && result.qpvInfo.length > 0) {
+        stats.qpvCount++;
+        isInQPV = true;
+        qpvName = result.qpvInfo[0].nom;
+        qpvCode = result.qpvInfo[0].code;
+      }
+    } else {
+      // Les coordonnées renseignées dans ce record sont invalides
+      stats.invalidCount++;
+      isInQPV = "Coordonnées invalides";
+    }
+
+    updates.push({
+      id: recordId,
+      fields: {
+        [COLUMN_MAPPING_NAMES.EST_QPV.name]: isInQPV,
+        [COLUMN_MAPPING_NAMES.NOM_QPV.name]: qpvName,
+        [COLUMN_MAPPING_NAMES.CODE_QPV.name]: qpvCode,
+      },
+    });
+  }
+};
+
+export const writeInGrist = async (
+  updates: {
+    id: number;
+    fields: unknown;
+  }[],
+) => {
+  // Récupérer l'objet de table actif et son ID
+  const table = await grist.getTable();
+  const tableId = await table.getTableId();
+  console.log(`Table ID: ${tableId}`);
+  const actions = [];
+
+  for (const update of updates) {
+    actions.push(["UpdateRecord", tableId, update.id, update.fields]);
+  }
+
+  // Appliquer toutes les actions en une seule transaction
+  await grist.docApi.applyUserActions(actions);
+
+  // Rafraîchir la vue
+  await grist.viewApi.fetchSelectedTable();
+  console.log("Vue rafraîchie avec fetchSelectedTable");
+};
 
 export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
   return (
