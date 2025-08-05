@@ -3,11 +3,7 @@ export type QPVCheckResult = {
   qpvInfo: Array<{ nom: string; code: string }>;
 };
 
-export type QPVWidgetSteps =
-  | "loading"
-  | "qpv_data_loading"
-  | "update_processing"
-  | "menu";
+export type QPVWidgetSteps = "loading" | "qpv_data_loading" | "menu";
 
 export type QPVInfo = {
   nom: string;

@@ -24,6 +24,9 @@ const HomePage = () => (
           <b>/insituIndicateurs</b>: permet de remplir les indicateurs pour des
           codes Insee donnés
         </li>
+        <li>
+          <b>/qpv</b>: blabla
+        </li>
       </ul>
     </p>
   </div>

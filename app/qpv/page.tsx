@@ -111,7 +111,6 @@ const Qpv = () => {
 
       checkIfRecordsCoordinatesAreInQpv(records, qpvData!, updates, stats);
 
-      // TODO : mettre cette partie là dans une fonction à part comme dans les autres widgets - pour améliorer la lisibilité
       // Effectuer les mises à jour en bloc avec docApi.applyUserActions
       try {
         await writeInGrist(updates);
