@@ -51,7 +51,7 @@ export async function loadQPVData(): Promise<{
 }
 
 // Vérifier si un point est dans un QPV
-function checkPointInQPV(
+export function checkPointInQPV(
   lon: number,
   lat: number,
   qpvData: QPVData,
