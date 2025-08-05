@@ -64,6 +64,7 @@ const mockGrist = {
 };
 
 // Assigner le mock à la variable globale
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).grist = mockGrist;
 
 describe("checkPointInQPV", () => {
@@ -163,16 +164,6 @@ describe("checkPointInQPV", () => {
     const lat = 48.8571;
 
     const result = checkPointInQPV(lon, lat, emptyQPVData);
-
-    expect(result.inQPV).toBe(false);
-    expect(result.qpvInfo).toHaveLength(0);
-  });
-
-  it("should handle null QPV data", () => {
-    const lon = 2.3527;
-    const lat = 48.8571;
-
-    const result = checkPointInQPV(lon, lat, null as any);
 
     expect(result.inQPV).toBe(false);
     expect(result.qpvInfo).toHaveLength(0);

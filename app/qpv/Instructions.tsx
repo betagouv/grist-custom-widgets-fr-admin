@@ -9,28 +9,26 @@ export const Instructions = () => {
       Prioritaires de la Ville (QPV).
       {/* TODO : expliquer ici plutôt le fonctionnement et pas comment faire le paramétrage car plus util ici */}
       <br />
-      Pour l'utiliser, configurez vos colonnes préalablement existantes via le
-      panneau de création :
+      Fonctionnement:
       <ul>
         <li>
-          <strong>Latitude</strong> et <strong>Longitude</strong> : Indiquez les
-          colonnes contenant les coordonnées à vérifier
+          Assurez-vous que vos adresses ont été géocodées. Si ce n'est pas le
+          cas, utilisez d'abord le widget géocodeur pour remplir les colonnes
+          de latitude et longitude.
         </li>
         <li>
-          <strong>Est en QPV</strong> : Indiquez la colonne (de type booléen)
-          qui affichera Vrai si l'adresse est en QPV, Faux sinon
+          Vérifiez que vous avez correctement désigné les trois colonnes qui seront 
+          automatiquement remplies (statut en QPV ou hors QPV, le nom du QPV et le 
+          code du QPV).
         </li>
         <li>
-          <strong>Nom du QPV</strong> : Indiquez la colonne qui affichera le nom
-          du QPV, si l'adresse s'y trouve.
+          Lancez l'analyse et constatez les résultats. Attention : si aucune de vos
+          adresses ne se trouve dans un QPV, les colonnes resteront vides.
         </li>
         <li>
-          <strong>Code du QPV</strong> : Sélectionnez la colonne qui affichera
-          le code du QPV, si l'adresse s'y trouve.
+          Une fois l'analyse effectuée, vous pouvez supprimer cette Vue.
         </li>
       </ul>
-      Une fois configuré, cliquez sur "Analyser les coordonnées" pour lancer
-      l'analyse et remplir les colonnes de résultats.
     </p>
   );
 
