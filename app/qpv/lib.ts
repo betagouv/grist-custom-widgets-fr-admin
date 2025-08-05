@@ -8,9 +8,7 @@ import { MappedRecordForUpdate } from "../../lib/util/types";
 const QPV_DATA_URL =
   "https://www.data.gouv.fr/fr/datasets/r/942d4ee8-8142-4556-8ea1-335537ce1119";
 
-export async function loadQPVData(
-  progressBarCallback: (percent: number) => void,
-): Promise<{
+export async function loadQPVData(): Promise<{
   features: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>[];
 }> {
   const response = await fetch(QPV_DATA_URL);
@@ -20,8 +18,6 @@ export async function loadQPVData(
   }
 
   const reader = response.body!.getReader();
-  const contentLengthHeader = response.headers.get("Content-Length");
-  const contentLength = contentLengthHeader ? +contentLengthHeader : 0;
 
   let receivedLength = 0;
   const chunks: Uint8Array[] = [];
@@ -35,11 +31,6 @@ export async function loadQPVData(
 
     chunks.push(value);
     receivedLength += value.length;
-
-    if (contentLength) {
-      const percentLoaded = Math.round((receivedLength / contentLength) * 100);
-      progressBarCallback(percentLoaded);
-    }
   }
 
   const chunksAll = new Uint8Array(receivedLength);

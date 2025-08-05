@@ -28,8 +28,6 @@ const Qpv = () => {
     message: `Cliquez sur "Analyser les coordonnées" pour lancer l'analyse.`,
     type: "neutral",
   });
-  // TODO : faire fonctionner l'affichage du pourcentage de chargement
-  const [percentLoaded, setPercentLoaded] = useState<number>(0);
   const [summary, setSummary] = useState<string>("");
 
   const [qpvData, setQpvData] = useState<QPVData | undefined>(undefined);
@@ -62,9 +60,7 @@ const Qpv = () => {
       const loadData = async () => {
         console.log("Chargement des données QPV...");
         try {
-          const loadedQpvData = await loadQPVData((percentLoadedTmp) => {
-            setPercentLoaded(percentLoadedTmp);
-          });
+          const loadedQpvData = await loadQPVData();
 
           if (loadedQpvData && loadedQpvData.features) {
             console.log(
@@ -146,16 +142,7 @@ const Qpv = () => {
       <Title title={TITLE} />
       <div className="loading" id="loadingData">
         <p>Chargement des données QPV...</p>
-        <div className="progress">
-          <div
-            className="progress-bar"
-            role="progressbar"
-            aria-label="barre de progression"
-            style={{ width: percentLoaded + "%" }}
-          >
-            {percentLoaded}%
-          </div>
-        </div>
+        <span className="loader"></span>
       </div>
     </div>
   ) : (
