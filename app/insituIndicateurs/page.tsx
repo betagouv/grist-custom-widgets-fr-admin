@@ -13,6 +13,7 @@ import {
   FetchIndicateurReturnType,
   InsituIndicSteps,
   NarrowedTypeIndicateur,
+  Stats,
 } from "./types";
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
@@ -26,6 +27,7 @@ const InsituIndicateurs = () => {
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [currentStep, setCurrentStep] = useState<InsituIndicSteps>("loading");
   const [globalError, setGlobalError] = useState<string>("");
+  const [feedback, setFeedback] = useState<string>("");
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [identifiantIndicateur, setIdentifiantIndicateur] =
     useState<string>("");
@@ -55,13 +57,18 @@ const InsituIndicateurs = () => {
   }, [mappings, currentStep]);
 
   const updateIndicateurs = async (checkDestinationIsEmpty: boolean) => {
+    const stats: Stats = {
+      toUpdateCount: 0,
+      updatedCount: 0,
+      invalidCount: 0,
+    };
     const callBackFunction = (
       dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null,
       error: string | null,
       errorByRecord: { recordId: number; error: string }[] | null,
     ) => {
       if (dataFromApi) {
-        writeDataInTable(dataFromApi);
+        writeDataInTable(dataFromApi, stats);
       }
       if (errorByRecord) {
         writeErrorsInTable(errorByRecord);
@@ -76,6 +83,10 @@ const InsituIndicateurs = () => {
       records,
       callBackFunction,
       checkDestinationIsEmpty,
+      stats,
+    );
+    setFeedback(
+      `Total de ligne: ${records.length} | Ligne à mettre à jour: ${stats.toUpdateCount} | Lignes mise à jour: ${stats.updatedCount} | Invalides: ${stats.invalidCount}`,
     );
   };
 
@@ -92,6 +103,7 @@ const InsituIndicateurs = () => {
 
   const writeDataInTable = (
     dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur>,
+    stats: Stats,
   ) => {
     Object.entries(dataFromApi.mailles).forEach(([recordId, indicateur]) => {
       let valeurIndicateur;
@@ -119,6 +131,7 @@ const InsituIndicateurs = () => {
         parseInt(recordId.split("recordId_")[1]),
         grist.mapColumnNamesBack(data),
       );
+      stats.updatedCount++;
     });
   };
 
@@ -159,17 +172,15 @@ const InsituIndicateurs = () => {
           pour trouver l'indicateur qui vous intéresse, copiez son identifiant
           et collez le ci-dessous.
         </p>
-        <form>
-          <label htmlFor="indicatorId">Identifiant de l'indicateur :</label>
-          <input
-            type="text"
-            id="indicatorId"
-            name="indicatorId"
-            placeholder="Entrez l'identifiant de l'indicateur"
-            defaultValue={identifiantIndicateur}
-            onChange={(event) => setIdentifiantIndicateur(event.target.value)}
-          />
-        </form>
+        <label htmlFor="indicatorId">Identifiant de l'indicateur :</label>
+        <input
+          type="text"
+          id="indicatorId"
+          name="indicatorId"
+          placeholder="Entrez l'identifiant de l'indicateur"
+          defaultValue={identifiantIndicateur}
+          onChange={(event) => setIdentifiantIndicateur(event.target.value)}
+        />
         <>
           <p>
             Nous vous conseillons d'ajouter une description à votre colonne pour
@@ -184,7 +195,7 @@ const InsituIndicateurs = () => {
                   : "renseigner un identifiant d'indicateur"}
               </i>
             </span>
-            <button className="secondary" onClick={handleCopyClick}>
+            <button className="secondary copied" onClick={handleCopyClick}>
               {" "}
               {isCopied ? "Copié!" : "Copier"}
             </button>
@@ -212,6 +223,7 @@ const InsituIndicateurs = () => {
               onClick={() => {
                 updateIndicateurs(true);
               }}
+              disabled={identifiantIndicateur.length === 0}
             >
               Première recherche
             </button>
@@ -232,11 +244,13 @@ const InsituIndicateurs = () => {
               onClick={() => {
                 updateIndicateurs(false);
               }}
+              disabled={identifiantIndicateur.length === 0}
             >
               Mise à jour
             </button>
           </div>
         </div>
+        {feedback !== "" && <div className="summary">{feedback}</div>}
         <Instructions />
         <MyFooter />
       </div>

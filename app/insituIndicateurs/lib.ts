@@ -7,6 +7,7 @@ import {
   MailleLabel,
   mailleLabelValues,
   NarrowedTypeIndicateur,
+  Stats,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MappedRecord } from "../../lib/util/types";
@@ -61,6 +62,7 @@ const generateQueryFragmentByTerritoire = (
 export const generateQuery = (
   records: RowRecord[],
   checkDestinationIsEmpty: boolean,
+  stats: Stats,
 ): { query: string; errors: { recordId: number; error: string }[] } => {
   const queryRecordList = [];
   const errorRecordList = [];
@@ -72,13 +74,18 @@ export const generateQuery = (
     );
     if (query) {
       queryRecordList.push(query);
+      stats.toUpdateCount++;
     }
     if (error) {
       errorRecordList.push({ recordId: record.id, error });
+      stats.invalidCount++;
     }
   }
   return {
-    query: gql`
+    query:
+      queryRecordList.length === 0
+        ? ""
+        : gql`
 query IndicateurCountQuery($identifiant: String!) {
   indicateurs(filtre: { identifiants: [$identifiant] }) {
     metadata {
@@ -137,21 +144,32 @@ export const getInsituIndicateursResultsForRecords = async (
     errorByRecord: { recordId: number; error: string }[] | null,
   ) => void,
   checkDestinationIsEmpty: boolean,
+  stats: Stats,
 ) => {
-  const { query, errors } = generateQuery(records, checkDestinationIsEmpty);
+  // TODO faire plus de check de la qualité de l'identifiant avant de créer la requête
   if (typeof identifiant === "string") {
-    try {
-      const insituIndicateursResults = await callInsituIndicateurApi(
-        query,
-        identifiant,
-      );
-      callBackFunction(insituIndicateursResults, null, errors);
-    } catch (e) {
-      let errorMessage = "La requête à Insitu a échoué";
-      if (e instanceof Error) {
-        errorMessage = e.message.slice(0, 200) + "...";
+    const { query, errors } = generateQuery(
+      records,
+      checkDestinationIsEmpty,
+      stats,
+    );
+    if (!query) {
+      // TODO : faire des stats pour informer l'utilisateur du nombre d'élément mis à jour - ici 0
+      callBackFunction(null, null, errors);
+    } else {
+      try {
+        const insituIndicateursResults = await callInsituIndicateurApi(
+          query,
+          identifiant,
+        );
+        callBackFunction(insituIndicateursResults, null, errors);
+      } catch (e) {
+        let errorMessage = "La requête à Insitu a échoué";
+        if (e instanceof Error) {
+          errorMessage = e.message.slice(0, 200) + "...";
+        }
+        callBackFunction(null, errorMessage, null);
       }
-      callBackFunction(null, errorMessage, null);
     }
   } else {
     callBackFunction(

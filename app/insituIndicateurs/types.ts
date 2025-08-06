@@ -66,3 +66,9 @@ export type FetchIndicateurReturnType<
 export type FetchIndicateursReturnType = {
   indicateurs: FetchIndicateurReturnType[];
 };
+
+export type Stats = {
+  toUpdateCount: number;
+  updatedCount: number;
+  invalidCount: number;
+};

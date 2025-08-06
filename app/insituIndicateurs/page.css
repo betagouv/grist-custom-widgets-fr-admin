@@ -14,6 +14,8 @@
   right: 0;
   top: 0;
   transition: visibility 0s, opacity 0.5s linear;
+  margin: 0;
+  padding: 0.4em 0.8em;
 }
 
 .code-copy:hover button {
@@ -25,4 +27,5 @@
   display: block;
   overflow-x: auto;
   padding: 0.5em;
+  padding-right: 5rem;
 }
