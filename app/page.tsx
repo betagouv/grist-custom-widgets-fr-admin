@@ -25,7 +25,8 @@ const HomePage = () => (
           codes Insee donnés
         </li>
         <li>
-          <b>/qpv</b>: blabla
+          <b>/qpv</b>: permet de déterminer si une adresse géocodée (avec latitude et longitude)
+           se situe dans un Quartier Prioritaire de la Ville (QPV) et, le cas échéant, de fournir le nom et le code du QPV
         </li>
       </ul>
     </p>
