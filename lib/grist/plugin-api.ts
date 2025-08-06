@@ -27,5 +27,8 @@ export const addObjectInRecord = (recordId: number, patch: grist.RowRecord) => {
         .catch((err) => {
           console.error("Failed to update record", err);
         });
+    })
+    .catch((err) => {
+      console.error("Failed to get table ID", err);
     });
 };

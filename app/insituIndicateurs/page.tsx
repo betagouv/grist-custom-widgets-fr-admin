@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
-import { COLUMN_MAPPING_NAMES, TITLE } from "./constants";
+import {
+  COLUMN_MAPPING_NAMES,
+  DESCRIPTION_COLONNE_INDICATEUR,
+  TITLE,
+} from "./constants";
 import { getInsituIndicateursResultsForRecords, mappingsIsReady } from "./lib";
 import {
   FetchIndicateurReturnType,
@@ -13,31 +17,39 @@ import {
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { Configuration } from "../../components/Configuration";
 import { Instructions } from "./Instructions";
 import { MyFooter } from "./Footer";
+import "./page.css";
 
-const InseeCode = () => {
+const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [currentStep, setCurrentStep] = useState<InsituIndicSteps>("loading");
   const [globalError, setGlobalError] = useState<string>("");
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [identifiantIndicateur, setIdentifiantIndicateur] =
+    useState<string>("");
 
   useGristEffect(() => {
-    gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
+    try {
+      gristReady("full", Object.values(COLUMN_MAPPING_NAMES));
 
-    grist.onRecords((records, gristMappings) => {
-      setRecords(records);
-      setMappings(gristMappings);
-    });
+      grist.onRecords((records, gristMappings) => {
+        setRecords(records);
+        setMappings(gristMappings);
+      });
+    } catch (error) {
+      console.error("Error during Grist initialization:", error);
+      setGlobalError("Erreur lors de l'initialisation de Grist");
+    }
   }, []);
 
   useEffect(() => {
-    if (["loading", "config"].includes(currentStep)) {
+    if (currentStep === "loading") {
       if (mappingsIsReady(mappings)) {
         setCurrentStep("menu");
       } else {
-        setCurrentStep("config");
+        setCurrentStep("loading");
       }
     }
   }, [mappings, currentStep]);
@@ -60,8 +72,8 @@ const InseeCode = () => {
     };
     setGlobalError("");
     getInsituIndicateursResultsForRecords(
+      identifiantIndicateur,
       records,
-      mappings!,
       callBackFunction,
       checkDestinationIsEmpty,
     );
@@ -110,80 +122,126 @@ const InseeCode = () => {
     });
   };
 
+  const handleCopyClick = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        DESCRIPTION_COLONNE_INDICATEUR + identifiantIndicateur,
+      );
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+
   return currentStep === "loading" ? (
-    <Title title={TITLE} />
-  ) : currentStep === "config" ? (
     <div>
       <Title title={TITLE} />
-      <Configuration>
-        <Instructions />
-      </Configuration>
-      <MyFooter />
-    </div>
-  ) : currentStep === "menu" ? (
-    <div>
-      <Title title={TITLE} />
-      {globalError && (
-        <div className="alert-error">
-          <div>
-            <span>Erreur</span> : {globalError}
-          </div>
-        </div>
-      )}
-      <div className="menu">
-        <div className="centered-column">
-          <h2>Compléter les champs vides</h2>
-          <p>
-            Lancer une recherche globale sur l&apos;ensemble des lignes
-            n&apos;ayant pas d'indicateur renseigné.
-          </p>
-          <button
-            className="primary"
-            onClick={() => {
-              updateIndicateurs(true);
-            }}
-          >
-            Première recherche
-          </button>
-        </div>
-        <div className="divider"></div>
-        <div className="centered-column">
-          <h2>Mise à jour</h2>
-          <p>
-            Lancer une recherche globale sur l&apos;ensemble des lignes. Les
-            lignes ayant déjà un indicateur de renseigné seront mis à jour
-            (l&apos;ancienne valeur sera écrasée).
-          </p>
-          <button
-            className="primary"
-            onClick={() => {
-              updateIndicateurs(false);
-            }}
-          >
-            Mise à jour
-          </button>
-        </div>
+      <div className="loading">
+        <span className="loader"></span>
       </div>
       <Instructions />
       <MyFooter />
     </div>
-  ) : currentStep === "init_processing" ? (
-    <div>
-      <div className="centered-column">
-        <Title title={TITLE} />
-      </div>
-      <MyFooter />
-    </div>
   ) : (
-    currentStep === "update_processing" && (
+    currentStep === "menu" && (
       <div>
-        <div className="centered-column">
-          <Title title={TITLE} />
+        <Title title={TITLE} />
+        <p>
+          Consulter{" "}
+          <a
+            href="https://catalogue-indicateurs.donnees.incubateur.anct.gouv.fr/"
+            target="_blank"
+            title="Lien catalogue d'indicateur de l'ANCT - ouvre une nouvelle fenêtre"
+          >
+            le catalogue d'indicateur de l'ANCT
+          </a>{" "}
+          pour trouver l'indicateur qui vous intéresse, copiez son identifiant
+          et collez le ci-dessous.
+        </p>
+        <form>
+          <label htmlFor="indicatorId">Identifiant de l'indicateur :</label>
+          <input
+            type="text"
+            id="indicatorId"
+            name="indicatorId"
+            placeholder="Entrez l'identifiant de l'indicateur"
+            defaultValue={identifiantIndicateur}
+            onChange={(event) => setIdentifiantIndicateur(event.target.value)}
+          />
+        </form>
+        <>
+          <p>
+            Nous vous conseillons d'ajouter une description à votre colonne pour
+            ne pas perdre la trace de l'identifiant utilisé.
+          </p>
+          <div className="code-copy">
+            <span className="text-to-copy">
+              {DESCRIPTION_COLONNE_INDICATEUR}
+              <i>
+                {identifiantIndicateur.length > 0
+                  ? identifiantIndicateur
+                  : "renseigner un identifiant d'indicateur"}
+              </i>
+            </span>
+            <button className="secondary" onClick={handleCopyClick}>
+              {" "}
+              {isCopied ? "Copié!" : "Copier"}
+            </button>
+          </div>
+        </>
+        {globalError && (
+          <div className="alert-error">
+            <div>
+              <span>Erreur</span> : {globalError}
+            </div>
+          </div>
+        )}
+        <div className="menu">
+          <div className="centered-column">
+            <h2>
+              Compléter les champs vides de votre colonne{" "}
+              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
+            </h2>
+            <p>
+              Lancer une recherche globale sur l&apos;ensemble des lignes
+              n&apos;ayant pas d'indicateur renseigné.
+            </p>
+            <button
+              className="primary"
+              onClick={() => {
+                updateIndicateurs(true);
+              }}
+            >
+              Première recherche
+            </button>
+          </div>
+          <div className="divider"></div>
+          <div className="centered-column">
+            <h2>
+              Mise à jour de votre colonne{" "}
+              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
+            </h2>
+            <p>
+              Lancer une recherche globale sur l&apos;ensemble des lignes. Les
+              lignes ayant déjà un indicateur de renseigné seront mis à jour
+              (l&apos;ancienne valeur sera écrasée).
+            </p>
+            <button
+              className="primary"
+              onClick={() => {
+                updateIndicateurs(false);
+              }}
+            >
+              Mise à jour
+            </button>
+          </div>
         </div>
+        <Instructions />
         <MyFooter />
       </div>
     )
   );
 };
 
-export default InseeCode;
+export default InsituIndicateurs;

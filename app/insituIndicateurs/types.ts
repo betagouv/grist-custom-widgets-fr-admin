@@ -14,12 +14,7 @@ enum MailleLabelEnum {
 }
 export const mailleLabelValues = Object.values(MailleLabelEnum);
 
-export type InsituIndicSteps =
-  | "loading"
-  | "config"
-  | "init_processing"
-  | "update_processing"
-  | "menu";
+export type InsituIndicSteps = "loading" | "menu";
 
 export type Metadata = {
   identifiant?: string | null;

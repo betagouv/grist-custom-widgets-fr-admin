@@ -129,8 +129,8 @@ const getQueryFragmentForRecord = (
 };
 
 export const getInsituIndicateursResultsForRecords = async (
+  identifiant: string,
   records: RowRecord[],
-  mappings: WidgetColumnMap,
   callBackFunction: (
     data: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null,
     error: string | null,
@@ -139,7 +139,6 @@ export const getInsituIndicateursResultsForRecords = async (
   checkDestinationIsEmpty: boolean,
 ) => {
   const { query, errors } = generateQuery(records, checkDestinationIsEmpty);
-  const identifiant = mappings[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name];
   if (typeof identifiant === "string") {
     try {
       const insituIndicateursResults = await callInsituIndicateurApi(
