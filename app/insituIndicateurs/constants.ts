@@ -1,36 +1,31 @@
-import { NoDataMessage } from "../../lib/cleanData/types";
-
 export const TITLE =
   "Ajouter la valeur d'un indicateur Insitu pour un code INSEE et une maille donnés";
+
+export const DESCRIPTION_COLONNE_INDICATEUR =
+  "Cette colonne correspond aux valeurs de l'indicateur du catalogue d'indicateur de l'ANCT portant l'identifiant: ";
 
 export const COLUMN_MAPPING_NAMES = {
   CODE_INSEE: {
     name: "code_insee",
-    title: "Code Insee (source)",
+    title: "Code Insee",
+    description: "Indiquez la colonne comportant le code Insee du territoire",
     type: "Any",
     optional: false,
   },
   MAILLE: {
     name: "maille",
-    title: "Maille (source)",
+    title: "Maille",
+    description:
+      "Indiquez la colonne comportant la maille du territoire (valeurs acceptés: commune, epci, département, région, pays)",
     type: "Any",
     optional: false,
   },
   VALEUR_INDICATEUR: {
     name: "valeur_indicateur",
-    title: "Valeur de l'indicateur (destination)",
+    title: "Indicateur",
+    description:
+      "Indiquez la colonne dans laquelle vous souhaitez remplir les valeurs d'un indicateur que vous choisirez par la suite",
     type: "Any",
     optional: false,
   },
-};
-
-export const NO_DATA_MESSAGES: NoDataMessage = {
-  NO_DESTINATION_DATA:
-    "Il n’existe pas de code INSEE dans les résultats pour la collectivité sélectionnée.",
-  NO_RESULT:
-    "Aucun résultat ne correspond à la collectivité sélectionnée. Veuillez vérifier que cette collectivité existe bien et qu’il n’y ait pas d’erreur.",
-  NO_SOURCE_DATA:
-    "Afin de traiter la ligne sélectionnée, veuillez renseigner la collectivité recherchée.",
-  API_ERROR:
-    "Une erreur est survenue lors de l'appel à l'api, veuillez appeler le service technique.",
 };

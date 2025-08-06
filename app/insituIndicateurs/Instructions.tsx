@@ -16,10 +16,12 @@ export const Instructions = () => {
           <b>département</b>", "<b>région</b>" et "<b>pays</b>"
         </li>
         <li>
-          Indiquer la colonne devant recevoir la valeur de l'indicateur. Le nom
-          de la colonne doit impérativement être l'identifiant de l'indicateur
-          qui vous intéresse. Vous pouvez trouver cet identifiant dans le
-          catalogue d'indicateurs lorsque vous êtes sur l'indicateur en question
+          Indiquer la colonne devant recevoir la valeur de l'indicateur. Il
+          faudra ensuite aller dans le catalogue d'indicateur afin de trouver
+          l'identifiant de l'indicateur qui vous intéresse afin de remplir
+          correctement de colonne. Nous vous conseillons de renseigner cet
+          identifiant dans la description (ou le titre) de votre colonne pour ne
+          pas perdre l'information.
         </li>
         <li>
           Lancer une recherche pour remplir la colonne dédiée à l'indicateur.

@@ -14,12 +14,7 @@ enum MailleLabelEnum {
 }
 export const mailleLabelValues = Object.values(MailleLabelEnum);
 
-export type InsituIndicSteps =
-  | "loading"
-  | "config"
-  | "init_processing"
-  | "update_processing"
-  | "menu";
+export type InsituIndicSteps = "loading" | "menu";
 
 export type Metadata = {
   identifiant?: string | null;
@@ -70,4 +65,10 @@ export type FetchIndicateurReturnType<
 
 export type FetchIndicateursReturnType = {
   indicateurs: FetchIndicateurReturnType[];
+};
+
+export type Stats = {
+  toUpdateCount: number;
+  updatedCount: number;
+  invalidCount: number;
 };
