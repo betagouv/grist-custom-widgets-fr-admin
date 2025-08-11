@@ -219,26 +219,24 @@ const InsituIndicateurs = () => {
           defaultValue={identifiantIndicateur}
           onChange={(event) => setIdentifiantIndicateur(event.target.value)}
         />
-        <>
-          <p>
+        <div className="advice">
+          <span className="text-to-copy">
             Nous vous conseillons d'ajouter une description à votre colonne pour
-            ne pas perdre la trace de l'identifiant utilisé.
-          </p>
-          <div className="code-copy">
-            <span className="text-to-copy">
-              {DESCRIPTION_COLONNE_INDICATEUR}
-              <i>
-                {identifiantIndicateur.length > 0
-                  ? identifiantIndicateur
-                  : "renseigner un identifiant d'indicateur"}
-              </i>
-            </span>
-            <button className="secondary copied" onClick={handleCopyClick}>
-              {" "}
-              {isCopied ? "Copié!" : "Copier"}
-            </button>
-          </div>
-        </>
+            ne pas perdre la trace de l'identifiant utilisé :
+            <br />
+            Exemple : « {DESCRIPTION_COLONNE_INDICATEUR}
+            <i>
+              {identifiantIndicateur.length > 0
+                ? identifiantIndicateur
+                : "renseigner un identifiant d'indicateur"}
+            </i>{" "}
+            »
+          </span>
+          <button className="secondary copied" onClick={handleCopyClick}>
+            {" "}
+            {isCopied ? "Copié!" : "Copier"}
+          </button>
+        </div>
         <div className="">
           <CheckboxParams
             label="Je souhaite récupérer le détail de l'indicateur. Par exemple si l'indicateur correspond à une liste et que cette case est cochée alors la liste sera ajouté dans la case du tableau Grist, sinon c'est la longueur de cette liste qui sera renseignée"

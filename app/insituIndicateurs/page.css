@@ -1,6 +1,10 @@
-.code-copy {
+.advice {
+  margin-top: 1rem;
   position: relative;
   background-color: var(--lighter-grey);
+  color: #595959;
+  font-size: 12px;
+  line-height: 18px;
   max-width: 100%;
   display: block;
   border: 1px solid #ddd;
@@ -8,7 +12,7 @@
   margin-bottom: 1rem;
 }
 
-.code-copy button {
+.advice button {
   visibility: hidden;
   opacity: 0;
   position: absolute;
@@ -19,7 +23,7 @@
   padding: 0.4em 0.8em;
 }
 
-.code-copy:hover button {
+.advice:hover button {
   visibility: visible;
   opacity: 1;
 }
