@@ -88,21 +88,22 @@ const InsituIndicateurs = () => {
       if (error) {
         setGlobalError(error);
       }
+      // Mettre à jour le feedback après le traitement des données
+      setFeedback(
+        `Total de lignes: ${records.length} | 
+        Lignes à mettre à jour: ${stats.toUpdateCount} | 
+        Lignes mise à jour: ${stats.updatedCount} | 
+        Invalides: ${stats.invalidCount}`,
+      );
     };
     setGlobalError("");
+    setFeedback("Traitement en cours...");
     getInsituIndicateursResultsForRecords(
       identifiantIndicateur,
       records,
       callBackFunction,
       checkDestinationIsEmpty,
       stats,
-    );
-    // TODO : réussir a faire afficher les updatedCount (reste à 0)
-    setFeedback(
-      `Total de lignes: ${records.length} | 
-      Lignes à mettre à jour: ${stats.toUpdateCount} | 
-      Lignes mise à jour: ${stats.updatedCount} | 
-      Invalides: ${stats.invalidCount}`,
     );
   };
 
