@@ -7,6 +7,7 @@ import {
   MailleLabel,
   MailleLabelEnum,
   mailleLabelValues,
+  Metadata,
   NarrowedTypeIndicateur,
   Stats,
 } from "./types";
@@ -46,6 +47,7 @@ const generateQueryFragmentByTerritoire = (
         ... on IndicateurListe {
           __typename
           count
+          liste
         }
         ... on IndicateurRow {
           __typename
@@ -54,10 +56,12 @@ const generateQueryFragmentByTerritoire = (
         ... on IndicateurRows {
           __typename
           count
+          rows
         }
         ... on IndicateurListeGeo {
           __typename
           count
+          properties
         }
       }`;
 };
@@ -94,6 +98,10 @@ query IndicateurCountQuery($identifiant: String!) {
     metadata {
       identifiant
       mailles
+      nom
+      description
+      returnType
+      unite
     }
     mailles {
       ${queryRecordList.join(" ")}
@@ -119,13 +127,15 @@ const getQueryFragmentForRecord = (
   if (!checkDestinationIsEmpty || (!indicateurValue && indicateurValue !== 0)) {
     // Vérifier la validité des colonnes insee code et maille
     if (!inseeCode) {
-      response.error = "Le code insee est vide";
+      if (maille !== MailleLabelEnum.Pays) {
+        response.error = "Erreur: Le code insee est vide";
+      }
     } else if (!/^\w+$/.test(inseeCode)) {
-      response.error = "Le code insee n'est pas valide";
+      response.error = "Erreur: Le code insee n'est pas valide";
     } else if (!maille) {
-      response.error = "La maille est vide";
+      response.error = "Erreur: La maille est vide";
     } else if (!mailleLabelValues.includes(maille)) {
-      response.error = "La maille n'est pas valide";
+      response.error = "Erreur: La maille n'est pas valide";
     } else {
       const mailleLabel: MailleLabel = maille as MailleLabel;
       response.query = generateQueryFragmentByTerritoire(
@@ -194,4 +204,16 @@ export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
 
 export const removeAccents = (str: string): string => {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
+export const listObjectToString = (objList: object[]): string => {
+  let text = "";
+  objList.forEach((row: object, index: number) => {
+    text += "{";
+    for (const [key, value] of Object.entries(row)) {
+      text += key + ": " + value + ", ";
+    }
+    text += index - 1 === objList.length ? "}, " : "}";
+  });
+  return text;
 };

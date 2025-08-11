@@ -21,6 +21,8 @@ export type Metadata = {
   nom?: string | null;
   description?: string | null;
   unite?: string | null;
+  mailles?: MailleLabel[];
+  returnType: string | null;
 };
 
 export type IndicateurOneValue = {
@@ -37,16 +39,20 @@ export type IndicateurRow = {
 export type IndicateurRows = {
   __typename: "IndicateurRows";
   count: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rows: any;
 };
 
 export type IndicateurListe = {
   __typename: "IndicateurListe";
   count: number;
+  liste: string[];
 };
 
 export type IndicateurListeGeo = {
   __typename: "IndicateurListeGeo";
   count: number;
+  properties: string[];
 };
 
 export type NarrowedTypeIndicateur =

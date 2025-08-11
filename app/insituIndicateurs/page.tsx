@@ -8,10 +8,15 @@ import {
   DESCRIPTION_COLONNE_INDICATEUR,
   TITLE,
 } from "./constants";
-import { getInsituIndicateursResultsForRecords, mappingsIsReady } from "./lib";
+import {
+  getInsituIndicateursResultsForRecords,
+  listObjectToString,
+  mappingsIsReady,
+} from "./lib";
 import {
   FetchIndicateurReturnType,
   InsituIndicSteps,
+  Metadata,
   NarrowedTypeIndicateur,
   Stats,
 } from "./types";
@@ -21,6 +26,7 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { Instructions } from "./Instructions";
 import { MyFooter } from "./Footer";
 import "./page.css";
+import { CheckboxParams } from "../../components/CheckboxParams";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
@@ -28,9 +34,14 @@ const InsituIndicateurs = () => {
   const [currentStep, setCurrentStep] = useState<InsituIndicSteps>("loading");
   const [globalError, setGlobalError] = useState<string>("");
   const [feedback, setFeedback] = useState<string>("");
+  const [metadata, setMetadata] = useState<Metadata>();
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [identifiantIndicateur, setIdentifiantIndicateur] =
     useState<string>("");
+  const [wantIndicateurDetail, setWantIndicateurDetail] =
+    useState<boolean>(true);
+  const [globalIndicateurUpdate, setGlobalIndicateurUpdate] =
+    useState<boolean>(true);
 
   useGristEffect(() => {
     try {
@@ -68,6 +79,7 @@ const InsituIndicateurs = () => {
       errorByRecord: { recordId: number; error: string }[] | null,
     ) => {
       if (dataFromApi) {
+        setMetadata(dataFromApi.metadata);
         writeDataInTable(dataFromApi, stats);
       }
       if (errorByRecord) {
@@ -85,8 +97,12 @@ const InsituIndicateurs = () => {
       checkDestinationIsEmpty,
       stats,
     );
+    // TODO : réussir a faire afficher les updatedCount (reste à 0)
     setFeedback(
-      `Total de ligne: ${records.length} | Ligne à mettre à jour: ${stats.toUpdateCount} | Lignes mise à jour: ${stats.updatedCount} | Invalides: ${stats.invalidCount}`,
+      `Total de lignes: ${records.length} | 
+      Lignes à mettre à jour: ${stats.toUpdateCount} | 
+      Lignes mise à jour: ${stats.updatedCount} | 
+      Invalides: ${stats.invalidCount}`,
     );
   };
 
@@ -116,9 +132,25 @@ const InsituIndicateurs = () => {
             valeurIndicateur = new String(Object.values(indicateur.row)[0]);
             break;
           case "IndicateurRows":
+            if (wantIndicateurDetail) {
+              valeurIndicateur = listObjectToString(indicateur.rows);
+            } else {
+              valeurIndicateur = indicateur.count;
+            }
+            break;
           case "IndicateurListe":
+            if (wantIndicateurDetail) {
+              valeurIndicateur = indicateur.liste.join(", ");
+            } else {
+              valeurIndicateur = indicateur.count;
+            }
+            break;
           case "IndicateurListeGeo":
-            valeurIndicateur = indicateur.count;
+            if (wantIndicateurDetail) {
+              valeurIndicateur = indicateur.properties.join(", ");
+            } else {
+              valeurIndicateur = indicateur.count;
+            }
             break;
           default:
             valeurIndicateur = "Erreur";
@@ -161,6 +193,12 @@ const InsituIndicateurs = () => {
       <div>
         <Title title={TITLE} />
         <p>
+          Colonne sélectionnée :{" "}
+          <span className="tag validated semi-bold">
+            {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
+          </span>
+        </p>
+        <p>
           Consulter{" "}
           <a
             href="https://catalogue-indicateurs.donnees.incubateur.anct.gouv.fr/"
@@ -201,6 +239,20 @@ const InsituIndicateurs = () => {
             </button>
           </div>
         </>
+        <div className="">
+          <CheckboxParams
+            label="Je souhaite récupérer le détail de l'indicateur. Par exemple si l'indicateur correspond à une liste et que cette case est cochée alors la liste sera ajouté dans la case du tableau Grist, sinon c'est la longueur de cette liste qui sera renseignée"
+            value={wantIndicateurDetail}
+            onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
+          />
+        </div>
+        <div className="">
+          <CheckboxParams
+            label="Lancer une mise à jour gloable sur l'ensemble des lignes"
+            value={globalIndicateurUpdate}
+            onChange={() => setGlobalIndicateurUpdate(!globalIndicateurUpdate)}
+          />
+        </div>
         {globalError && (
           <div className="alert-error">
             <div>
@@ -208,49 +260,32 @@ const InsituIndicateurs = () => {
             </div>
           </div>
         )}
-        <div className="menu">
-          <div className="centered-column">
-            <h2>
-              Compléter les champs vides de votre colonne{" "}
-              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
-            </h2>
-            <p>
-              Lancer une recherche globale sur l&apos;ensemble des lignes
-              n&apos;ayant pas d'indicateur renseigné.
-            </p>
-            <button
-              className="primary"
-              onClick={() => {
-                updateIndicateurs(true);
-              }}
-              disabled={identifiantIndicateur.length === 0}
-            >
-              Première recherche
-            </button>
-          </div>
-          <div className="divider"></div>
-          <div className="centered-column">
-            <h2>
-              Mise à jour de votre colonne{" "}
-              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
-            </h2>
-            <p>
-              Lancer une recherche globale sur l&apos;ensemble des lignes. Les
-              lignes ayant déjà un indicateur de renseigné seront mis à jour
-              (l&apos;ancienne valeur sera écrasée).
-            </p>
-            <button
-              className="primary"
-              onClick={() => {
-                updateIndicateurs(false);
-              }}
-              disabled={identifiantIndicateur.length === 0}
-            >
-              Mise à jour
-            </button>
-          </div>
+        <div className="centered-column">
+          <button
+            className="primary"
+            onClick={() => {
+              updateIndicateurs(!globalIndicateurUpdate);
+            }}
+            disabled={identifiantIndicateur.length === 0}
+          >
+            Lancer la recherche
+          </button>
         </div>
         {feedback !== "" && <div className="summary">{feedback}</div>}
+        {metadata && (
+          <div className="metadata">
+            Meta données de l'indicateur :
+            <ul>
+              <li>Nom : {metadata?.nom}</li>
+              <li>Description : {metadata?.description}</li>
+              <li>Mailles disponibles : {metadata?.mailles?.join(", ")}</li>
+              {metadata?.unite && <li>Unité : {metadata?.unite}</li>}
+              {metadata?.returnType && (
+                <li>Type d'indicateur : {metadata?.returnType}</li>
+              )}
+            </ul>
+          </div>
+        )}
         <Instructions />
         <MyFooter />
       </div>

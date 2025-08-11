@@ -5,6 +5,7 @@
   display: block;
   border: 1px solid #ddd;
   border-left: 3px solid var(--green, #009058);
+  margin-bottom: 1rem;
 }
 
 .code-copy button {
@@ -28,4 +29,12 @@
   overflow-x: auto;
   padding: 0.5em;
   padding-right: 5rem;
+}
+
+.summary {
+  padding-bottom: 1rem;
+}
+
+.metadata {
+  padding-bottom: 2rem;
 }
