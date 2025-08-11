@@ -1,18 +1,18 @@
 export type MailleLabel =
-  | "région"
-  | "département"
+  | "region"
+  | "departement"
   | "pays"
   | "commune"
   | "epci";
 
-enum MailleLabelEnum {
-  Reg = "région",
-  Dep = "département",
+export enum MailleLabelEnum {
+  Reg = "region",
+  Dep = "departement",
   Pays = "pays",
   Com = "commune",
   Epci = "epci",
 }
-export const mailleLabelValues = Object.values(MailleLabelEnum);
+export const mailleLabelValues: string[] = Object.values(MailleLabelEnum);
 
 export type InsituIndicSteps = "loading" | "menu";
 

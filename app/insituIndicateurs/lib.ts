@@ -5,6 +5,7 @@ import {
   FetchIndicateurReturnType,
   FetchIndicateursReturnType,
   MailleLabel,
+  MailleLabelEnum,
   mailleLabelValues,
   NarrowedTypeIndicateur,
   Stats,
@@ -35,7 +36,9 @@ const generateQueryFragmentByTerritoire = (
   inseeCode: string,
   recordId: number,
 ) => {
-  return `recordId_${recordId}: ${mailleLabel} (code: "${inseeCode}") {
+  const code =
+    mailleLabel === MailleLabelEnum.Pays ? "" : `(code: "${inseeCode}")`;
+  return `recordId_${recordId}: ${mailleLabel} ${code} {
         ... on IndicateurOneValue {
           __typename
           valeur
@@ -107,7 +110,7 @@ const getQueryFragmentForRecord = (
   checkDestinationIsEmpty: boolean,
 ): { query: string; error: string } => {
   const inseeCode = mappedRecord[COLUMN_MAPPING_NAMES.CODE_INSEE.name];
-  const maille = mappedRecord[COLUMN_MAPPING_NAMES.MAILLE.name];
+  const maille = removeAccents(mappedRecord[COLUMN_MAPPING_NAMES.MAILLE.name]);
   const indicateurValue =
     mappedRecord[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name];
   const response = { query: "", error: "" };
@@ -124,8 +127,9 @@ const getQueryFragmentForRecord = (
     } else if (!mailleLabelValues.includes(maille)) {
       response.error = "La maille n'est pas valide";
     } else {
+      const mailleLabel: MailleLabel = maille as MailleLabel;
       response.query = generateQueryFragmentByTerritoire(
-        maille,
+        mailleLabel,
         inseeCode,
         mappedRecord.id,
       );
@@ -154,7 +158,6 @@ export const getInsituIndicateursResultsForRecords = async (
       stats,
     );
     if (!query) {
-      // TODO : faire des stats pour informer l'utilisateur du nombre d'élément mis à jour - ici 0
       callBackFunction(null, null, errors);
     } else {
       try {
@@ -187,4 +190,8 @@ export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
     mappings[COLUMN_MAPPING_NAMES.CODE_INSEE.name] &&
     mappings[COLUMN_MAPPING_NAMES.MAILLE.name]
   );
+};
+
+export const removeAccents = (str: string): string => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };

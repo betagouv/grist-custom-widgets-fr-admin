@@ -13,7 +13,7 @@ export const Instructions = () => {
           Indiquer la colonne corespondant au code INSEE ainsi que la colonne
           correspondant à la maille de ce code INSEE. Les valeurs possibles dans
           la colonne maille sont "<b>commune</b>", "<b>epci</b>", "
-          <b>département</b>", "<b>région</b>" et "<b>pays</b>"
+          <b>departement</b>", "<b>region</b>" et "<b>pays</b>"
         </li>
         <li>
           Indiquer la colonne devant recevoir la valeur de l'indicateur. Il

@@ -16,7 +16,7 @@ export const COLUMN_MAPPING_NAMES = {
     name: "maille",
     title: "Maille",
     description:
-      "Indiquez la colonne comportant la maille du territoire (valeurs acceptés: commune, epci, département, région, pays)",
+      "Indiquez la colonne comportant la maille du territoire (valeurs acceptés: commune, epci, departement, region, pays)",
     type: "Any",
     optional: false,
   },
