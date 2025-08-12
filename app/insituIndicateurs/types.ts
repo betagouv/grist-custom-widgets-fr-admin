@@ -1,31 +1,28 @@
 export type MailleLabel =
-  | "région"
-  | "département"
+  | "region"
+  | "departement"
   | "pays"
   | "commune"
   | "epci";
 
-enum MailleLabelEnum {
-  Reg = "région",
-  Dep = "département",
+export enum MailleLabelEnum {
+  Reg = "region",
+  Dep = "departement",
   Pays = "pays",
   Com = "commune",
   Epci = "epci",
 }
-export const mailleLabelValues = Object.values(MailleLabelEnum);
+export const mailleLabelValues: string[] = Object.values(MailleLabelEnum);
 
-export type InsituIndicSteps =
-  | "loading"
-  | "config"
-  | "init_processing"
-  | "update_processing"
-  | "menu";
+export type InsituIndicSteps = "loading" | "menu";
 
 export type Metadata = {
   identifiant?: string | null;
   nom?: string | null;
   description?: string | null;
   unite?: string | null;
+  mailles?: MailleLabel[];
+  returnType: string | null;
 };
 
 export type IndicateurOneValue = {
@@ -42,16 +39,20 @@ export type IndicateurRow = {
 export type IndicateurRows = {
   __typename: "IndicateurRows";
   count: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rows: any;
 };
 
 export type IndicateurListe = {
   __typename: "IndicateurListe";
   count: number;
+  liste: string[];
 };
 
 export type IndicateurListeGeo = {
   __typename: "IndicateurListeGeo";
   count: number;
+  properties: string[];
 };
 
 export type NarrowedTypeIndicateur =
@@ -70,4 +71,10 @@ export type FetchIndicateurReturnType<
 
 export type FetchIndicateursReturnType = {
   indicateurs: FetchIndicateurReturnType[];
+};
+
+export type Stats = {
+  toUpdateCount: number;
+  updatedCount: number;
+  invalidCount: number;
 };
