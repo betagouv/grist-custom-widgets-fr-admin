@@ -1,13 +1,12 @@
 import { request, gql } from "graphql-request";
 import { RowRecord } from "grist/GristData";
-import { COLUMN_MAPPING_NAMES } from "./constants";
+import { COLUMN_MAPPING_NAMES, ERROR_DATA_MESSAGE } from "./constants";
 import {
   FetchIndicateurReturnType,
   FetchIndicateursReturnType,
   MailleLabel,
   MailleLabelEnum,
   mailleLabelValues,
-  Metadata,
   NarrowedTypeIndicateur,
   Stats,
 } from "./types";
@@ -32,7 +31,7 @@ export const callInsituIndicateurApi = async (
   return data;
 };
 
-const generateQueryFragmentByTerritoire = (
+export const generateQueryFragmentByTerritoire = (
   mailleLabel: MailleLabel,
   inseeCode: string,
   recordId: number,
@@ -113,7 +112,7 @@ query IndicateurCountQuery($identifiant: String!) {
   };
 };
 
-const getQueryFragmentForRecord = (
+export const getQueryFragmentForRecord = (
   mappedRecord: MappedRecord,
   checkDestinationIsEmpty: boolean,
 ): { query: string; error: string } => {
@@ -126,16 +125,14 @@ const getQueryFragmentForRecord = (
   // ou si on doit ignorer cette information
   if (!checkDestinationIsEmpty || (!indicateurValue && indicateurValue !== 0)) {
     // Vérifier la validité des colonnes insee code et maille
-    if (!inseeCode) {
-      if (maille !== MailleLabelEnum.Pays) {
-        response.error = "Erreur: Le code insee est vide";
-      }
-    } else if (!/^\w+$/.test(inseeCode)) {
-      response.error = "Erreur: Le code insee n'est pas valide";
+    if (!inseeCode && maille !== MailleLabelEnum.Pays) {
+      response.error = ERROR_DATA_MESSAGE.CODE_INSEE_VIDE;
+    } else if (!/^\w+$/.test(inseeCode) && maille !== MailleLabelEnum.Pays) {
+      response.error = ERROR_DATA_MESSAGE.CODE_INSEE_INVALIDE;
     } else if (!maille) {
-      response.error = "Erreur: La maille est vide";
+      response.error = ERROR_DATA_MESSAGE.MAILLE_VIDE;
     } else if (!mailleLabelValues.includes(maille)) {
-      response.error = "Erreur: La maille n'est pas valide";
+      response.error = ERROR_DATA_MESSAGE.MAILLE_INVALIDE;
     } else {
       const mailleLabel: MailleLabel = maille as MailleLabel;
       response.query = generateQueryFragmentByTerritoire(

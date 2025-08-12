@@ -29,3 +29,10 @@ export const COLUMN_MAPPING_NAMES = {
     optional: false,
   },
 };
+
+export const ERROR_DATA_MESSAGE = {
+  CODE_INSEE_VIDE: "Erreur: Le code insee est vide",
+  CODE_INSEE_INVALIDE: "Erreur: Le code insee n'est pas valide",
+  MAILLE_VIDE: "Erreur: La maille est vide",
+  MAILLE_INVALIDE: "Erreur: La maille n'est pas valide",
+};
