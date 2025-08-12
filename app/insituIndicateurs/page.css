@@ -42,3 +42,13 @@
 .metadata {
   padding-bottom: 2rem;
 }
+
+.radio-button {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
+}
+
+.radio-button input {
+  accent-color: var(--green, #009058);
+}

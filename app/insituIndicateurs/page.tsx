@@ -39,7 +39,7 @@ const InsituIndicateurs = () => {
   const [identifiantIndicateur, setIdentifiantIndicateur] =
     useState<string>("");
   const [wantIndicateurDetail, setWantIndicateurDetail] =
-    useState<boolean>(true);
+    useState<boolean>(false);
   const [globalIndicateurUpdate, setGlobalIndicateurUpdate] =
     useState<boolean>(true);
 
@@ -238,19 +238,57 @@ const InsituIndicateurs = () => {
             {isCopied ? "Copié!" : "Copier"}
           </button>
         </div>
-        <div className="">
-          <CheckboxParams
-            label="Je souhaite récupérer le détail de l'indicateur. Par exemple si l'indicateur correspond à une liste et que cette case est cochée alors la liste sera ajouté dans la case du tableau Grist, sinon c'est la longueur de cette liste qui sera renseignée"
-            value={wantIndicateurDetail}
-            onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
-          />
+        <div className="radio-button">
+          Je souhaite récupérer :
+          <label>
+            <input
+              type="radio"
+              name="wantIndicateurDetail"
+              value="false"
+              checked={wantIndicateurDetail === false}
+              onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
+            />
+            Le décompte de l'indicateur (Ex: Nombre de villes concernées par le
+            programme)
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="wantIndicateurDetail"
+              value="true"
+              checked={wantIndicateurDetail === true}
+              onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
+            />
+            Le détail de l'indicateur (Ex: Liste des villes concernées par le
+            programme)
+          </label>
         </div>
-        <div className="">
-          <CheckboxParams
-            label="Lancer une mise à jour gloable sur l'ensemble des lignes"
-            value={globalIndicateurUpdate}
-            onChange={() => setGlobalIndicateurUpdate(!globalIndicateurUpdate)}
-          />
+        <div className="radio-button">
+          Je souhaite lancer une recherche sur :
+          <label>
+            <input
+              type="radio"
+              name="globalIndicateurUpdate"
+              value="true"
+              checked={globalIndicateurUpdate === true}
+              onChange={() =>
+                setGlobalIndicateurUpdate(!globalIndicateurUpdate)
+              }
+            />
+            L'ensemble des lignes
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="globalIndicateurUpdate"
+              value="false"
+              checked={globalIndicateurUpdate === false}
+              onChange={() =>
+                setGlobalIndicateurUpdate(!globalIndicateurUpdate)
+              }
+            />
+            Seulement les lignes vides
+          </label>
         </div>
         {globalError && (
           <div className="alert-error">
