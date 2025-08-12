@@ -13,21 +13,19 @@ export const Instructions = () => {
       <ul>
         <li>
           Assurez-vous que vos adresses ont été géocodées. Si ce n'est pas le
-          cas, utilisez d'abord le widget géocodeur pour remplir les colonnes
-          de latitude et longitude.
+          cas, utilisez d'abord le widget géocodeur pour remplir les colonnes de
+          latitude et longitude.
         </li>
         <li>
-          Vérifiez que vous avez correctement désigné les trois colonnes qui seront 
-          automatiquement remplies (statut en QPV ou hors QPV, le nom du QPV et le 
-          code du QPV).
+          Vérifiez que vous avez correctement désigné les trois colonnes qui
+          seront automatiquement remplies (statut en QPV ou hors QPV, le nom du
+          QPV et le code du QPV).
         </li>
         <li>
-          Lancez l'analyse et constatez les résultats. Attention : si aucune de vos
-          adresses ne se trouve dans un QPV, les colonnes resteront vides.
+          Lancez l'analyse et constatez les résultats. Attention : si aucune de
+          vos adresses ne se trouve dans un QPV, les colonnes resteront vides.
         </li>
-        <li>
-          Une fois l'analyse effectuée, vous pouvez supprimer cette Vue.
-        </li>
+        <li>Une fois l'analyse effectuée, vous pouvez supprimer cette Vue.</li>
       </ul>
     </p>
   );
