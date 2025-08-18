@@ -17,7 +17,7 @@ export const Accordion: FC<{
         <div>{label}</div>
         <div>{isAccordionActive ? "-" : "+"}</div>
       </div>
-      {isAccordionActive && <p className="accordion-body">{body}</p>}
+      {isAccordionActive && <div className="accordion-body">{body}</div>}
     </div>
   );
 };
