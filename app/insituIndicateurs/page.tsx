@@ -26,7 +26,6 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { Instructions } from "./Instructions";
 import { MyFooter } from "./Footer";
 import "./page.css";
-import { CheckboxParams } from "../../components/CheckboxParams";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);

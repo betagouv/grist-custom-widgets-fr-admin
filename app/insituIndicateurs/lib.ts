@@ -204,7 +204,11 @@ export const removeAccents = (str: string): string => {
 };
 
 export const listObjectToString = (objList: object[]): string => {
-  return objList.map((row: object) =>
-    "{" + Object.entries(row).map(([key, value]) => `${key}: ${value}`).join(", ") + "}"
+  return objList.map(
+    (row: object) =>
+      "{" +
+      Object.entries(row)
+        .map(([key, value]) => `${key}: ${value}`).join(", ") +
+      "}"
   ).join(", ");
 };
