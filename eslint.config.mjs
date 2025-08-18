@@ -20,7 +20,7 @@ export default [
   ...compat.extends(
     "next/core-web-vitals",
     "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
   ),
   {
     plugins: {
