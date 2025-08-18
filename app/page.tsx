@@ -17,15 +17,15 @@ const HomePage = () => (
           entreprise ou d'une collectivité territoriale
         </li>
         <li>
-          <b>/omFiller</b>: permet de remplir des formulaires PDF
+          <b>/omFiller</b> : permet de remplir des formulaires PDF
           automatiquement
         </li>
         <li>
-          <b>/insituIndicateurs</b>: permet de remplir les indicateurs pour des
+          <b>/insituIndicateurs</b> : permet de remplir les indicateurs pour des
           codes Insee donnés
         </li>
         <li>
-          <b>/qpv</b>: permet de déterminer si une adresse géocodée (avec
+          <b>/qpv</b> : permet de déterminer si une adresse géocodée (avec
           latitude et longitude) se situe dans un Quartier Prioritaire de la
           Ville (QPV) et, le cas échéant, de fournir le nom et le code du QPV
         </li>
