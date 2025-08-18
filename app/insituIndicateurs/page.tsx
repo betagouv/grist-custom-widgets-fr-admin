@@ -206,7 +206,7 @@ const InsituIndicateurs = () => {
             target="_blank"
             title="Lien catalogue d'indicateur de l'ANCT - ouvre une nouvelle fenêtre"
           >
-            le catalogue d'indicateur de l'ANCT
+            le catalogue d'indicateurs de l'ANCT
           </a>{" "}
           pour trouver l'indicateur qui vous intéresse, copiez son identifiant
           et collez le ci-dessous.
