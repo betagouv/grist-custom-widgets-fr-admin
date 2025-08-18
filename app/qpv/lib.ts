@@ -17,31 +17,7 @@ export async function loadQPVData(): Promise<{
     throw new Error(`Erreur HTTP: ${response.status}`);
   }
 
-  const reader = response.body!.getReader();
-
-  let receivedLength = 0;
-  const chunks: Uint8Array[] = [];
-
-  while (true) {
-    const { done, value } = await reader.read();
-
-    if (done) {
-      break;
-    }
-
-    chunks.push(value);
-    receivedLength += value.length;
-  }
-
-  const chunksAll = new Uint8Array(receivedLength);
-  let position = 0;
-  for (const chunk of chunks) {
-    chunksAll.set(chunk, position);
-    position += chunk.length;
-  }
-
-  const jsonText = new TextDecoder("utf-8").decode(chunksAll);
-  const qpvData = JSON.parse(jsonText);
+  const qpvData = await response.json()
 
   console.log(
     `Données QPV chargées: ${qpvData.features.length} quartiers prioritaires`,
