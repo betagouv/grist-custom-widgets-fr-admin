@@ -229,7 +229,7 @@ const InsituIndicateurs = () => {
             <i>
               {identifiantIndicateur.length > 0
                 ? identifiantIndicateur
-                : "renseigner un identifiant d'indicateur"}
+                : "renseignez un identifiant d'indicateur"}
             </i>{" "}
             »
           </span>
