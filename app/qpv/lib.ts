@@ -17,7 +17,7 @@ export async function loadQPVData(): Promise<{
     throw new Error(`Erreur HTTP: ${response.status}`);
   }
 
-  const qpvData = await response.json()
+  const qpvData = await response.json();
 
   console.log(
     `Données QPV chargées: ${qpvData.features.length} quartiers prioritaires`,
