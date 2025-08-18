@@ -235,7 +235,7 @@ const InsituIndicateurs = () => {
           </span>
           <button className="secondary copied" onClick={handleCopyClick}>
             {" "}
-            {isCopied ? "Copié!" : "Copier"}
+            {isCopied ? "Copié !" : "Copier"}
           </button>
         </div>
         <div className="radio-button">
