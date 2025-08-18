@@ -259,7 +259,7 @@ const InsituIndicateurs = () => {
               checked={wantIndicateurDetail === true}
               onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
             />
-            Le détail de l'indicateur (Ex: Liste des villes concernées par le
+            Le détail de l'indicateur (Ex : Liste des villes concernées par le
             programme)
           </label>
         </div>
