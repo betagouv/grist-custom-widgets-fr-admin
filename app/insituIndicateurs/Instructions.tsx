@@ -18,8 +18,7 @@ export const Instructions = () => {
         <li>
           Indiquer la colonne devant recevoir la valeur de l'indicateur. Il
           faudra ensuite aller dans le catalogue d'indicateurs afin de trouver
-          l'identifiant qui vous intéresse afin de remplir
-          correctement de colonne. Nous vous conseillons de renseigner cet
+          l'identifiant qui vous intéresse. Nous vous conseillons de renseigner cet
           identifiant dans la description (ou le titre) de votre colonne pour ne
           pas perdre l'information.
         </li>
