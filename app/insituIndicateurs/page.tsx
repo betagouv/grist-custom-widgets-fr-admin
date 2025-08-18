@@ -90,10 +90,10 @@ const InsituIndicateurs = () => {
       }
       // Mettre à jour le feedback après le traitement des données
       setFeedback(
-        `Total de lignes: ${records.length} | 
-        Lignes à mettre à jour: ${stats.toUpdateCount} | 
-        Lignes mise à jour: ${stats.updatedCount} | 
-        Invalides: ${stats.invalidCount}`,
+        `Total de lignes : ${records.length} | 
+        Lignes à mettre à jour : ${stats.toUpdateCount} | 
+        Lignes mises à jour : ${stats.updatedCount} | 
+        Invalides : ${stats.invalidCount}`,
       );
     };
     setGlobalError("");
