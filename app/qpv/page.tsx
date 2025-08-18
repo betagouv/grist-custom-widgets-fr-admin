@@ -45,7 +45,7 @@ const Qpv = () => {
 
   useEffect(() => {
     //  Vérification du mapping des colonnes pour le bon fonctionnement du widget
-    if (["loading"].includes(currentStep)) {
+    if (currentStep === "loading") {
       if (mappingsIsReady(mappings)) {
         setCurrentStep("qpv_data_loading");
       } else {
