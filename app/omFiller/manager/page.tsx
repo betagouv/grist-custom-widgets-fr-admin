@@ -118,7 +118,9 @@ const ManagerSignatureWidget = () => {
       // Generate preview
       const previewDoc = await PDFDocument.load(updatedPdfBytes);
       const previewBytes = await createPreview(previewDoc);
-      const blob = new Blob([previewBytes], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(previewBytes)], {
+        type: "application/pdf",
+      });
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
     } catch (error) {

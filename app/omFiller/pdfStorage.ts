@@ -19,7 +19,9 @@ export const savePdfToGrist = async (
   }
 
   const fileName = `${prefix}_${new Date().toISOString()}.pdf`;
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const blob = new Blob([new Uint8Array(pdfBytes)], {
+    type: "application/pdf",
+  });
 
   const attachmentId = await uploadAttachment(blob, fileName);
 
