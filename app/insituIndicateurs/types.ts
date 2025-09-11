@@ -30,7 +30,7 @@ export const MAILLE_ACCEPTED_VALUES: Record<MailleLabel, string[]> = {
     "cu",
     "communaute urbaine",
     "metro",
-    "metropole"
+    "metropole",
   ],
 };
 
