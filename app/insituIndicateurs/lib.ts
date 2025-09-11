@@ -9,6 +9,7 @@ import {
   mailleLabelValues,
   NarrowedTypeIndicateur,
   Stats,
+  MAILLE_ACCEPTED_VALUES,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MappedRecord } from "../../lib/util/types";
@@ -117,26 +118,28 @@ export const getQueryFragmentForRecord = (
   checkDestinationIsEmpty: boolean,
 ): { query: string; error: string } => {
   const inseeCode = mappedRecord[COLUMN_MAPPING_NAMES.CODE_INSEE.name];
-  const maille = removeAccents(mappedRecord[COLUMN_MAPPING_NAMES.MAILLE.name]);
+  const rawMaille = mappedRecord[COLUMN_MAPPING_NAMES.MAILLE.name];
   const indicateurValue =
     mappedRecord[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name];
   const response = { query: "", error: "" };
+
   // On s'intéresse à la ligne seulement si la colonne de destination est vide
   // ou si on doit ignorer cette information
   if (!checkDestinationIsEmpty || (!indicateurValue && indicateurValue !== 0)) {
+    const normalizedMaille = normalizeMaille(rawMaille);
+
     // Vérifier la validité des colonnes insee code et maille
-    if (!inseeCode && maille !== MailleLabelEnum.Pays) {
+    if (!inseeCode && normalizedMaille !== MailleLabelEnum.Pays) {
       response.error = ERROR_DATA_MESSAGE.CODE_INSEE_VIDE;
-    } else if (!/^\w+$/.test(inseeCode) && maille !== MailleLabelEnum.Pays) {
+    } else if (!/^\w+$/.test(inseeCode) && normalizedMaille !== MailleLabelEnum.Pays) {
       response.error = ERROR_DATA_MESSAGE.CODE_INSEE_INVALIDE;
-    } else if (!maille) {
+    } else if (!rawMaille) {
       response.error = ERROR_DATA_MESSAGE.MAILLE_VIDE;
-    } else if (!mailleLabelValues.includes(maille)) {
+    } else if (!normalizedMaille) {
       response.error = ERROR_DATA_MESSAGE.MAILLE_INVALIDE;
     } else {
-      const mailleLabel: MailleLabel = maille as MailleLabel;
       response.query = generateQueryFragmentByTerritoire(
-        mailleLabel,
+        normalizedMaille,
         inseeCode,
         mappedRecord.id,
       );
@@ -201,6 +204,18 @@ export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
 
 export const removeAccents = (str: string): string => {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
+export const normalizeMaille = (inputMaille: string): MailleLabel | null => {
+  if (!inputMaille) return null;
+  const normalizedInput = removeAccents(inputMaille.toLowerCase().trim());
+  // Check each maille type and its accepted values
+  for (const [mailleLabel, acceptedValues] of Object.entries(MAILLE_ACCEPTED_VALUES)) {
+    if (acceptedValues.includes(normalizedInput)) {
+      return mailleLabel as MailleLabel;
+    }
+  }
+  return null;
 };
 
 export const listObjectToString = (objList: object[]): string => {
