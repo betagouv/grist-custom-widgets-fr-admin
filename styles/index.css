@@ -5,8 +5,6 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
   margin: 1rem;
 
   font-synthesis: none;
@@ -14,6 +12,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  
+  /* Colors for light mode */
   --lighter-green: #B1FFE2;
   --light-green: #16B378;
   --green: #009058;
@@ -21,16 +21,84 @@
   --light-grey: #D9D9D9;
   --grey: #686565;
   --warning: #F9AE41;
+  
+  /* Semantic colors - light mode */
+  --text-primary: #213547;
+  --text-secondary: #595959;
+  --text-muted: #686565;
+  --background-primary: #ffffff;
+  --background-secondary: #F7F7F7;
+  --background-tertiary: #d3d3d34d;
+  --background-quaternary: #d3d3d32e;
+  --border-primary: #D9D9D9;
+  --border-secondary: #ddd;
+  --link-color: #646cff;
+  --link-hover: #535bf2;
+  
+  /* Status colors - accessible in both modes */
+  --success-bg: #d4edda;
+  --success-text: #155724;
+  --success-border: #c3e6cb;
+  --error-bg: #f8d7da;
+  --error-text: #721c24;
+  --error-border: #f5c6cb;
+  --warning-bg: #fff3cd;
+  --warning-text: #856404;
+  --warning-border: #ffeeba;
+  --neutral-bg: #e2e3e5;
+  --neutral-text: #383d41;
+  --neutral-border: #d6d8db;
+  
+  /* Set default colors */
+  color: var(--text-primary);
+  background-color: var(--background-primary);
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Semantic colors - dark mode */
+    --text-primary: rgba(255, 255, 255, 0.87);
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --background-primary: #1a1a1a;
+    --background-secondary: #2d2d2d;
+    --background-tertiary: rgba(255, 255, 255, 0.1);
+    --background-quaternary: rgba(255, 255, 255, 0.05);
+    --border-primary: #404040;
+    --border-secondary: #505050;
+    --link-color: #8b9cff;
+    --link-hover: #a5b4ff;
+    
+    /* Adjust green colors for better contrast in dark mode */
+    --lighter-green: #4DFFC4;
+    --light-green: #20D48A;
+    --green: #16B378;
+    
+    /* Status colors - dark mode accessible versions */
+    --success-bg: #1e4d2b;
+    --success-text: #a3d9a5;
+    --success-border: #2d5a34;
+    --error-bg: #4d1e23;
+    --error-text: #f5a3a9;
+    --error-border: #5a2d32;
+    --warning-bg: #4d3d1e;
+    --warning-text: #f5d67a;
+    --warning-border: #5a4a2d;
+    --neutral-bg: #2d2d2d;
+    --neutral-text: #b8b8b8;
+    --neutral-border: #404040;
+  }
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--link-color);
   text-decoration: inherit;
 }
 
 a:hover {
-  color: #535bf2;
+  color: var(--link-hover);
 }
 
 body {
@@ -74,7 +142,7 @@ h3 {
 }
 
 .divider {
-  border: 1px solid var(--light-grey, #D9D9D9);
+  border: 1px solid var(--border-primary);
   height: auto;
 }
 
@@ -151,32 +219,15 @@ button:focus-visible {
 }
 
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
-
-  button {
-    background-color: #16b378;
-    color: #ffffff;
-  }
-}
-
 .loader {
   width: 48px;
   height: 48px;
-  border: 5px solid #16b378;
+  border: 5px solid var(--light-green);
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
-
 }
 
 @keyframes rotation {
@@ -230,22 +281,24 @@ footer {
 
 table {
   width: 100%;
-  border: 1px solid #333;
+  border: 1px solid var(--border-primary);
 }
 
 td,
 th {
-  border: 1px solid #333;
+  border: 1px solid var(--border-primary);
   padding: 3px;
 }
 
 thead,
 tfoot {
-  background-color: var(--green, #009058);
-  color: #fff;
+  background-color: var(--green);
+  color: var(--background-primary);
 }
 
 .alert-error {
-  border: 1px solid red;
+  border: 1px solid var(--error-border);
+  background-color: var(--error-bg);
+  color: var(--error-text);
   padding: 10px;
 }

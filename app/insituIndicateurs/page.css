@@ -1,14 +1,14 @@
 .advice {
   margin-top: 1rem;
   position: relative;
-  background-color: var(--lighter-grey);
-  color: #595959;
+  background-color: var(--background-secondary);
+  color: var(--text-secondary);
   font-size: 12px;
   line-height: 18px;
   max-width: 100%;
   display: block;
-  border: 1px solid #ddd;
-  border-left: 3px solid var(--green, #009058);
+  border: 1px solid var(--border-secondary);
+  border-left: 3px solid var(--green);
   margin-bottom: 1rem;
 }
 
