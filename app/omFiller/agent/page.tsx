@@ -329,7 +329,9 @@ const OmFillerWidget = () => {
       newPdfDoc.addPage(firstPage);
 
       const previewBytes = await newPdfDoc.save();
-      const blob = new Blob([previewBytes], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(previewBytes)], {
+        type: "application/pdf",
+      });
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
       setCurrentStep("ready");
