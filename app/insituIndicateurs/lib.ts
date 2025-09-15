@@ -210,8 +210,8 @@ export const removeAccents = (str: string): string => {
 
 export const normalizeMaille = (inputMaille: string): MailleLabel | null => {
   if (!inputMaille) {
-    return null
-  };
+    return null;
+  }
   const normalizedInput = removeAccents(inputMaille.toLowerCase().trim());
   // Check each maille type and its accepted values
   for (const [mailleLabel, acceptedValues] of Object.entries(
