@@ -34,8 +34,6 @@ export const MAILLE_ACCEPTED_VALUES: Record<MailleLabel, string[]> = {
   ],
 };
 
-export const mailleLabelValues: string[] = Object.values(MailleLabelEnum);
-
 export type InsituIndicSteps = "loading" | "menu";
 
 export type Metadata = {

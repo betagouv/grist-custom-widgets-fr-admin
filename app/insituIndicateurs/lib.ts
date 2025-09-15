@@ -6,7 +6,6 @@ import {
   FetchIndicateursReturnType,
   MailleLabel,
   MailleLabelEnum,
-  mailleLabelValues,
   NarrowedTypeIndicateur,
   Stats,
   MAILLE_ACCEPTED_VALUES,
@@ -131,7 +130,10 @@ export const getQueryFragmentForRecord = (
     // Vérifier la validité des colonnes insee code et maille
     if (!inseeCode && normalizedMaille !== MailleLabelEnum.Pays) {
       response.error = ERROR_DATA_MESSAGE.CODE_INSEE_VIDE;
-    } else if (!/^\w+$/.test(inseeCode) && normalizedMaille !== MailleLabelEnum.Pays) {
+    } else if (
+      !/^\w+$/.test(inseeCode) &&
+      normalizedMaille !== MailleLabelEnum.Pays
+    ) {
       response.error = ERROR_DATA_MESSAGE.CODE_INSEE_INVALIDE;
     } else if (!rawMaille) {
       response.error = ERROR_DATA_MESSAGE.MAILLE_VIDE;
@@ -207,10 +209,12 @@ export const removeAccents = (str: string): string => {
 };
 
 export const normalizeMaille = (inputMaille: string): MailleLabel | null => {
-  if (!inputMaille) return null;
+  if (!inputMaille) { return null };
   const normalizedInput = removeAccents(inputMaille.toLowerCase().trim());
   // Check each maille type and its accepted values
-  for (const [mailleLabel, acceptedValues] of Object.entries(MAILLE_ACCEPTED_VALUES)) {
+  for (const [mailleLabel, acceptedValues] of Object.entries(
+    MAILLE_ACCEPTED_VALUES
+  )) {
     if (acceptedValues.includes(normalizedInput)) {
       return mailleLabel as MailleLabel;
     }
