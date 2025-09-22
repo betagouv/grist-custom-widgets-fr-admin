@@ -10,7 +10,7 @@
 
 .legend {
   margin-left: 52px;
-  color: var(--grey, #D9D9D9);
+  color: var(--text-muted);
 }
 
 .slider {
@@ -20,7 +20,7 @@
   left: 0;
   width: 48px;
   height: 28px;
-  background-color: var(--grey, #D9D9D9);
+  background-color: var(--border-primary);
   transition: .4s;
   border-radius: 34px;
 }
@@ -32,7 +32,7 @@
   width: 20px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: var(--background-primary);
   transition: .4s;
   border-radius: 50%;
 }
@@ -40,8 +40,7 @@
 /* Modify the slider's background color to 
               green once the checkbox has been selected. */
 input:checked+.slider {
-  background-color: var(--green, #009058);
-  ;
+  background-color: var(--green);
 }
 
 /* When the checkbox is checked, shift the 
@@ -52,5 +51,5 @@ input:checked+.slider:after {
 
 /* When the checkbox is checked, modify the legend color using general sibling selector (~). */
 input:checked~.legend {
-  color: black;
+  color: var(--text-primary);
 }

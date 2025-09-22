@@ -4,7 +4,7 @@
 
 .choice-banner-info {
   font-size: 0.9rem;
-  color: gray;
+  color: var(--text-muted);
 }
 
 .choices {
@@ -29,6 +29,6 @@
 .insee-code-legend {
   font-style: italic;
   font-weight: 500;
-  border-bottom: 1px solid var(--light-grey, #D9D9D9);
+  border-bottom: 1px solid var(--border-primary);
   text-align: end;
 }
