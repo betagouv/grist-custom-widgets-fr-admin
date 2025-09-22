@@ -12,7 +12,27 @@ export enum MailleLabelEnum {
   Com = "commune",
   Epci = "epci",
 }
-export const mailleLabelValues: string[] = Object.values(MailleLabelEnum);
+
+// Mapping of accepted string values for each mailleLabel (normalized: lowercase, no accents)
+export const MAILLE_ACCEPTED_VALUES: Record<MailleLabel, string[]> = {
+  region: ["region", "reg"],
+  departement: ["departement", "dep"],
+  pays: ["pays", "country", "fr", "france"],
+  commune: ["commune", "com", "city", "ville"],
+  epci: [
+    "epci",
+    "petr",
+    "cc",
+    "communaute de communes",
+    "comcom",
+    "ca",
+    "communaute d'agglomeration",
+    "cu",
+    "communaute urbaine",
+    "metro",
+    "metropole",
+  ],
+};
 
 export type InsituIndicSteps = "loading" | "menu";
 
