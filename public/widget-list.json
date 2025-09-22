@@ -479,5 +479,22 @@
     ],
     "isGristLabsMaintained": false,
     "lastUpdatedAt": "2024-10-09T14:36:40+02:00"
+  },
+  {
+    "name": "Simple table filter",
+    "url": "https://gristlabs.github.io/grist-widget/varamil/simplefilter/index.html",
+    "widgetId": "@varamil/widget-simplefilter",
+    "published": true,
+    "accessLevel": "read table",
+    "renderAfterReady": true,
+    "description": "Simple table filtering to display any row that matches the search.",
+    "authors": [
+      {
+        "name": "Varamil",
+        "url": "https://github.com/Varamil"
+      }
+    ],
+    "isGristLabsMaintained": false,
+    "lastUpdatedAt": "2025-05-29T07:04:10+02:00"
   }
 ]
