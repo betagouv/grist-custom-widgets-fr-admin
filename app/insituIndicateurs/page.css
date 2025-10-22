@@ -1,0 +1,54 @@
+.advice {
+  margin-top: 1rem;
+  position: relative;
+  background-color: var(--background-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  max-width: 100%;
+  display: block;
+  border: 1px solid var(--border-secondary);
+  border-left: 3px solid var(--green);
+  margin-bottom: 1rem;
+}
+
+.advice button {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: visibility 0s, opacity 0.5s linear;
+  margin: 0;
+  padding: 0.4em 0.8em;
+}
+
+.advice:hover button {
+  visibility: visible;
+  opacity: 1;
+}
+
+.text-to-copy {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  padding-right: 5rem;
+}
+
+.summary {
+  padding-bottom: 1rem;
+}
+
+.metadata {
+  padding-bottom: 2rem;
+}
+
+.radio-button {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
+}
+
+.radio-button input {
+  accent-color: var(--green, #009058);
+}
