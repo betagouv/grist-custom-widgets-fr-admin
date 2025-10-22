@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@turf/turf": "^7.2.0",
+    "graphql-request": "^7.2.0",
     "leaflet": "1.9.4",
     "next": "^15.5.3",
     "pdf-lib": "^1.17.1",
