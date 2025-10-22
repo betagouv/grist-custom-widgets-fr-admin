@@ -12,8 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@turf/turf": "^7.3.1",
-    "graphql-request": "^7.3.5",
+    "@turf/turf": "^7.2.0",
     "leaflet": "1.9.4",
     "next": "^16.0.10",
     "pdf-lib": "^1.17.1",
