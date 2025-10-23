@@ -33,13 +33,9 @@ const callInsituIndicateurApi = async (
   return data;
 };
 
-function assertIdentifiantCorrect(
-  identifiant: string,
-): asserts identifiant is string {
+function assertIdentifiantCorrect(identifiant: string): asserts identifiant is string {
   if (typeof identifiant !== "string") {
-    throw new Error(
-      "L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant de l'indicateur insitu",
-    );
+    throw new Error("L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant de l'indicateur insitu");
   }
   // TODO faire plus de check de la qualité de l'identifiant avant de créer la requête
 }
@@ -59,13 +55,23 @@ export const getInsituIndicateursResultsForRecords = async (
   if (!query) {
     return {
       data: null,
-      errorByRecord,
+      errorByRecord
     };
   } else {
-    const insituIndicateursResults = await callInsituIndicateurApi(
-      query,
-      identifiant,
-    );
-    return { data: insituIndicateursResults, errorByRecord };
+    try {
+      const insituIndicateursResults = await callInsituIndicateurApi(
+        query,
+        identifiant,
+      );
+      return { data: insituIndicateursResults, errorByRecord }
+    } catch (e) {
+      let errorMessage = "La requête à Insitu a échoué";
+      if (e instanceof Error) {
+        errorMessage = e.message.slice(0, 200) + "...";
+      }
+      const error = new Error(errorMessage);
+      error.cause = e; // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause
+      throw error;
+    }
   }
 };
