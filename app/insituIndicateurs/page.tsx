@@ -9,13 +9,12 @@ import {
   TITLE,
 } from "./constants";
 import {
-  getInsituIndicateursResultsForRecords,
-  listObjectToString,
-  mappingsIsReady,
+  getInsituIndicateursResultsForRecords
 } from "./lib";
 import {
   FetchIndicateurReturnType,
   InsituIndicSteps,
+  InsituResults,
   Metadata,
   NarrowedTypeIndicateur,
   Stats,
@@ -26,6 +25,7 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { Instructions } from "./Instructions";
 import { MyFooter } from "./Footer";
 import "./page.css";
+import { listObjectToString, mappingsIsReady } from "./utils";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
@@ -72,38 +72,28 @@ const InsituIndicateurs = () => {
       updatedCount: 0,
       invalidCount: 0,
     };
-    const callBackFunction = (
-      dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null,
-      error: string | null,
-      errorByRecord: { recordId: number; error: string }[] | null,
-    ) => {
-      if (dataFromApi) {
-        setMetadata(dataFromApi.metadata);
-        writeDataInTable(dataFromApi, stats);
+    setGlobalError("");
+    setFeedback("Traitement en cours...");
+    getInsituIndicateursResultsForRecords(
+      identifiantIndicateur,
+      records,
+      checkDestinationIsEmpty,
+      stats,
+    ).then(({ data, errorByRecord }: InsituResults) => {
+      if (data) {
+        setMetadata(data.metadata);
+        writeDataInTable(data, stats);
       }
       if (errorByRecord) {
         writeErrorsInTable(errorByRecord);
       }
-      if (error) {
-        setGlobalError(error);
-      }
-      // Mettre à jour le feedback après le traitement des données
       setFeedback(
         `Total de lignes : ${records.length} | 
         Lignes à mettre à jour : ${stats.toUpdateCount} | 
         Lignes mises à jour : ${stats.updatedCount} | 
         Invalides : ${stats.invalidCount}`,
       );
-    };
-    setGlobalError("");
-    setFeedback("Traitement en cours...");
-    getInsituIndicateursResultsForRecords(
-      identifiantIndicateur,
-      records,
-      callBackFunction,
-      checkDestinationIsEmpty,
-      stats,
-    );
+    }).catch(globalError => setGlobalError(globalError));
   };
 
   const writeErrorsInTable = (

@@ -9,11 +9,11 @@ import {
   NarrowedTypeIndicateur,
   Stats,
   MAILLE_ACCEPTED_VALUES,
+  InsituResults,
 } from "./types";
-import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MappedRecord } from "../../lib/util/types";
 
-export const callInsituIndicateurApi = async (
+const callInsituIndicateurApi = async (
   query: string,
   identifiant: string,
 ): Promise<FetchIndicateurReturnType<NarrowedTypeIndicateur>> => {
@@ -150,64 +150,54 @@ export const getQueryFragmentForRecord = (
   return response;
 };
 
+function assertIdentifiantCorrect(identifiant: string): asserts identifiant is string {
+  if (typeof identifiant !== "string") {
+    throw new Error("L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant de l'indicateur insitu");
+  }
+  // TODO faire plus de check de la qualité de l'identifiant avant de créer la requête
+}
+
 export const getInsituIndicateursResultsForRecords = async (
   identifiant: string,
   records: RowRecord[],
-  callBackFunction: (
-    data: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null,
-    error: string | null,
-    errorByRecord: { recordId: number; error: string }[] | null,
-  ) => void,
   checkDestinationIsEmpty: boolean,
   stats: Stats,
-) => {
-  // TODO faire plus de check de la qualité de l'identifiant avant de créer la requête
-  if (typeof identifiant === "string") {
-    const { query, errors } = generateQuery(
-      records,
-      checkDestinationIsEmpty,
-      stats,
-    );
-    if (!query) {
-      callBackFunction(null, null, errors);
-    } else {
-      try {
-        const insituIndicateursResults = await callInsituIndicateurApi(
-          query,
-          identifiant,
-        );
-        callBackFunction(insituIndicateursResults, null, errors);
-      } catch (e) {
-        let errorMessage = "La requête à Insitu a échoué";
-        if (e instanceof Error) {
-          errorMessage = e.message.slice(0, 200) + "...";
-        }
-        callBackFunction(null, errorMessage, null);
-      }
-    }
+): Promise<InsituResults> => {
+  assertIdentifiantCorrect(identifiant); // A partir de cet appel, typescript reconnaît identifiant comme une string
+  const { query, errors: errorByRecord  } = generateQuery(
+    records,
+    checkDestinationIsEmpty,
+    stats,
+  );
+  if (!query) {
+     return {
+      data: null,
+      errorByRecord
+    };
   } else {
-    callBackFunction(
-      null,
-      "L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant de l'indicateur insitu",
-      null,
-    );
+    try {
+      const insituIndicateursResults = await callInsituIndicateurApi(
+        query,
+        identifiant,
+      );
+      return {data: insituIndicateursResults, errorByRecord}
+    } catch (e) {
+      let errorMessage = "La requête à Insitu a échoué";
+      if (e instanceof Error) {
+        errorMessage = e.message.slice(0, 200) + "...";
+      }
+      const error = new Error(errorMessage);
+      error.cause = e; // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause
+      throw error;
+    }
   }
 };
 
-export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
-  return (
-    mappings &&
-    mappings[COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name] &&
-    mappings[COLUMN_MAPPING_NAMES.CODE_INSEE.name] &&
-    mappings[COLUMN_MAPPING_NAMES.MAILLE.name]
-  );
-};
-
-export const removeAccents = (str: string): string => {
+const removeAccents = (str: string): string => {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
-export const normalizeMaille = (inputMaille: string): MailleLabel | null => {
+const normalizeMaille = (inputMaille: string): MailleLabel | null => {
   if (!inputMaille) {
     return null;
   }
@@ -223,15 +213,3 @@ export const normalizeMaille = (inputMaille: string): MailleLabel | null => {
   return null;
 };
 
-export const listObjectToString = (objList: object[]): string => {
-  return objList
-    .map(
-      (row: object) =>
-        "{" +
-        Object.entries(row)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join(", ") +
-        "}",
-    )
-    .join(", ");
-};
