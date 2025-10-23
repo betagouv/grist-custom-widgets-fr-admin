@@ -72,8 +72,7 @@ export const generateQuery = (
 ): { query: string; errors: { recordId: number; error: string }[] } => {
   const queryRecordList = [];
   const errorRecordList = [];
-  for (const i in records) {
-    const record = records[i];
+  for (const record of records) {
     const { query, error } = getQueryFragmentForRecord(
       grist.mapColumnNames(record),
       checkDestinationIsEmpty,
