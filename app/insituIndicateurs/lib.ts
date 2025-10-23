@@ -189,7 +189,7 @@ export const getInsituIndicateursResultsForRecords = async (
   } else {
     callBackFunction(
       null,
-      "L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant le l'indicateur insitu",
+      "L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant de l'indicateur insitu",
       null,
     );
   }
