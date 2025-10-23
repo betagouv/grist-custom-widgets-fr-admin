@@ -93,6 +93,11 @@ export type FetchIndicateursReturnType = {
   indicateurs: FetchIndicateurReturnType[];
 };
 
+export interface InsituResults {
+  data: FetchIndicateurReturnType<NarrowedTypeIndicateur>|null;
+  errorByRecord: { recordId: number; error: string }[];
+}
+
 export type Stats = {
   toUpdateCount: number;
   updatedCount: number;
