@@ -123,7 +123,7 @@ export const getQueryFragmentForRecord = (
 
   // On s'intéresse à la ligne seulement si la colonne de destination est vide
   // ou si on doit ignorer cette information
-  if (!checkDestinationIsEmpty || (!indicateurValue && indicateurValue !== 0)) {
+  if (!checkDestinationIsEmpty || (!indicateurValue)) {
     const normalizedMaille = normalizeMaille(rawMaille);
 
     // Vérifier la validité des colonnes insee code et maille
