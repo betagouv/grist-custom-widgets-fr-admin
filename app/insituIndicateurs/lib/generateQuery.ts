@@ -52,7 +52,7 @@ query IndicateurCountQuery($identifiant: String!) {
 };
 
 
-export const getQueryFragmentForRecord = (
+const getQueryFragmentForRecord = (
   mappedRecord: MappedRecord,
   checkDestinationIsEmpty: boolean,
 ): { query: string; error: string } => {
@@ -92,7 +92,7 @@ export const getQueryFragmentForRecord = (
 };
 
 
-export const generateQueryFragmentByTerritoire = (
+const generateQueryFragmentByTerritoire = (
   mailleLabel: MailleLabel,
   inseeCode: string,
   recordId: number,
