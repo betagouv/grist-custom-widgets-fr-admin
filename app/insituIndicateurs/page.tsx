@@ -77,7 +77,8 @@ const InsituIndicateurs = () => {
       records,
       checkDestinationIsEmpty,
       stats,
-    ).then(
+    )
+    .then(
       ({ data, errorByRecord }: InsituResults) => {
         if (data) {
           setMetadata(data.metadata);
@@ -93,7 +94,7 @@ const InsituIndicateurs = () => {
           Invalides : ${stats.invalidCount}`,
         );
       })
-      .catch(globalError => setGlobalError(globalError));
+      .catch((globalError) => setGlobalError(globalError));
   };
 
   const writeErrorsInTable = (
