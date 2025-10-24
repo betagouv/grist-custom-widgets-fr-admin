@@ -1,9 +1,13 @@
 import { RowRecord } from "grist/GristData";
 import { MappedRecord } from "../../../lib/util/types";
 import { COLUMN_MAPPING_NAMES, ERROR_DATA_MESSAGE } from "../constants";
-import { MAILLE_ACCEPTED_VALUES, MailleLabel, MailleLabelEnum, Stats } from "../types";
+import {
+  MAILLE_ACCEPTED_VALUES,
+  MailleLabel,
+  MailleLabelEnum,
+  Stats,
+} from "../types";
 import { gql } from "graphql-request";
-
 
 export const generateQuery = (
   records: RowRecord[],
@@ -51,7 +55,6 @@ query IndicateurCountQuery($identifiant: String!) {
   };
 };
 
-
 const getQueryFragmentForRecord = (
   mappedRecord: MappedRecord,
   checkDestinationIsEmpty: boolean,
@@ -90,7 +93,6 @@ const getQueryFragmentForRecord = (
 
   return response;
 };
-
 
 const generateQueryFragmentByTerritoire = (
   mailleLabel: MailleLabel,

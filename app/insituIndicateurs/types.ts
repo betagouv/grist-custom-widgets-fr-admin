@@ -94,7 +94,7 @@ export type FetchIndicateursReturnType = {
 };
 
 export interface InsituResults {
-  data: FetchIndicateurReturnType<NarrowedTypeIndicateur>|null;
+  data: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null;
   errorByRecord: { recordId: number; error: string }[];
 }
 

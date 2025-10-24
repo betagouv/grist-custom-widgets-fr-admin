@@ -13,7 +13,7 @@ jest.mock("graphql-request", () => ({
   request: jest.fn(),
   gql: jest.fn((strings: TemplateStringsArray, ...values: unknown[]) => {
     // Reconstruit la string en intercalant les parties statiques et les valeurs interpolées
-    let result = '';
+    let result = "";
     strings.forEach((str, i) => {
       result += str;
       if (i < values.length) {
@@ -24,9 +24,7 @@ jest.mock("graphql-request", () => ({
   }),
 }));
 
-import { request } from "graphql-request";
 import { generateQuery } from "./lib/generateQuery";
-const mockRequest = request as jest.MockedFunction<typeof request>;
 
 // Mock grist global object
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,27 +95,6 @@ const recordWithRegionMaille: RowRecord = {
   [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: "11",
   [COLUMN_MAPPING_NAMES.MAILLE.name]: "region",
   [COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]: null,
-};
-
-const mockApiResponse = {
-  indicateurs: [
-    {
-      metadata: {
-        identifiant: "test-indicator",
-        nom: "Test Indicator",
-        description: "A test indicator",
-        unite: "unit",
-        mailles: ["commune"],
-        returnType: "IndicateurOneValue",
-      },
-      mailles: {
-        recordId_1: {
-          __typename: "IndicateurOneValue",
-          valeur: 123,
-        },
-      },
-    },
-  ],
 };
 
 describe("generateQuery", () => {

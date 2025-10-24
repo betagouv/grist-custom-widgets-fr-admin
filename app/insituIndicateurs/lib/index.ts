@@ -27,9 +27,13 @@ const callInsituIndicateurApi = async (
   return data;
 };
 
-function assertIdentifiantCorrect(identifiant: string): asserts identifiant is string {
+function assertIdentifiantCorrect(
+  identifiant: string
+): asserts identifiant is string {
   if (typeof identifiant !== "string") {
-    throw new Error("L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant de l'indicateur insitu");
+    throw new Error(
+      "L'identifiant de la colonne n'est pas compréhensible, ce doit être l'identifiant de l'indicateur insitu",
+    );
   }
   // TODO faire plus de check de la qualité de l'identifiant avant de créer la requête
 }
@@ -49,7 +53,7 @@ export const getInsituIndicateursResultsForRecords = async (
   if (!query) {
     return {
       data: null,
-      errorByRecord
+      errorByRecord,
     };
   } else {
     try {
@@ -57,7 +61,7 @@ export const getInsituIndicateursResultsForRecords = async (
         query,
         identifiant,
       );
-      return { data: insituIndicateursResults, errorByRecord }
+      return { data: insituIndicateursResults, errorByRecord };
     } catch (e) {
       let errorMessage = "La requête à Insitu a échoué";
       if (e instanceof Error) {

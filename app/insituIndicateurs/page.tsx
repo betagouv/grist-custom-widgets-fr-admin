@@ -8,9 +8,7 @@ import {
   DESCRIPTION_COLONNE_INDICATEUR,
   TITLE,
 } from "./constants";
-import {
-  getInsituIndicateursResultsForRecords
-} from "./lib";
+import { getInsituIndicateursResultsForRecords } from "./lib";
 import {
   FetchIndicateurReturnType,
   InsituIndicSteps,
@@ -79,21 +77,23 @@ const InsituIndicateurs = () => {
       records,
       checkDestinationIsEmpty,
       stats,
-    ).then(({ data, errorByRecord }: InsituResults) => {
-      if (data) {
-        setMetadata(data.metadata);
-        writeDataInTable(data, stats);
-      }
-      if (errorByRecord) {
-        writeErrorsInTable(errorByRecord);
-      }
-      setFeedback(
-        `Total de lignes : ${records.length} | 
-        Lignes à mettre à jour : ${stats.toUpdateCount} | 
-        Lignes mises à jour : ${stats.updatedCount} | 
-        Invalides : ${stats.invalidCount}`,
-      );
-    }).catch(globalError => setGlobalError(globalError));
+    ).then(
+      ({ data, errorByRecord }: InsituResults) => {
+        if (data) {
+          setMetadata(data.metadata);
+          writeDataInTable(data, stats);
+        }
+        if (errorByRecord) {
+          writeErrorsInTable(errorByRecord);
+        }
+        setFeedback(
+          `Total de lignes : ${records.length} | 
+          Lignes à mettre à jour : ${stats.toUpdateCount} | 
+          Lignes mises à jour : ${stats.updatedCount} | 
+          Invalides : ${stats.invalidCount}`,
+        );
+      })
+      .catch(globalError => setGlobalError(globalError));
   };
 
   const writeErrorsInTable = (
