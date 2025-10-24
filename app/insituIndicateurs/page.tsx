@@ -24,11 +24,15 @@ import { Instructions } from "./Instructions";
 import { MyFooter } from "./Footer";
 import "./page.css";
 import { listObjectToString, mappingsIsReady } from "./utils";
+import { MultiColonneView } from "./MultiColonneView";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [currentStep, setCurrentStep] = useState<InsituIndicSteps>("loading");
+  const [viewMode, setViewMode] = useState<"simple" | "multi">("simple");
+  const [tokenInfo, setTokenInfo] = useState<{ token: string; baseUrl: string } | null>(null);
+  const [tableId, setTableId] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string>("");
   const [feedback, setFeedback] = useState<string>("");
   const [metadata, setMetadata] = useState<Metadata>();
@@ -47,6 +51,13 @@ const InsituIndicateurs = () => {
       grist.onRecords((records, gristMappings) => {
         setRecords(records);
         setMappings(gristMappings);
+        
+        grist.docApi.getAccessToken({readOnly: true}).then(async (token) => {
+          setTokenInfo(token);
+          const table = await grist.getTable();
+          const tId = await table.getTableId();
+          setTableId(tId);
+        });
       });
     } catch (error) {
       console.error("Error during Grist initialization:", error);
@@ -183,12 +194,25 @@ const InsituIndicateurs = () => {
     currentStep === "menu" && (
       <div>
         <Title title={TITLE} />
-        <p>
-          Colonne sélectionnée :{" "}
-          <span className="tag validated semi-bold">
-            {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
-          </span>
-        </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <p>
+            Colonne sélectionnée :{" "}
+            <span className="tag validated semi-bold">
+              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
+            </span>
+          </p>
+          <button 
+            className="secondary"
+            onClick={() => setViewMode(viewMode === "simple" ? "multi" : "simple")}
+          >
+            {viewMode === "simple" ? "Mode multi-colonne" : "Retour au mode simple"}
+          </button>
+        </div>
+        
+        {viewMode === "multi" ? (
+          <MultiColonneView tokenInfo={tokenInfo} tableId={tableId} />
+        ) : (
+          <>
         <p>
           Consulter{" "}
           <a
@@ -312,6 +336,8 @@ const InsituIndicateurs = () => {
               )}
             </ul>
           </div>
+        )}
+          </>
         )}
         <Instructions />
         <MyFooter />
