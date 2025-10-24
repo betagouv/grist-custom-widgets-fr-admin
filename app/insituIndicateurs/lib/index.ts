@@ -34,7 +34,7 @@ const callInsituIndicateurApi = async (
 };
 
 function assertIdentifiantCorrect(
-  identifiant: string
+  identifiant: string,
 ): asserts identifiant is string {
   if (typeof identifiant !== "string") {
     throw new Error(
