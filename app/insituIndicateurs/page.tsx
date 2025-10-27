@@ -78,8 +78,7 @@ const InsituIndicateurs = () => {
       checkDestinationIsEmpty,
       stats,
     )
-    .then(
-      ({ data, errorByRecord }: InsituResults) => {
+      .then(({ data, errorByRecord }: InsituResults) => {
         if (data) {
           setMetadata(data.metadata);
           writeDataInTable(data, stats);
