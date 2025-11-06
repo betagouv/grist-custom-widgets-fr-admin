@@ -84,16 +84,16 @@ const InsituIndicateurs = () => {
     setGlobalError("");
     setFeedback("Traitement en cours...");
     getInsituIndicateursResultsForRecords(
-      identifiantIndicateur,
+      [identifiantIndicateur],
       records,
       checkDestinationIsEmpty,
       stats,
     )
     .then(
       ({ data, errorByRecord }: InsituResults) => {
-        if (data) {
-          setMetadata(data.metadata);
-          writeDataInTable(data, stats);
+        if (data && data.length === 1) {
+          setMetadata(data[0].metadata);
+          writeDataInTable(data[0], stats);
         }
         if (errorByRecord) {
           writeErrorsInTable(errorByRecord);
@@ -195,12 +195,12 @@ const InsituIndicateurs = () => {
       <div>
         <Title title={TITLE} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <p>
+          {viewMode !== "multi" && (<p>
             Colonne sélectionnée :{" "}
             <span className="tag validated semi-bold">
               {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
             </span>
-          </p>
+          </p>)}
           <button 
             className="secondary"
             onClick={() => setViewMode(viewMode === "simple" ? "multi" : "simple")}
@@ -210,7 +210,7 @@ const InsituIndicateurs = () => {
         </div>
         
         {viewMode === "multi" ? (
-          <MultiColonneView tokenInfo={tokenInfo} tableId={tableId} />
+          <MultiColonneView tokenInfo={tokenInfo} tableId={tableId} records={records} setFeedback={setFeedback} setGlobalError={setGlobalError} />
         ) : (
           <>
         <p>

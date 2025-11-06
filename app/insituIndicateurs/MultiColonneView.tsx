@@ -1,22 +1,203 @@
 import { useEffect, useState } from "react";
 import { DESCRIPTION_COLONNE_INDICATEUR } from "./constants";
+import { getInsituIndicateursResultsForRecords } from "./lib";
+import { FetchIndicateurReturnType, InsituResults, NarrowedTypeIndicateur, Stats } from "./types";
+import { RowRecord } from "grist/GristData";
+import { addObjectInRecord } from "../../lib/grist/plugin-api";
+import { listObjectToString } from "./utils";
 
 interface ColumnInfo {
   id: string;
   label: string;
-  description?: string;
+  description: string;
+  insituIndicateurId: string;
 }
 
 interface MultiColonneViewProps {
   tokenInfo: { token: string; baseUrl: string } | null;
   tableId: string | null;
-}
+  records: RowRecord[];
+  setFeedback: React.Dispatch<React.SetStateAction<string>>;
+  setGlobalError: React.Dispatch<React.SetStateAction<string>>;
+};
+// TODO : affichage commun du global erreur et feedback (ou non)
 
-export const MultiColonneView = ({ tokenInfo, tableId }: MultiColonneViewProps) => {
-  const [columns, setColumns] = useState<ColumnInfo[]>([]);
+export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, setGlobalError }: MultiColonneViewProps) => {
   const [filteredColumns, setFilteredColumns] = useState<ColumnInfo[]>([]);
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleColumnSelect = (columnId: string) => {
+    setSelectedColumns((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(columnId)) {
+        newSet.delete(columnId);
+      } else {
+        newSet.add(columnId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedColumns.size === filteredColumns.length) {
+      setSelectedColumns(new Set());
+    } else {
+      setSelectedColumns(new Set(filteredColumns.map((col) => col.id)));
+    }
+  };
+
+  const handleUpdateSelectedColumns = async () => {
+    setIsUpdating(true);
+    setError("");
+
+    try {
+      // Récupération des informations des colonnes sélectionnées
+      const columnsToUpdate = filteredColumns.filter((col) =>
+        selectedColumns.has(col.id)
+      );
+      const indicateursIdentifiants = columnsToUpdate.map((col) => col.insituIndicateurId);
+
+      console.log("listes des indicateurs : ", indicateursIdentifiants);
+
+      const stats: Stats = {
+        toUpdateCount: 0,
+        updatedCount: 0,
+        invalidCount: 0,
+      };
+      getInsituIndicateursResultsForRecords(
+        indicateursIdentifiants,
+        records,
+        false,
+        stats,
+      )
+        .then(
+          ({ data, errorByRecord }: InsituResults) => {
+            if (data) {
+              writeDataInTable(columnsToUpdate, data, stats);
+            }
+            if (errorByRecord) {
+              writeErrorsInTable(columnsToUpdate, errorByRecord);
+            }
+            setFeedback(
+              `Total de lignes : ${records.length} | 
+            Lignes à mettre à jour : ${stats.toUpdateCount} | 
+            Lignes mises à jour : ${stats.updatedCount} | 
+            Invalides : ${stats.invalidCount}`,
+            );
+          })
+        .catch((globalError) => setGlobalError(globalError));
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour:", err);
+      setError("Erreur lors de la préparation de la mise à jour");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const writeErrorsInTable = (
+    columnsToUpdate: ColumnInfo[],
+    errorByRecord: { recordId: number; error: string }[],
+  ) => {
+    errorByRecord.forEach((error) => {
+      const data = columnsToUpdate.reduce((acc: any, col) => {
+        acc[col.id] = error.error;
+        return acc;
+      }, {});
+      addObjectInRecord(error.recordId, data);
+    });
+  };
+
+  const writeDataInTable = (
+    columnsToUpdate: ColumnInfo[],
+    dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur>[],
+    stats: Stats,
+  ) => {
+    const afficherDetailIndicateur = false;
+    console.log("--------------------------------")
+    console.log("dataFromApi", dataFromApi)
+    
+    // Structure : { recordId: { identifiantIndicateur: valeur } }
+    const dataByRecord: Record<string, Record<string, number | string>> = {};
+    
+    // Parcours de tous les indicateurs récupérés depuis l'API
+    dataFromApi.forEach(resultatIndicateur => {
+      const identifiantIndicateur = resultatIndicateur.metadata.identifiant;
+      
+      if (!identifiantIndicateur) {
+        console.warn("Indicateur sans identifiant ignoré", resultatIndicateur.metadata);
+        return;
+      }
+      
+      // Parcours de toutes les mailles (records) pour cet indicateur
+      Object.entries(resultatIndicateur.mailles).forEach(([recordId, indicateur]) => {
+        if (!indicateur) {
+          return;
+        }
+        
+        // Extraction de la valeur selon le type d'indicateur
+        let valeurIndicateur: number | string;
+        
+        switch (indicateur.__typename) {
+          case "IndicateurOneValue":
+            valeurIndicateur = indicateur.valeur;
+            break;
+          case "IndicateurRow":
+            valeurIndicateur = String(Object.values(indicateur.row)[0]);
+            break;
+          case "IndicateurRows":
+            valeurIndicateur = afficherDetailIndicateur 
+              ? listObjectToString(indicateur.rows)
+              : indicateur.count;
+            break;
+          case "IndicateurListe":
+            valeurIndicateur = afficherDetailIndicateur 
+              ? indicateur.liste.join(", ")
+              : indicateur.count;
+            break;
+          case "IndicateurListeGeo":
+            valeurIndicateur = afficherDetailIndicateur 
+              ? indicateur.properties.join(", ")
+              : indicateur.count;
+            break;
+          default:
+            valeurIndicateur = "Erreur";
+        }
+        
+        // Initialisation du record si nécessaire
+        if (!dataByRecord[recordId]) {
+          dataByRecord[recordId] = {};
+        }
+        
+        // Stockage de la valeur pour cet indicateur et ce record
+        dataByRecord[recordId][identifiantIndicateur] = valeurIndicateur;
+      });
+    });
+    
+    console.log("donneesParRecord", dataByRecord);
+    
+    // Écriture des données dans Grist pour chaque record
+    Object.entries(dataByRecord).forEach(([recordId, valeursIndicateurs]) => {
+      // Construction de l'objet de données pour ce record
+      // Pour chaque colonne à mettre à jour, on récupère la valeur correspondante
+      const dataRecord = columnsToUpdate.reduce((acc: Record<string, number | string>, col) => {
+        const valeur = valeursIndicateurs[col.insituIndicateurId];
+        if (valeur !== undefined) {
+          acc[col.id] = valeur;
+        }
+        return acc;
+      }, {});
+      
+      // Extraction du numéro de record depuis l'identifiant "recordId_XXX"
+      const idRecordGrist = parseInt(recordId.split("recordId_")[1]);
+      
+      // Mise à jour du record dans Grist
+      addObjectInRecord(idRecordGrist, dataRecord);
+      stats.updatedCount++;
+    });
+  };
 
   useEffect(() => {
     const fetchColumns = async () => {
@@ -36,20 +217,18 @@ export const MultiColonneView = ({ tokenInfo, tableId }: MultiColonneViewProps) 
         }
 
         const data = await response.json();
-        const cols: ColumnInfo[] = data.columns.map((col: any) => ({
+
+        // Filtrer les colonnes dont la description commence par "Indicateur provenant de Insitu :"
+        const filtered = data.columns.filter(
+          (col: any) =>
+            col.fields.description &&
+            col.fields.description.startsWith(DESCRIPTION_COLONNE_INDICATEUR)
+        ).map((col: any) => ({
           id: col.id,
           label: col.fields.label || col.id,
           description: col.fields.description || "",
+          insituIndicateurId: col.fields.description.split(DESCRIPTION_COLONNE_INDICATEUR)[1]
         }));
-
-        setColumns(cols);
-
-        // Filtrer les colonnes dont la description commence par "Indicateur provenant de Insitu :"
-        const filtered = cols.filter(
-          (col) =>
-            col.description &&
-            col.description.startsWith(DESCRIPTION_COLONNE_INDICATEUR)
-        );
 
         setFilteredColumns(filtered);
         setLoading(false);
@@ -109,7 +288,22 @@ export const MultiColonneView = ({ tokenInfo, tableId }: MultiColonneViewProps) 
         </div>
       ) : (
         <div>
-          <h3>Colonnes trouvées ({filteredColumns.length}) :</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h3>Colonnes trouvées ({filteredColumns.length}) :</h3>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              <span style={{ fontSize: "0.9em", color: "#666" }}>
+                {selectedColumns.size} colonne(s) sélectionnée(s)
+              </span>
+              <button
+                className="primary"
+                onClick={handleUpdateSelectedColumns}
+                disabled={selectedColumns.size === 0 || isUpdating}
+                style={{ marginLeft: "1rem" }}
+              >
+                {isUpdating ? "Mise à jour en cours..." : "Mettre à jour les colonnes sélectionnées"}
+              </button>
+            </div>
+          </div>
           <table
             style={{
               width: "100%",
@@ -119,22 +313,43 @@ export const MultiColonneView = ({ tokenInfo, tableId }: MultiColonneViewProps) 
           >
             <thead>
               <tr style={{ borderBottom: "2px solid #ddd" }}>
+                <th style={{ textAlign: "center", padding: "0.5rem", width: "50px" }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedColumns.size === filteredColumns.length && filteredColumns.length > 0}
+                    onChange={handleSelectAll}
+                    title="Tout sélectionner / Tout désélectionner"
+                  />
+                </th>
                 <th style={{ textAlign: "left", padding: "0.5rem" }}>
                   Nom de la colonne
                 </th>
                 <th style={{ textAlign: "left", padding: "0.5rem" }}>
                   Description
                 </th>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>
+                  Identifiant Insitu
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredColumns.map((col) => (
                 <tr key={col.id} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={{ textAlign: "center", padding: "0.5rem" }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedColumns.has(col.id)}
+                      onChange={() => handleColumnSelect(col.id)}
+                    />
+                  </td>
                   <td style={{ padding: "0.5rem" }}>
                     <strong>{col.label}</strong>
                   </td>
                   <td style={{ padding: "0.5rem", fontSize: "0.9em" }}>
                     {col.description}
+                  </td>
+                  <td style={{ padding: "0.5rem", fontSize: "0.9em" }}>
+                    {col.insituIndicateurId}
                   </td>
                 </tr>
               ))}

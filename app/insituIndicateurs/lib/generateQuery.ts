@@ -35,8 +35,8 @@ export const generateQuery = (
       queryRecordList.length === 0
         ? ""
         : gql`
-query IndicateurCountQuery($identifiant: String!) {
-  indicateurs(filtre: { identifiants: [$identifiant] }) {
+query IndicateurCountQuery($identifiants: [String!]) {
+  indicateurs(filtre: { identifiants: $identifiants }) {
     metadata {
       identifiant
       mailles
