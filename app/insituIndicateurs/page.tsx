@@ -192,21 +192,21 @@ const InsituIndicateurs = () => {
     </div>
   ) : (
     currentStep === "menu" && (
-      <div>
+      <div style={{margin: "auto", maxWidth: "76em"}}>
         <Title title={TITLE} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {viewMode !== "multi" && (<p>
-            Colonne sélectionnée :{" "}
-            <span className="tag validated semi-bold">
-              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
-            </span>
-          </p>)}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row-reverse" }}>
           <button 
             className="secondary"
             onClick={() => setViewMode(viewMode === "simple" ? "multi" : "simple")}
           >
             {viewMode === "simple" ? "Mode multi-colonne" : "Retour au mode simple"}
           </button>
+          {viewMode !== "multi" && (<p>
+            Colonne sélectionnée :{" "}
+            <span className="tag validated semi-bold">
+              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
+            </span>
+          </p>)}
         </div>
         
         {viewMode === "multi" ? (
