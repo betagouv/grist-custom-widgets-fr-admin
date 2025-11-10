@@ -116,8 +116,6 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
     stats: Stats,
   ) => {
     const afficherDetailIndicateur = false;
-    console.log("--------------------------------")
-    console.log("dataFromApi", dataFromApi)
     
     // Structure : { recordId: { identifiantIndicateur: valeur } }
     const dataByRecord: Record<string, Record<string, number | string>> = {};
@@ -175,8 +173,6 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
         dataByRecord[recordId][identifiantIndicateur] = valeurIndicateur;
       });
     });
-    
-    console.log("donneesParRecord", dataByRecord);
     
     // Écriture des données dans Grist pour chaque record
     Object.entries(dataByRecord).forEach(([recordId, valeursIndicateurs]) => {
