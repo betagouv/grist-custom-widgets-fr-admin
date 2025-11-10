@@ -28,6 +28,17 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+
+  const handleCopyClick = async () => {
+    try {
+      await navigator.clipboard.writeText(DESCRIPTION_COLONNE_INDICATEUR);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
 
   const handleColumnSelect = (columnId: string) => {
     setSelectedColumns((prev) => {
@@ -259,16 +270,15 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
 
   return (
     <>
-      <div className="alert-info">
-        <p>
+      <div className="advice">
+        <span className="text-to-copy">
           <strong>Mode multi-colonne</strong> : Ce mode affiche uniquement les
-          colonnes dont la description commence par "
-          {DESCRIPTION_COLONNE_INDICATEUR}".
-        </p>
-        <p>
-          Ces colonnes ont été créées avec le widget Insitu Indicateurs et
-          contiennent des indicateurs provenant du catalogue de l'ANCT.
-        </p>
+          colonnes dont la description commence par « {DESCRIPTION_COLONNE_INDICATEUR} »
+        </span>
+        <button className="secondary copied" onClick={handleCopyClick}>
+          {" "}
+          {isCopied ? "Copié !" : "Copier"}
+        </button>
       </div>
 
       {filteredColumns.length === 0 ? (
@@ -305,6 +315,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
               width: "100%",
               borderCollapse: "collapse",
               marginTop: "1rem",
+              marginBottom: "1rem",
             }}
           >
             <thead>
