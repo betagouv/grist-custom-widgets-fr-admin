@@ -337,9 +337,9 @@ const InsituIndicateurs = () => {
             </ul>
           </div>
         )}
+          <Instructions />
           </>
         )}
-        <Instructions />
         <MyFooter />
       </div>
     )
