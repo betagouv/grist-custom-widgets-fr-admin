@@ -202,9 +202,16 @@ describe("generateQuery", () => {
         recordId: 3,
         error: ERROR_DATA_MESSAGE.CODE_INSEE_INVALIDE,
       });
-      expect(result.query).toBe("");
       expect(stats.toUpdateCount).toBe(0);
       expect(stats.invalidCount).toBe(1);
+    });
+
+    it("should return empty query when no valid records", () => {
+      const records = [recordWithInvalidInseeCode];
+      const result = generateQuery(records, false, stats);
+
+      expect(result.query).toBe("");
+      expect(result.errors).toHaveLength(1);
     });
 
     it("should handle empty INSEE code for non-pays maille", () => {
