@@ -20,11 +20,12 @@ import {
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { Instructions } from "./Instructions";
-import { MyFooter } from "./Footer";
+import { Instructions } from "./components/Instructions";
+import { MyFooter } from "./components/Footer";
 import "./page.css";
 import { listObjectToString, mappingsIsReady } from "./utils";
 import { MultiColonneView } from "./MultiColonneView";
+import { MetadataComponent } from "./components/Metadata";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
@@ -322,24 +323,12 @@ const InsituIndicateurs = () => {
             Lancer la recherche
           </button>
         </div>
-        {feedback !== "" && <div className="summary">{feedback}</div>}
-        {metadata && (
-          <div className="metadata">
-            Meta données de l'indicateur :
-            <ul>
-              <li>Nom : {metadata?.nom}</li>
-              <li>Description : {metadata?.description}</li>
-              <li>Mailles disponibles : {metadata?.mailles?.join(", ")}</li>
-              {metadata?.unite && <li>Unité : {metadata?.unite}</li>}
-              {metadata?.returnType && (
-                <li>Type d'indicateur : {metadata?.returnType}</li>
-              )}
-            </ul>
-          </div>
-        )}
-          <Instructions />
+          
           </>
         )}
+        {feedback !== "" && <div className="summary">{feedback}</div>}
+        {metadata && <MetadataComponent metadata={metadata}/>}
+        {viewMode !== "multi" && <Instructions />}
         <MyFooter />
       </div>
     )
