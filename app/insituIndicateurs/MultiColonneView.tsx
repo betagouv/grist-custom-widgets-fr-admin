@@ -21,6 +21,7 @@ interface MultiColonneViewProps {
   setGlobalError: React.Dispatch<React.SetStateAction<string>>;
 };
 // TODO : affichage commun du global erreur et feedback (ou non)
+// TODO : afficher les metadonnées dans le tableau dans une 4ème colonne
 
 export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, setGlobalError }: MultiColonneViewProps) => {
   const [filteredColumns, setFilteredColumns] = useState<ColumnInfo[]>([]);
@@ -78,6 +79,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
         updatedCount: 0,
         invalidCount: 0,
       };
+      setFeedback("Traitement en cours...");
       getInsituIndicateursResultsForRecords(
         indicateursIdentifiants,
         records,
