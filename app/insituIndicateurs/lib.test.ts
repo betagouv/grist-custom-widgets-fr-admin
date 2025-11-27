@@ -207,6 +207,14 @@ describe("generateQuery", () => {
       expect(stats.invalidCount).toBe(1);
     });
 
+    it("should return empty query when no valid records", () => {
+      const records = [recordWithInvalidInseeCode];
+      const result = generateQuery(records, false, stats);
+
+      expect(result.query).toBe("");
+      expect(result.errors).toHaveLength(1);
+    });
+
     it("should handle empty INSEE code for non-pays maille", () => {
       const records = [recordWithEmptyInseeCode];
       const result = generateQuery(records, false, stats);
