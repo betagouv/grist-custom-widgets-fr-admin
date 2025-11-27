@@ -93,7 +93,10 @@ const InsituIndicateurs = () => {
           Invalides : ${stats.invalidCount}`,
         );
       })
-      .catch((globalError) => setGlobalError(globalError));
+      .catch((globalError: Error) => {
+        setGlobalError(globalError.message.length > 400 ? globalError.message.slice(0, 400) + " ..." : globalError.message);
+        setFeedback("")
+      });
   };
 
   const writeErrorsInTable = (
@@ -279,13 +282,6 @@ const InsituIndicateurs = () => {
             Seulement les lignes vides
           </label>
         </div>
-        {globalError && (
-          <div className="alert-error">
-            <div>
-              <span>Erreur</span> : {globalError}
-            </div>
-          </div>
-        )}
         <div className="centered-column">
           <button
             className="primary"
@@ -297,6 +293,13 @@ const InsituIndicateurs = () => {
             Lancer la recherche
           </button>
         </div>
+        {globalError && (
+          <div className="alert-error">
+            <div>
+              <span>Erreur</span> : {globalError}
+            </div>
+          </div>
+        )}
         {feedback !== "" && <div className="summary">{feedback}</div>}
         {metadata && (
           <div className="metadata">

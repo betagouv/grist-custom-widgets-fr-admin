@@ -22,6 +22,12 @@ const callInsituIndicateurApi = async (
       ["x-client-name"]: "Widget Grist insituIndicateur",
     },
   );
+  // Check if data is null or invalid
+  if (!results.indicateurs || results.indicateurs.length === 0) {
+    throw new Error(
+      "La réponse de l'API ne contient pas de données d'indicateur, vérifiez que l'identifiant soit correcte",
+    );
+  }
 
   const data = results.indicateurs[0];
   return data;
@@ -56,20 +62,10 @@ export const getInsituIndicateursResultsForRecords = async (
       errorByRecord,
     };
   } else {
-    try {
-      const insituIndicateursResults = await callInsituIndicateurApi(
-        query,
-        identifiant,
-      );
-      return { data: insituIndicateursResults, errorByRecord };
-    } catch (e) {
-      let errorMessage = "La requête à Insitu a échoué";
-      if (e instanceof Error) {
-        errorMessage = e.message.slice(0, 200) + "...";
-      }
-      const error = new Error(errorMessage);
-      error.cause = e; // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause
-      throw error;
-    }
+    const insituIndicateursResults = await callInsituIndicateurApi(
+      query,
+      identifiant,
+    );
+    return { data: insituIndicateursResults, errorByRecord };
   }
 };
