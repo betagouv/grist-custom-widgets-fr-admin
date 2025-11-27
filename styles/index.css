@@ -301,4 +301,5 @@ tfoot {
   background-color: var(--error-bg);
   color: var(--error-text);
   padding: 10px;
+  margin-bottom: 10px;
 }

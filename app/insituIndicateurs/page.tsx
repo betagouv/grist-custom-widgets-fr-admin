@@ -8,14 +8,11 @@ import {
   DESCRIPTION_COLONNE_INDICATEUR,
   TITLE,
 } from "./constants";
-import {
-  getInsituIndicateursResultsForRecords,
-  listObjectToString,
-  mappingsIsReady,
-} from "./lib";
+import { getInsituIndicateursResultsForRecords } from "./lib";
 import {
   FetchIndicateurReturnType,
   InsituIndicSteps,
+  InsituResults,
   Metadata,
   NarrowedTypeIndicateur,
   Stats,
@@ -26,6 +23,7 @@ import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { Instructions } from "./Instructions";
 import { MyFooter } from "./Footer";
 import "./page.css";
+import { listObjectToString, mappingsIsReady } from "./utils";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
@@ -72,38 +70,33 @@ const InsituIndicateurs = () => {
       updatedCount: 0,
       invalidCount: 0,
     };
-    const callBackFunction = (
-      dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null,
-      error: string | null,
-      errorByRecord: { recordId: number; error: string }[] | null,
-    ) => {
-      if (dataFromApi) {
-        setMetadata(dataFromApi.metadata);
-        writeDataInTable(dataFromApi, stats);
-      }
-      if (errorByRecord) {
-        writeErrorsInTable(errorByRecord);
-      }
-      if (error) {
-        setGlobalError(error);
-      }
-      // Mettre à jour le feedback après le traitement des données
-      setFeedback(
-        `Total de lignes : ${records.length} | 
-        Lignes à mettre à jour : ${stats.toUpdateCount} | 
-        Lignes mises à jour : ${stats.updatedCount} | 
-        Invalides : ${stats.invalidCount}`,
-      );
-    };
     setGlobalError("");
     setFeedback("Traitement en cours...");
     getInsituIndicateursResultsForRecords(
       identifiantIndicateur,
       records,
-      callBackFunction,
       checkDestinationIsEmpty,
       stats,
-    );
+    )
+      .then(({ data, errorByRecord }: InsituResults) => {
+        if (data) {
+          setMetadata(data.metadata);
+          writeDataInTable(data, stats);
+        }
+        if (errorByRecord) {
+          writeErrorsInTable(errorByRecord);
+        }
+        setFeedback(
+          `Total de lignes : ${records.length} | 
+          Lignes à mettre à jour : ${stats.toUpdateCount} | 
+          Lignes mises à jour : ${stats.updatedCount} | 
+          Invalides : ${stats.invalidCount}`,
+        );
+      })
+      .catch((globalError: Error) => {
+        setGlobalError(globalError.message.length > 400 ? globalError.message.slice(0, 400) + " ..." : globalError.message);
+        setFeedback("")
+      });
   };
 
   const writeErrorsInTable = (
@@ -289,13 +282,6 @@ const InsituIndicateurs = () => {
             Seulement les lignes vides
           </label>
         </div>
-        {globalError && (
-          <div className="alert-error">
-            <div>
-              <span>Erreur</span> : {globalError}
-            </div>
-          </div>
-        )}
         <div className="centered-column">
           <button
             className="primary"
@@ -307,6 +293,13 @@ const InsituIndicateurs = () => {
             Lancer la recherche
           </button>
         </div>
+        {globalError && (
+          <div className="alert-error">
+            <div>
+              <span>Erreur</span> : {globalError}
+            </div>
+          </div>
+        )}
         {feedback !== "" && <div className="summary">{feedback}</div>}
         {metadata && (
           <div className="metadata">
