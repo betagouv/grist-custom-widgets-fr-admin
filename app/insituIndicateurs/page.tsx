@@ -26,6 +26,7 @@ import "./page.css";
 import { listObjectToString, mappingsIsReady } from "./utils";
 import { MultiColonneView } from "./MultiColonneView";
 import { MetadataComponent } from "./components/Metadata";
+import { extractIndicateurValue, extractRecordNumber } from "./lib/indicateurExtractor";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
@@ -128,45 +129,13 @@ const InsituIndicateurs = () => {
     stats: Stats,
   ) => {
     Object.entries(dataFromApi.mailles).forEach(([recordId, indicateur]) => {
-      let valeurIndicateur;
-      if (indicateur) {
-        switch (indicateur.__typename) {
-          case "IndicateurOneValue":
-            valeurIndicateur = indicateur.valeur;
-            break;
-          case "IndicateurRow":
-            valeurIndicateur = new String(Object.values(indicateur.row)[0]);
-            break;
-          case "IndicateurRows":
-            if (wantIndicateurDetail) {
-              valeurIndicateur = listObjectToString(indicateur.rows);
-            } else {
-              valeurIndicateur = indicateur.count;
-            }
-            break;
-          case "IndicateurListe":
-            if (wantIndicateurDetail) {
-              valeurIndicateur = indicateur.liste.join(", ");
-            } else {
-              valeurIndicateur = indicateur.count;
-            }
-            break;
-          case "IndicateurListeGeo":
-            if (wantIndicateurDetail) {
-              valeurIndicateur = indicateur.properties.join(", ");
-            } else {
-              valeurIndicateur = indicateur.count;
-            }
-            break;
-          default:
-            valeurIndicateur = "Erreur";
-        }
-      }
+      const valeurIndicateur = extractIndicateurValue(indicateur, wantIndicateurDetail);
+      
       const data = {
         [COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]: valeurIndicateur,
       };
       addObjectInRecord(
-        parseInt(recordId.split("recordId_")[1]),
+        extractRecordNumber(recordId),
         grist.mapColumnNamesBack(data),
       );
       stats.updatedCount++;
