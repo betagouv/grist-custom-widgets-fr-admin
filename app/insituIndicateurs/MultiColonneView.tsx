@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DESCRIPTION_COLONNE_INDICATEUR } from "./constants";
 import { getInsituIndicateursResultsForRecords } from "./lib";
-import { FetchIndicateurReturnType, InsituResults, NarrowedTypeIndicateur, Stats } from "./types";
+import { FetchIndicateurReturnType, IndicateursDetail, InsituResults, NarrowedTypeIndicateur, Stats } from "./types";
 import { RowRecord } from "grist/GristData";
 import { addObjectInRecord } from "../../lib/grist/plugin-api";
 import { listObjectToString } from "./utils";
@@ -30,6 +30,8 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
   const [error, setError] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [wantIndicateursDetail, setWantIndicateursDetail] =
+    useState<IndicateursDetail>({});
 
   const handleCopyClick = async () => {
     try {
@@ -128,29 +130,36 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
     dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur>[],
     stats: Stats,
   ) => {
-    const afficherDetailIndicateur = false;
-    
-    // Structure : { recordId: { identifiantIndicateur: valeur } }
+    // Structure : { recordId: { columnId: valeur } }
     const dataByRecord: Record<string, Record<string, number | string>> = {};
-    
+
     // Parcours de tous les indicateurs récupérés depuis l'API
     dataFromApi.forEach(resultatIndicateur => {
       const identifiantIndicateur = resultatIndicateur.metadata.identifiant;
-      
+
       if (!identifiantIndicateur) {
         console.warn("Indicateur sans identifiant ignoré", resultatIndicateur.metadata);
         return;
       }
-      
+
+      // Trouver la colonne correspondant à cet indicateur
+      const colonne = columnsToUpdate.find(col => col.insituIndicateurId === identifiantIndicateur);
+      if (!colonne) {
+        return;
+      }
+
+      // Déterminer si on veut le détail pour cette colonne
+      const afficherDetailIndicateur = wantIndicateursDetail[colonne.id] === true;
+
       // Parcours de toutes les mailles (records) pour cet indicateur
       Object.entries(resultatIndicateur.mailles).forEach(([recordId, indicateur]) => {
         if (!indicateur) {
           return;
         }
-        
+
         // Extraction de la valeur selon le type d'indicateur
         let valeurIndicateur: number | string;
-        
+
         switch (indicateur.__typename) {
           case "IndicateurOneValue":
             valeurIndicateur = indicateur.valeur;
@@ -159,51 +168,41 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
             valeurIndicateur = String(Object.values(indicateur.row)[0]);
             break;
           case "IndicateurRows":
-            valeurIndicateur = afficherDetailIndicateur 
+            valeurIndicateur = afficherDetailIndicateur
               ? listObjectToString(indicateur.rows)
               : indicateur.count;
             break;
           case "IndicateurListe":
-            valeurIndicateur = afficherDetailIndicateur 
+            valeurIndicateur = afficherDetailIndicateur
               ? indicateur.liste.join(", ")
               : indicateur.count;
             break;
           case "IndicateurListeGeo":
-            valeurIndicateur = afficherDetailIndicateur 
+            valeurIndicateur = afficherDetailIndicateur
               ? indicateur.properties.join(", ")
               : indicateur.count;
             break;
           default:
             valeurIndicateur = "Erreur";
         }
-        
+
         // Initialisation du record si nécessaire
         if (!dataByRecord[recordId]) {
           dataByRecord[recordId] = {};
         }
-        
-        // Stockage de la valeur pour cet indicateur et ce record
-        dataByRecord[recordId][identifiantIndicateur] = valeurIndicateur;
+
+        // Stockage de la valeur pour cette colonne et ce record
+        dataByRecord[recordId][colonne.id] = valeurIndicateur;
       });
     });
-    
+
     // Écriture des données dans Grist pour chaque record
-    Object.entries(dataByRecord).forEach(([recordId, valeursIndicateurs]) => {
-      // Construction de l'objet de données pour ce record
-      // Pour chaque colonne à mettre à jour, on récupère la valeur correspondante
-      const dataRecord = columnsToUpdate.reduce((acc: Record<string, number | string>, col) => {
-        const valeur = valeursIndicateurs[col.insituIndicateurId];
-        if (valeur !== undefined) {
-          acc[col.id] = valeur;
-        }
-        return acc;
-      }, {});
-      
+    Object.entries(dataByRecord).forEach(([recordId, dataRecord]) => {
       // Extraction du numéro de record depuis l'identifiant "recordId_XXX"
       const idRecordGrist = parseInt(recordId.split("recordId_")[1]);
-      
+
       // Mise à jour du record dans Grist
-      addObjectInRecord(idRecordGrist, dataRecord);
+      addObjectInRecord(idRecordGrist, dataRecord as any);
       stats.updatedCount++;
     });
   };
@@ -227,7 +226,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
 
         const data = await response.json();
 
-        // Filtrer les colonnes dont la description commence par "Indicateur provenant de Insitu :"
+        // Filtrer les colonnes dont la description commence par DESCRIPTION_COLONNE_INDICATEUR
         const filtered = data.columns.filter(
           (col: any) =>
             col.fields.description &&
@@ -239,6 +238,12 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
           insituIndicateurId: col.fields.description.split(DESCRIPTION_COLONNE_INDICATEUR)[1]
         }));
 
+        // Ajouter les colonnes filtrées dans wantIndicateursDetail
+        const initialWantDetail: IndicateursDetail = {};
+        filtered.forEach((col: any) => {
+          initialWantDetail[col.id] = false;
+        });
+        setWantIndicateursDetail(initialWantDetail);
         setFilteredColumns(filtered);
         setLoading(false);
       } catch (err) {
@@ -289,10 +294,6 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
             Aucune colonne trouvée avec la description "
             {DESCRIPTION_COLONNE_INDICATEUR}".
           </p>
-          <p>
-            Utilisez le mode simple pour créer des colonnes avec des
-            indicateurs Insitu.
-          </p>
         </div>
       ) : (
         <div>
@@ -307,11 +308,17 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                 onClick={handleUpdateSelectedColumns}
                 disabled={selectedColumns.size === 0 || isUpdating}
                 style={{ marginLeft: "1rem" }}
-              >
+                >
                 {isUpdating ? "Mise à jour en cours..." : "Mettre à jour les colonnes sélectionnées"}
               </button>
             </div>
           </div>
+          <p>
+            Sélectionnez les colonnes que vous souhaitez mettre à jour et indiquez si vous souhaitez récupérer
+            le décompte de l'indicateur (Ex: Nombre de villes concernées par le programme)
+            ou
+            le détail de l'indicateur (Ex : Liste des villes concernées par le programme)
+          </p>
           <table
             style={{
               width: "100%",
@@ -329,6 +336,9 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                     onChange={handleSelectAll}
                     title="Tout sélectionner / Tout désélectionner"
                   />
+                </th>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>
+                  Mode
                 </th>
                 <th style={{ textAlign: "left", padding: "0.5rem" }}>
                   Nom de la colonne
@@ -352,19 +362,50 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                     />
                   </td>
                   <td style={{ padding: "0.5rem" }}>
+                    <div className="radio-button">
+                      <label>
+                        <input
+                          type="radio"
+                          name={`wantIndicateurDetail_${col.id}`}
+                          value="false"
+                          checked={wantIndicateursDetail[col.id] === false}
+                          onChange={() => setWantIndicateursDetail((prev) => ({ ...prev, [col.id]: false }))}
+                        />
+                        décompte
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name={`wantIndicateurDetail_${col.id}`}
+                          value="true"
+                          checked={wantIndicateursDetail[col.id] === true}
+                          onChange={() => setWantIndicateursDetail((prev) => ({ ...prev, [col.id]: true }))}
+                        />
+                        détail
+                      </label>
+                    </div>
+                  </td>
+                  <td style={{ padding: "0.5rem" }}>
                     <strong>{col.label}</strong>
                   </td>
                   <td style={{ padding: "0.5rem", fontSize: "0.9em" }}>
                     {col.description}
                   </td>
                   <td style={{ padding: "0.5rem", fontSize: "0.9em" }}>
-                    {col.insituIndicateurId}
+                    <a
+                      href={`https://catalogue-indicateurs.donnees.incubateur.anct.gouv.fr/indicateur/${col.insituIndicateurId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Ouvre Nouvel onglet - catalogue d'indicateur"
+                    >
+                      {col.insituIndicateurId}
+                    </a>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </div >
       )}
     </>
   );
