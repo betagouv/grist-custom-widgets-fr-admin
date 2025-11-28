@@ -103,7 +103,10 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
             Invalides : ${stats.invalidCount}`,
             );
           })
-        .catch((globalError) => setGlobalError(globalError));
+        .catch((globalError: Error) => {
+          setGlobalError(globalError.message.length > 400 ? globalError.message.slice(0, 400) + " ..." : globalError.message);
+          setFeedback("")
+        });
     } catch (err) {
       console.error("Erreur lors de la mise à jour:", err);
       setError("Erreur lors de la préparation de la mise à jour");

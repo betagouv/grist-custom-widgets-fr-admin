@@ -182,6 +182,13 @@ const InsituIndicateurs = () => {
     }
   };
 
+  const handleSwitchModeButton = () => {
+    setViewMode(viewMode === "simple" ? "multi" : "simple");
+    setFeedback("");
+    setGlobalError("");
+    setMetadata(undefined);
+  }
+
   return currentStep === "loading" ? (
     <div>
       <Title title={TITLE} />
@@ -198,7 +205,7 @@ const InsituIndicateurs = () => {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row-reverse" }}>
           <button 
             className="secondary"
-            onClick={() => setViewMode(viewMode === "simple" ? "multi" : "simple")}
+            onClick={handleSwitchModeButton}
           >
             {viewMode === "simple" ? "Mode multi-colonne" : "Retour au mode simple"}
           </button>
@@ -325,6 +332,13 @@ const InsituIndicateurs = () => {
         </div>
           
           </>
+        )}
+        {globalError && (
+          <div className="alert-error">
+            <div>
+              <span>Erreur</span> : {globalError}
+            </div>
+          </div>
         )}
         {feedback !== "" && <div className="summary">{feedback}</div>}
         {metadata && <MetadataComponent metadata={metadata}/>}
