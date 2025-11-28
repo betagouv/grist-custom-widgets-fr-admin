@@ -27,8 +27,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
   const [filteredColumns, setFilteredColumns] = useState<ColumnInfo[]>([]);
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>("");
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [getColumnsError, setGetColumnsError] = useState<string>("");
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [wantIndicateursDetail, setWantIndicateursDetail] =
     useState<IndicateursDetail>({});
@@ -64,55 +63,43 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
   };
 
   const handleUpdateSelectedColumns = async () => {
-    setIsUpdating(true);
-    setError("");
+    // Récupération des informations des colonnes sélectionnées
+    const columnsToUpdate = filteredColumns.filter((col) =>
+      selectedColumns.has(col.id)
+    );
+    const indicateursIdentifiants = columnsToUpdate.map((col) => col.insituIndicateurId);
 
-    try {
-      // Récupération des informations des colonnes sélectionnées
-      const columnsToUpdate = filteredColumns.filter((col) =>
-        selectedColumns.has(col.id)
-      );
-      const indicateursIdentifiants = columnsToUpdate.map((col) => col.insituIndicateurId);
-
-      console.log("listes des indicateurs : ", indicateursIdentifiants);
-
-      const stats: Stats = {
-        toUpdateCount: 0,
-        updatedCount: 0,
-        invalidCount: 0,
-      };
-      setFeedback("Traitement en cours...");
-      getInsituIndicateursResultsForRecords(
-        indicateursIdentifiants,
-        records,
-        false,
-        stats,
-      )
-        .then(
-          ({ data, errorByRecord }: InsituResults) => {
-            if (data) {
-              writeDataInTable(columnsToUpdate, data, stats);
-            }
-            if (errorByRecord) {
-              writeErrorsInTable(columnsToUpdate, errorByRecord);
-            }
-            setFeedback(
-              `Total de lignes : ${records.length} | 
-            Lignes à mettre à jour : ${stats.toUpdateCount} | 
-            Lignes mises à jour : ${stats.updatedCount} | 
-            Invalides : ${stats.invalidCount}`,
-            );
-          })
-        .catch((globalError: Error) => {
-          setGlobalError(globalError.message.length > 400 ? globalError.message.slice(0, 400) + " ..." : globalError.message);
-          setFeedback("")
-        });
-    } catch (err) {
-      console.error("Erreur lors de la mise à jour:", err);
-      setError("Erreur lors de la préparation de la mise à jour");
-    } finally {
-      setIsUpdating(false);
-    }
+    const stats: Stats = {
+      toUpdateCount: 0,
+      updatedCount: 0,
+      invalidCount: 0,
+    };
+    setFeedback("Traitement en cours...");
+    getInsituIndicateursResultsForRecords(
+      indicateursIdentifiants,
+      records,
+      false,
+      stats,
+    )
+      .then(
+        ({ data, errorByRecord }: InsituResults) => {
+          if (data) {
+            writeDataInTable(columnsToUpdate, data, stats);
+          }
+          if (errorByRecord) {
+            writeErrorsInTable(columnsToUpdate, errorByRecord);
+          }
+          setFeedback(
+            `Total de lignes : ${records.length} | 
+          Lignes à mettre à jour : ${stats.toUpdateCount} | 
+          Lignes mises à jour : ${stats.updatedCount} | 
+          Invalides : ${stats.invalidCount}`,
+          );
+        })
+      .catch((globalError: Error) => {
+        setGlobalError(globalError.message.length > 400 ? globalError.message.slice(0, 400) + " ..." : globalError.message);
+        setFeedback("")
+      });
   };
 
   const writeErrorsInTable = (
@@ -213,7 +200,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
   useEffect(() => {
     const fetchColumns = async () => {
       if (!tokenInfo || !tableId) {
-        setError("Informations de table manquantes");
+        setGetColumnsError("Informations de table manquantes");
         setLoading(false);
         return;
       }
@@ -251,7 +238,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
         setLoading(false);
       } catch (err) {
         console.error("Erreur lors de la récupération des colonnes:", err);
-        setError("Impossible de récupérer les colonnes de la table");
+        setGetColumnsError("Impossible de récupérer les colonnes de la table, essayez de recharger la page");
         setLoading(false);
       }
     };
@@ -268,11 +255,11 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
     );
   }
 
-  if (error) {
+  if (getColumnsError) {
     return (
       <div className="alert-error">
         <div>
-          <span>Erreur</span> : {error}
+          <span>Erreur</span> : {getColumnsError}
         </div>
       </div>
     );
@@ -309,10 +296,10 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
               <button
                 className="primary"
                 onClick={handleUpdateSelectedColumns}
-                disabled={selectedColumns.size === 0 || isUpdating}
+                disabled={selectedColumns.size === 0}
                 style={{ marginLeft: "1rem" }}
-                >
-                {isUpdating ? "Mise à jour en cours..." : "Mettre à jour les colonnes sélectionnées"}
+              >
+                Mettre à jour les colonnes sélectionnées
               </button>
             </div>
           </div>
@@ -366,7 +353,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                   </td>
                   <td style={{ padding: "0.5rem" }}>
                     <div className="radio-button">
-                      <label>
+                      <label style={{ whiteSpace: "nowrap" }}>
                         <input
                           type="radio"
                           name={`wantIndicateurDetail_${col.id}`}
@@ -376,7 +363,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                         />
                         décompte
                       </label>
-                      <label>
+                      <label style={{ whiteSpace: "nowrap" }}>
                         <input
                           type="radio"
                           name={`wantIndicateurDetail_${col.id}`}
