@@ -20,7 +20,6 @@ interface MultiColonneViewProps {
   setFeedback: React.Dispatch<React.SetStateAction<string>>;
   setGlobalError: React.Dispatch<React.SetStateAction<string>>;
 };
-// TODO : affichage commun du global erreur et feedback (ou non)
 // TODO : afficher les metadonnées dans le tableau dans une 4ème colonne
 
 export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, setGlobalError }: MultiColonneViewProps) => {
@@ -286,18 +285,17 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
           </p>
         </div>
       ) : (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+        <div className="multi-colonne">
+          <div className="header">
             <h3>Colonnes trouvées ({filteredColumns.length}) :</h3>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-              <span style={{ fontSize: "0.9em", color: "#666" }}>
+            <div className="actions">
+              <span className="counter">
                 {selectedColumns.size} colonne(s) sélectionnée(s)
               </span>
               <button
-                className="primary"
+                className="primary update-button"
                 onClick={handleUpdateSelectedColumns}
                 disabled={selectedColumns.size === 0}
-                style={{ marginLeft: "1rem" }}
               >
                 Mettre à jour les colonnes sélectionnées
               </button>
@@ -309,17 +307,10 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
             ou
             le détail de l'indicateur (Ex : Liste des villes concernées par le programme)
           </p>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginTop: "1rem",
-              marginBottom: "1rem",
-            }}
-          >
+          <table>
             <thead>
-              <tr style={{ borderBottom: "2px solid #ddd" }}>
-                <th style={{ textAlign: "center", padding: "0.5rem", width: "50px" }}>
+              <tr>
+                <th className="checkbox-column">
                   <input
                     type="checkbox"
                     checked={selectedColumns.size === filteredColumns.length && filteredColumns.length > 0}
@@ -327,33 +318,25 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                     title="Tout sélectionner / Tout désélectionner"
                   />
                 </th>
-                <th style={{ textAlign: "left", padding: "0.5rem" }}>
-                  Mode
-                </th>
-                <th style={{ textAlign: "left", padding: "0.5rem" }}>
-                  Nom de la colonne
-                </th>
-                <th style={{ textAlign: "left", padding: "0.5rem" }}>
-                  Description
-                </th>
-                <th style={{ textAlign: "left", padding: "0.5rem" }}>
-                  Identifiant Insitu
-                </th>
+                <th>Mode</th>
+                <th>Nom de la colonne</th>
+                <th>Description</th>
+                <th>Identifiant Insitu</th>
               </tr>
             </thead>
             <tbody>
               {filteredColumns.map((col) => (
-                <tr key={col.id} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ textAlign: "center", padding: "0.5rem" }}>
+                <tr key={col.id}>
+                  <td className="checkbox-column">
                     <input
                       type="checkbox"
                       checked={selectedColumns.has(col.id)}
                       onChange={() => handleColumnSelect(col.id)}
                     />
                   </td>
-                  <td style={{ padding: "0.5rem" }}>
+                  <td>
                     <div className="radio-button">
-                      <label style={{ whiteSpace: "nowrap" }}>
+                      <label>
                         <input
                           type="radio"
                           name={`wantIndicateurDetail_${col.id}`}
@@ -363,7 +346,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                         />
                         décompte
                       </label>
-                      <label style={{ whiteSpace: "nowrap" }}>
+                      <label>
                         <input
                           type="radio"
                           name={`wantIndicateurDetail_${col.id}`}
@@ -375,13 +358,9 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
                       </label>
                     </div>
                   </td>
-                  <td style={{ padding: "0.5rem" }}>
-                    <strong>{col.label}</strong>
-                  </td>
-                  <td style={{ padding: "0.5rem", fontSize: "0.9em" }}>
-                    {col.description}
-                  </td>
-                  <td style={{ padding: "0.5rem", fontSize: "0.9em" }}>
+                  <td><strong>{col.label}</strong></td>
+                  <td className="small-text">{col.description}</td>
+                  <td className="small-text">
                     <a
                       href={`https://catalogue-indicateurs.donnees.incubateur.anct.gouv.fr/indicateur/${col.insituIndicateurId}`}
                       target="_blank"
