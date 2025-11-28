@@ -103,3 +103,7 @@ export type Stats = {
   updatedCount: number;
   invalidCount: number;
 };
+
+export type IndicateursDetail = {
+  [indicateurName: string]: boolean;
+}
