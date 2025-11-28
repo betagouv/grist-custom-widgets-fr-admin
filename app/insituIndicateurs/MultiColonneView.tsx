@@ -4,7 +4,7 @@ import { getInsituIndicateursResultsForRecords } from "./lib";
 import { FetchIndicateurReturnType, IndicateursDetail, InsituResults, NarrowedTypeIndicateur, Stats } from "./types";
 import { RowRecord } from "grist/GristData";
 import { addObjectInRecord } from "../../lib/grist/plugin-api";
-import { listObjectToString } from "./utils";
+import { extractIndicateurValue, extractRecordNumber } from "./lib/indicateurExtractor";
 
 interface ColumnInfo {
   id: string;
@@ -20,7 +20,7 @@ interface MultiColonneViewProps {
   setFeedback: React.Dispatch<React.SetStateAction<string>>;
   setGlobalError: React.Dispatch<React.SetStateAction<string>>;
 };
-// TODO : afficher les metadonnées dans le tableau dans une 4ème colonne
+// TODO : idée d'afficher les metadonnées dans le tableau dans une 5ème colonne
 
 export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, setGlobalError }: MultiColonneViewProps) => {
   const [filteredColumns, setFilteredColumns] = useState<ColumnInfo[]>([]);
@@ -122,7 +122,6 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
     // Structure : { recordId: { columnId: valeur } }
     const dataByRecord: Record<string, Record<string, number | string>> = {};
 
-    // Parcours de tous les indicateurs récupérés depuis l'API
     dataFromApi.forEach(resultatIndicateur => {
       const identifiantIndicateur = resultatIndicateur.metadata.identifiant;
 
@@ -137,61 +136,21 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
         return;
       }
 
-      // Déterminer si on veut le détail pour cette colonne
       const afficherDetailIndicateur = wantIndicateursDetail[colonne.id] === true;
 
       // Parcours de toutes les mailles (records) pour cet indicateur
       Object.entries(resultatIndicateur.mailles).forEach(([recordId, indicateur]) => {
-        if (!indicateur) {
-          return;
-        }
-
-        // Extraction de la valeur selon le type d'indicateur
-        let valeurIndicateur: number | string;
-
-        switch (indicateur.__typename) {
-          case "IndicateurOneValue":
-            valeurIndicateur = indicateur.valeur;
-            break;
-          case "IndicateurRow":
-            valeurIndicateur = String(Object.values(indicateur.row)[0]);
-            break;
-          case "IndicateurRows":
-            valeurIndicateur = afficherDetailIndicateur
-              ? listObjectToString(indicateur.rows)
-              : indicateur.count;
-            break;
-          case "IndicateurListe":
-            valeurIndicateur = afficherDetailIndicateur
-              ? indicateur.liste.join(", ")
-              : indicateur.count;
-            break;
-          case "IndicateurListeGeo":
-            valeurIndicateur = afficherDetailIndicateur
-              ? indicateur.properties.join(", ")
-              : indicateur.count;
-            break;
-          default:
-            valeurIndicateur = "Erreur";
-        }
-
-        // Initialisation du record si nécessaire
+        const valeurIndicateur = extractIndicateurValue(indicateur, afficherDetailIndicateur);
         if (!dataByRecord[recordId]) {
           dataByRecord[recordId] = {};
         }
-
-        // Stockage de la valeur pour cette colonne et ce record
         dataByRecord[recordId][colonne.id] = valeurIndicateur;
       });
     });
 
     // Écriture des données dans Grist pour chaque record
     Object.entries(dataByRecord).forEach(([recordId, dataRecord]) => {
-      // Extraction du numéro de record depuis l'identifiant "recordId_XXX"
-      const idRecordGrist = parseInt(recordId.split("recordId_")[1]);
-
-      // Mise à jour du record dans Grist
-      addObjectInRecord(idRecordGrist, dataRecord as any);
+      addObjectInRecord(extractRecordNumber(recordId), dataRecord as any);
       stats.updatedCount++;
     });
   };
