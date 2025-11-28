@@ -51,7 +51,6 @@ export const getInsituIndicateursResultsForRecords = async (
   checkDestinationIsEmpty: boolean,
   stats: Stats,
 ): Promise<InsituResults> => {
-  console.log("On rentre dans la première fonction : getInsituIndicateursResultsForRecords")
   identifiants.forEach(identifiant => assertIdentifiantCorrect(identifiant))
   const { query, errors: errorByRecord } = generateQuery(
     records,
