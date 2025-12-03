@@ -1,42 +1,81 @@
 import { RowRecord } from "grist/GristData";
 import {
   COLUMN_MAPPING_NAMES,
-  NATURE_JURIDIQUE,
+  DECOUPAGE_ADMIN,
   NO_DATA_MESSAGES,
 } from "./constants";
 import {
   EntiteAdmin,
+  MAILLE_ACCEPTED_VALUES,
+  MailleLabel,
   NormalizedInseeResult,
-  NormalizedInseeResults,
 } from "./types";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
 import { MappedRecord } from "../../lib/util/types";
 import { UncleanedRecord } from "../../lib/cleanData/types";
+import { removeAccents } from "../../lib/util/utils";
+
+// Mapping pour déterminer l'endpoint de l'API geo.api.gouv.fr selon la maille
+const getApiEndpoint = (maille: string): string => {
+  if (!maille) {
+    throw new Error(NO_DATA_MESSAGES.NO_SOURCE_DATA);
+  } 
+  const normalizedMaille = normalizeMaille(maille);
+  if (!normalizedMaille) {
+    throw new Error("maille invalide");
+  }
+  return DECOUPAGE_ADMIN[normalizedMaille].apiGeoUrl || "";
+};
+
+// Fonction pour normaliser les résultats de l'API geo.api.gouv.fr vers le format NormalizedInseeResult
+const normalizeGeoApiResults = (
+  results: any[],
+  maille: string,
+): NormalizedInseeResult[] => {
+  return results.map((result) => {
+    return {
+      lib_groupement: result.nom || "",
+      maille: maille,
+      code: result.code || "",
+      insee_dep: result.codeDepartement || result.departement?.code || "",
+      score: result._score,
+    };
+  });
+};
 
 export const callInseeCodeApi = async (
   collectivity: string,
+  maille: string,
   dept?: string,
-  natureJuridique?: string,
 ): Promise<NormalizedInseeResult[]> => {
-  // The only use of this endpoint is here ! If we change the API used, we could delete the addok service.
-  const url = new URL("https://addok.donnees.incubateur.anct.gouv.fr/search");
-  url.searchParams.set("q", collectivity);
-  if (dept) {
-    url.searchParams.set("insee_dep", dept);
+  console.log("---- appel de l'api")
+  const endpoint = getApiEndpoint(maille);
+
+  const url = new URL(`https://geo.api.gouv.fr/${endpoint}`);
+  url.searchParams.set("nom", collectivity);
+
+  // Ajouter le champ departement pour les communes et epcis
+  if (endpoint === "communes" || endpoint === "epcis") {
+    url.searchParams.set("fields", "departement");
   }
-  if (natureJuridique) {
-    url.searchParams.set("nature_juridique", natureJuridique);
+
+  // Filtrer par département si fourni
+  if (dept && (endpoint === "communes" || endpoint === "epcis")) {
+    url.searchParams.set("codeDepartement", dept);
   }
 
   const response = await fetch(url.toString());
   if (!response.ok) {
-    console.error(
-      "The call to the addok.donnees.incubateur.anct.gouv.fr api is not 200 status",
-      response,
-    );
+    throw new Error(
+      "L'appel à l'API geo.api.gouv.fr n'a pas fonctionné"
+    )
   }
-  const data: NormalizedInseeResults = await response.json();
-  return data.results;
+  const data = await response.json();
+  console.log("-----------")
+  console.log(data)
+
+  // L'API geo.api.gouv.fr renvoie directement un tableau de résultats
+  return normalizeGeoApiResults(data, maille);
 };
 
 export const getInseeCodeResults = async (
@@ -49,7 +88,11 @@ export const getInseeCodeResults = async (
   let collectivite = "";
   let inseeCodeResults: NormalizedInseeResult[] = [];
   let toIgnore = false;
-  if (mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name]) {
+
+  const collectiviteValue = mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
+  const mailleValue = mappedRecord[COLUMN_MAPPING_NAMES.MAILLE.name];
+
+  if (collectiviteValue) {
     // Call the api if we don't have to check the destination column or if there are empty
     if (
       !checkDestinationIsEmpty ||
@@ -57,20 +100,28 @@ export const getInseeCodeResults = async (
       (mappings[COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name] &&
         !mappedRecord[COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name])
     ) {
-      collectivite = mappedRecord[COLUMN_MAPPING_NAMES.COLLECTIVITE.name];
+      collectivite = collectiviteValue;
       const departement = mappedRecord[COLUMN_MAPPING_NAMES.DEPARTEMENT.name];
-      const natureJuridique =
-        mappedRecord[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name];
-      // natureJuridique is taken into account only if it's a valid value, otherwise we use the general one if it's defined
-      inseeCodeResults = await callInseeCodeApi(
-        collectivite,
-        departement,
-        NATURE_JURIDIQUE[natureJuridique]
-          ? natureJuridique
-          : generalNatureJuridique
-            ? generalNatureJuridique.key
-            : undefined,
-      );
+
+      // Déterminer la nature juridique à utiliser
+      const normalizedMailleValue = normalizeMaille(mailleValue);
+      const maille = normalizedMailleValue
+        ? normalizedMailleValue
+        : generalNatureJuridique
+          ? generalNatureJuridique.key
+          : "";
+
+      try {
+        inseeCodeResults = await callInseeCodeApi(
+          collectivite,
+          maille,
+          departement,
+        );
+      } catch (error) {
+        console.error(error.message);
+        noResultMessage = error.message;
+      }
+
       if (inseeCodeResults === undefined) {
         console.error(
           "The call to the api give a response with undefined result",
@@ -110,16 +161,10 @@ export const getInseeCodeResultsForRecord = async (
 export const getInseeCodeResultsForRecords = async (
   records: RowRecord[],
   mappings: WidgetColumnMap,
-  callBackFunction: (
-    data: UncleanedRecord<NormalizedInseeResult>[],
-    i: number,
-    length: number,
-  ) => void,
   generalNatureJuridique: EntiteAdmin | null,
-) => {
+): Promise<UncleanedRecord<NormalizedInseeResult>[]> => {
   const inseeCodeDataFromApi: UncleanedRecord<NormalizedInseeResult>[] = [];
-  for (const i in records) {
-    const record = records[i];
+  for (const record of records) {
     // We call the API only if the source column is filled and if the destination column are not
     inseeCodeDataFromApi.push(
       await getInseeCodeResults(
@@ -129,12 +174,8 @@ export const getInseeCodeResultsForRecords = async (
         generalNatureJuridique,
       ),
     );
-    if (parseInt(i) % 10 === 0 || parseInt(i) === records.length - 1) {
-      callBackFunction(inseeCodeDataFromApi, parseInt(i), records.length);
-      // clear data
-      inseeCodeDataFromApi.length = 0;
-    }
   }
+  return inseeCodeDataFromApi;
 };
 
 export const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
@@ -156,4 +197,20 @@ export const mappingsIsReady = (mappings: WidgetColumnMap | null) => {
     mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name] &&
     mappings[COLUMN_MAPPING_NAMES.CODE_INSEE.name]
   );
+};
+
+const normalizeMaille = (inputMaille: string): MailleLabel | null => {
+  if (!inputMaille) {
+    return null;
+  }
+  const normalizedInput = removeAccents(inputMaille.toLowerCase().trim());
+  // Check each maille type and its accepted values
+  for (const [mailleLabel, acceptedValues] of Object.entries(
+    MAILLE_ACCEPTED_VALUES,
+  )) {
+    if (acceptedValues.includes(normalizedInput)) {
+      return mailleLabel as MailleLabel;
+    }
+  }
+  return null;
 };

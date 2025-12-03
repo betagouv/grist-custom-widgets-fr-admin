@@ -1,7 +1,7 @@
 "use client";
 
 import { Accordion } from "../../components/Accordion";
-import { NATURE_JURIDIQUE } from "./constants";
+import { DECOUPAGE_ADMIN } from "./constants";
 
 export const Instructions = () => {
   const instructions = (
@@ -64,7 +64,7 @@ export const Instructions = () => {
           </tr>
         </thead>
         <tbody>
-          {Object.values(NATURE_JURIDIQUE).map((nature) => {
+          {Object.values(DECOUPAGE_ADMIN).map((nature) => {
             return (
               <tr key={nature.key}>
                 <th>{nature.key}</th>
