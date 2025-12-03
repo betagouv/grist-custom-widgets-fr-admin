@@ -45,7 +45,7 @@ export const NO_DATA_MESSAGES: NoDataMessage = {
   NO_RESULT:
     "Aucun résultat ne correspond à la collectivité sélectionnée. Veuillez vérifier si cette collectivité existe bien ou qu'il n'y ai pas d'erreur.",
   NO_SOURCE_DATA:
-    "Afin de traiter la ligne sélectionnée, veuillez renseigner la collectivité recherchée ainsi que sa nature juridique.",
+    "Afin de traiter la ligne sélectionnée, veuillez renseigner la collectivité recherchée ainsi que sa maille.",
   API_ERROR:
     "Une erreur est survenue lors de l'appel à l'api, veuillez appeler le service technique.",
 };

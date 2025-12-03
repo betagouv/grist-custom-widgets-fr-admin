@@ -117,8 +117,8 @@ export const getInseeCodeResults = async (
           maille,
           departement,
         );
-      } catch (error) {
-        console.error(error.message);
+      } catch (error: Error) {
+        console.error(error);
         noResultMessage = error.message;
       }
 
@@ -158,14 +158,35 @@ export const getInseeCodeResultsForRecord = async (
   );
 };
 
+/**
+ * Traite une liste de records pour récupérer leurs codes INSEE via l'API geo.api.gouv.fr
+ * 
+ * Cette fonction utilise une callback function pour traiter les résultats par batch (tous les 10 enregistrements)
+ * plutôt que d'attendre la fin de l'ensemble du traitement. Cette approche présente plusieurs avantages :
+ * - Affichage progressif des résultats dans l'interface utilisateur
+ * - Mise à jour incrémentale du Grist, permettant de sauvegarder les résultats au fur et à mesure
+ * - En cas d'erreur durant le traitement, les résultats déjà obtenus ne sont pas perdus
+ * - Meilleure expérience utilisateur avec un feedback visuel de la progression
+ * 
+ * @param records - Liste des enregistrements Grist à traiter
+ * @param mappings - Mapping des colonnes Grist
+ * @param callBackFunction - Fonction appelée tous les 10 enregistrements avec les résultats du batch
+ * @param generalNatureJuridique - Nature juridique commune à tous les enregistrements (optionnel)
+ */
 export const getInseeCodeResultsForRecords = async (
   records: RowRecord[],
   mappings: WidgetColumnMap,
+  callBackFunction: (
+    data: UncleanedRecord<NormalizedInseeResult>[],
+    i: number,
+    length: number,
+  ) => void,
   generalNatureJuridique: EntiteAdmin | null,
-): Promise<UncleanedRecord<NormalizedInseeResult>[]> => {
+) => {
   const inseeCodeDataFromApi: UncleanedRecord<NormalizedInseeResult>[] = [];
-  for (const record of records) {
-    // We call the API only if the source column is filled and if the destination column are not
+  for (const i in records) {
+    const record = records[i];
+    // On appelle l'API uniquement si la colonne source est remplie et si les colonnes de destination sont vides
     inseeCodeDataFromApi.push(
       await getInseeCodeResults(
         grist.mapColumnNames(record),
@@ -174,8 +195,14 @@ export const getInseeCodeResultsForRecords = async (
         generalNatureJuridique,
       ),
     );
+    // Traitement par batch : on appelle la callback tous les 10 enregistrements ou au dernier enregistrement
+    // Cela permet d'afficher les résultats progressivement et de sauvegarder au fur et à mesure dans Grist
+    if (parseInt(i) % 10 === 0 || parseInt(i) === records.length - 1) {
+      callBackFunction(inseeCodeDataFromApi, parseInt(i), records.length);
+      // On vide le tableau pour le prochain batch
+      inseeCodeDataFromApi.length = 0;
+    }
   }
-  return inseeCodeDataFromApi;
 };
 
 export const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {

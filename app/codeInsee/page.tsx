@@ -91,13 +91,12 @@ const InseeCode = () => {
   const globalResearch = async () => {
     setCurrentStep("global_processing");
     setGlobalInProgress(true);
-    
-    await getInseeCodeResultsForRecords(
-      records,
-      mappings!,
-      generalNatureJuridique,
-    ).then((dataFromApi) => {
-      setAtOnProgress([dataFromApi.length - 1, records.length]);
+    const callBackFunction = (
+      dataFromApi: UncleanedRecord<NormalizedInseeResult>[],
+      at: number,
+      on: number,
+    ) => {
+      setAtOnProgress([at, on]);
       const { clean, dirty, noResult } = cleanAndSortRecords(
         dataFromApi,
         isDoubtfulResults,
@@ -106,8 +105,13 @@ const InseeCode = () => {
       writeCleanDataInTable(clean);
       setDirtyData((prevState) => ({ ...prevState, ...dirty }));
       setNoResultData((prevState) => ({ ...prevState, ...noResult }));
-    });
-    
+    };
+    await getInseeCodeResultsForRecords(
+      records,
+      mappings!,
+      callBackFunction,
+      generalNatureJuridique,
+    );
     setGlobalInProgress(false);
   };
 
