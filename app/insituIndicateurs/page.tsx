@@ -107,7 +107,14 @@ const InsituIndicateurs = () => {
           Invalides : ${stats.invalidCount}`,
         );
       })
-      .catch((globalError) => setGlobalError(globalError));
+      .catch((globalError: Error) => {
+        setGlobalError(
+          globalError.message.length > 400
+            ? globalError.message.slice(0, 400) + " ..."
+            : globalError.message,
+        );
+        setFeedback("");
+      });
   };
 
   const writeErrorsInTable = (
