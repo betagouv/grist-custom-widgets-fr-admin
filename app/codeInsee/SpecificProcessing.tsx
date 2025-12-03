@@ -67,7 +67,7 @@ export const SpecificProcessing: FC<{
         return (
           <div>
             <b>
-              {item.nature_juridique} {item.lib_groupement}
+              {item.maille} {item.lib_groupement}
             </b>
             {item.insee_dep && ` - ${DEPT[item.insee_dep]}`}
           </div>

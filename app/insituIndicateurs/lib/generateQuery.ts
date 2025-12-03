@@ -8,6 +8,7 @@ import {
   Stats,
 } from "../types";
 import { gql } from "graphql-request";
+import { removeAccents } from "../../../lib/util/utils";
 
 export const generateQuery = (
   records: RowRecord[],
@@ -126,10 +127,6 @@ const generateQueryFragmentByTerritoire = (
           properties
         }
       }`;
-};
-
-const removeAccents = (str: string): string => {
-  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
 const normalizeMaille = (inputMaille: string): MailleLabel | null => {
