@@ -206,14 +206,13 @@ export const getInseeCodeResultsForRecords = async (
 };
 
 export const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
-  return dataFromApi[0]?.score < 0.6;
+  // Le score donné par l'api geo ne semble pas fiable. Exemple la commune Nantes-en-Ratier obtient un score de 0.29 pour elle même
+  return dataFromApi[0]?.score < 0.1;
 };
 
 export const areTooCloseResults = (dataFromApi: NormalizedInseeResult[]) => {
   if (dataFromApi.length > 1) {
-    const [firstChoice, secondChoice] = dataFromApi;
-    const deviation = firstChoice.score === 1.0 ? 0.02 : 0.09;
-    return firstChoice.score - secondChoice.score < deviation;
+    return true;
   }
   return false;
 };
