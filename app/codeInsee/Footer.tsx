@@ -5,11 +5,11 @@ import { Footer } from "../../components/Footer";
 export const MyFooter = () => {
   const source = (
     <a
-      title="Api Addok admin - ouvre une nouvelle fenêtre"
-      href="https://recherche-entreprises.api.gouv.fr"
+      title="API Découpage administratif - ouvre une nouvelle fenêtre"
+      href="https://geo.api.gouv.fr/decoupage-administratif"
       target="_blank"
     >
-      api addok admin
+      API Découpage administratif
     </a>
   );
   return <Footer dataSource={source} />;

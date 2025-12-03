@@ -108,8 +108,12 @@ const InsituIndicateurs = () => {
         );
       })
       .catch((globalError: Error) => {
-        setGlobalError(globalError.message.length > 400 ? globalError.message.slice(0, 400) + " ..." : globalError.message);
-        setFeedback("")
+        setGlobalError(
+          globalError.message.length > 400
+            ? globalError.message.slice(0, 400) + " ..."
+            : globalError.message,
+        );
+        setFeedback("");
       });
   };
 
