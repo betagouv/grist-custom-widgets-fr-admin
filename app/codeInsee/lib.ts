@@ -117,18 +117,18 @@ export const getInseeCodeResults = async (
           maille,
           departement,
         );
+        
+        if (inseeCodeResults === undefined) {
+          console.error(
+            "The call to the api give a response with undefined result",
+          );
+          noResultMessage = NO_DATA_MESSAGES.API_ERROR;
+        } else if (inseeCodeResults.length === 0) {
+          noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
+        }
       } catch (error: Error) {
         console.error(error);
         noResultMessage = error.message;
-      }
-
-      if (inseeCodeResults === undefined) {
-        console.error(
-          "The call to the api give a response with undefined result",
-        );
-        noResultMessage = NO_DATA_MESSAGES.API_ERROR;
-      } else if (inseeCodeResults.length === 0) {
-        noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
       }
     } else {
       toIgnore = true;
