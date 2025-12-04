@@ -17,7 +17,7 @@ export const COLUMN_MAPPING_NAMES = {
     description:
       "Indiquez la colonne comportant la maille du territoire (exemple de valeurs acceptées: commune, epci, departement, region, pays)",
     type: "Any",
-    optional: false,
+    optional: true,
   },
   DEPARTEMENT: {
     name: "departement",
@@ -55,26 +55,26 @@ export const DECOUPAGE_ADMIN: {
   [key: string]: EntiteAdmin;
 } = {
   commune: {
-    label: "communes",
+    label: "Communes",
     apiGeoUrl: "communes",
     key: "COM",
     typeCode: "INSEE",
   },
   COM_ASSOCIES_ET_DELEGUEES: {
-    label: "communes associées et déléguées",
+    label: "Communes associées et déléguées",
     apiGeoUrl: "communes_associees_deleguees",
     key: "COM_ASSOCIES_ET_DELEGUEES",
     typeCode: "INSEE",
   },
-  epci: { label: "epci", apiGeoUrl: "epcis", key: "EPCI", typeCode: "SIREN" },
+  epci: { label: "EPCI", apiGeoUrl: "epcis", key: "EPCI", typeCode: "SIREN" },
   departement: {
-    label: "départements",
+    label: "Départements",
     apiGeoUrl: "departements",
     key: "DEPT",
     typeCode: "INSEE",
   },
   region: {
-    label: "régions",
+    label: "Régions",
     apiGeoUrl: "regions",
     key: "REG",
     typeCode: "INSEE",
