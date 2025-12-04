@@ -57,26 +57,26 @@ export const DECOUPAGE_ADMIN: {
   commune: {
     label: "Communes",
     apiGeoUrl: "communes",
-    key: "COM",
+    key: "commune",
     typeCode: "INSEE",
   },
-  COM_ASSOCIES_ET_DELEGUEES: {
+  com_associes_et_deleguees: {
     label: "Communes associées et déléguées",
     apiGeoUrl: "communes_associees_deleguees",
-    key: "COM_ASSOCIES_ET_DELEGUEES",
+    key: "com_associes_et_deleguees",
     typeCode: "INSEE",
   },
-  epci: { label: "EPCI", apiGeoUrl: "epcis", key: "EPCI", typeCode: "SIREN" },
+  epci: { label: "EPCI", apiGeoUrl: "epcis", key: "epci", typeCode: "SIREN" },
   departement: {
     label: "Départements",
     apiGeoUrl: "departements",
-    key: "DEPT",
+    key: "departement",
     typeCode: "INSEE",
   },
   region: {
     label: "Régions",
     apiGeoUrl: "regions",
-    key: "REG",
+    key: "region",
     typeCode: "INSEE",
   },
 };

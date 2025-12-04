@@ -19,7 +19,7 @@ import { removeAccents } from "../../lib/util/utils";
 const getApiEndpoint = (maille: string): string => {
   if (!maille) {
     throw new Error(NO_DATA_MESSAGES.NO_SOURCE_DATA);
-  } 
+  }
   const normalizedMaille = normalizeMaille(maille);
   if (!normalizedMaille) {
     throw new Error("maille invalide");
