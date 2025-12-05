@@ -195,7 +195,7 @@ const InseeCode = () => {
   const generalNatureJuridiqueChoice = mappings &&
     !mappings[COLUMN_MAPPING_NAMES.MAILLE.name] && (
       <DropDownParams
-        label="Nature juridique commune à toute votre table (optionel) : "
+        label="Nature juridique commune à toute votre table (optionnel) : "
         list={Object.values(DECOUPAGE_ADMIN)}
         selected={generalNatureJuridique}
         onChange={(item) => {

@@ -48,7 +48,6 @@ export const callInseeCodeApi = async (
   maille: string,
   dept?: string,
 ): Promise<NormalizedInseeResult[]> => {
-  console.log("---- appel de l'api")
   const endpoint = getApiEndpoint(maille);
 
   const url = new URL(`https://geo.api.gouv.fr/${endpoint}`);
@@ -67,12 +66,10 @@ export const callInseeCodeApi = async (
   const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error(
-      "L'appel à l'API geo.api.gouv.fr n'a pas fonctionné"
+      "L'appel à l'API geo.api.gouv.fr n'a pas fonctionné."
     )
   }
   const data = await response.json();
-  console.log("-----------")
-  console.log(data)
 
   // L'API geo.api.gouv.fr renvoie directement un tableau de résultats
   return normalizeGeoApiResults(data, maille);
@@ -120,13 +117,13 @@ export const getInseeCodeResults = async (
         
         if (inseeCodeResults === undefined) {
           console.error(
-            "The call to the api give a response with undefined result",
+            "L'appel à l'API a renvoyé un résultat indéfini",
           );
           noResultMessage = NO_DATA_MESSAGES.API_ERROR;
         } else if (inseeCodeResults.length === 0) {
           noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
         }
-      } catch (error: Error) {
+      } catch (error: any) {
         console.error(error);
         noResultMessage = error.message;
       }
@@ -161,16 +158,16 @@ export const getInseeCodeResultsForRecord = async (
 /**
  * Traite une liste de records pour récupérer leurs codes INSEE via l'API geo.api.gouv.fr
  * 
- * Cette fonction utilise une callback function pour traiter les résultats par batch (tous les 10 enregistrements)
+ * Cette fonction utilise une callback function pour traiter les résultats par lot (tous les 10 enregistrements)
  * plutôt que d'attendre la fin de l'ensemble du traitement. Cette approche présente plusieurs avantages :
  * - Affichage progressif des résultats dans l'interface utilisateur
- * - Mise à jour incrémentale du Grist, permettant de sauvegarder les résultats au fur et à mesure
+ * - Mise à jour incrémentale de Grist, permettant de sauvegarder les résultats au fur et à mesure
  * - En cas d'erreur durant le traitement, les résultats déjà obtenus ne sont pas perdus
- * - Meilleure expérience utilisateur avec un feedback visuel de la progression
+ * - Meilleure expérience utilisateur avec un retour visuel de la progression
  * 
  * @param records - Liste des enregistrements Grist à traiter
  * @param mappings - Mapping des colonnes Grist
- * @param callBackFunction - Fonction appelée tous les 10 enregistrements avec les résultats du batch
+ * @param callBackFunction - Fonction appelée tous les 10 enregistrements avec les résultats du lot
  * @param generalNatureJuridique - Nature juridique commune à tous les enregistrements (optionnel)
  */
 export const getInseeCodeResultsForRecords = async (
@@ -196,7 +193,7 @@ export const getInseeCodeResultsForRecords = async (
       ),
     );
     // Traitement par batch : on appelle la callback tous les 10 enregistrements ou au dernier enregistrement
-    // Cela permet d'afficher les résultats progressivement et de sauvegarder au fur et à mesure dans Grist
+    // Cela permet d'afficher les résultats progressivement et de les sauvegarder au fur et à mesure dans Grist
     if (parseInt(i) % 10 === 0 || parseInt(i) === records.length - 1) {
       callBackFunction(inseeCodeDataFromApi, parseInt(i), records.length);
       // On vide le tableau pour le prochain batch
@@ -206,7 +203,7 @@ export const getInseeCodeResultsForRecords = async (
 };
 
 export const isDoubtfulResults = (dataFromApi: NormalizedInseeResult[]) => {
-  // Le score donné par l'api geo ne semble pas fiable. Exemple la commune Nantes-en-Ratier obtient un score de 0.29 pour elle même
+  // Le score donné par l'API geo ne semble pas fiable. Exemple : la commune Nantes-en-Ratier obtient un score de 0.29 pour elle-même
   return dataFromApi[0]?.score < 0.1;
 };
 

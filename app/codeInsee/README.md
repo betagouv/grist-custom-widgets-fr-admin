@@ -15,7 +15,7 @@ La colonne **Nature juridique (maille)** est **obligatoire**. Elle permet de dé
 ## Fonctionnement
 
 Pour chaque ligne, le widget interroge l'API afin de trouver le code INSEE correspondant.
-Il est possible que l'API ne trouve aucun résultat ou en trouve plusieurs et ne sait pas laquelle choisir. Dans le dernier cas, le widget demande à l'utilisateur de choisir via le `ChoiceBanner`.
+Il est possible que l'API ne trouve aucun résultat ou en trouve plusieurs et ne sache pas lequel choisir. Dans ce dernier cas, le widget demande à l'utilisateur de choisir via le `ChoiceBanner`.
 
 L'utilisateur peut effectuer une recherche globale (l'API sera appelée pour chaque ligne, l'une après l'autre si aucun résultat n'existe déjà) ou une recherche spécifique pour la ligne sélectionnée.
 
