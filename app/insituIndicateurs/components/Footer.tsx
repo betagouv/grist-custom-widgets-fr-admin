@@ -1,6 +1,6 @@
 "use client";
 
-import { Footer } from "../../components/Footer";
+import { Footer } from "../../../components/Footer";
 
 export const MyFooter = () => {
   const source = (

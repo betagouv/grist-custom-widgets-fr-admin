@@ -174,7 +174,7 @@ button.primary:hover {
 
 button:disabled,
 button.primary:disabled {
-  background-color: rgb(104, 101, 101);
+  background-color: var(--background-tertiary, #686565);
   cursor: not-allowed;
 }
 
@@ -191,8 +191,8 @@ button.secondary:hover {
 }
 
 button.secondary:disabled {
-  color: var(--grey, #686565);
-  border-color: var(--grey, #686565);
+  color: var(--background-tertiary, #686565);
+  border-color: var(--background-tertiary, #686565);
   cursor: not-allowed;
 }
 

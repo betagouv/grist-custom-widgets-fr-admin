@@ -20,15 +20,21 @@ import {
 import { RowRecord } from "grist/GristData";
 import { Title } from "../../components/Title";
 import { WidgetColumnMap } from "grist/CustomSectionAPI";
-import { Instructions } from "./Instructions";
-import { MyFooter } from "./Footer";
+import { Instructions } from "./components/Instructions";
+import { MyFooter } from "./components/Footer";
 import "./page.css";
 import { listObjectToString, mappingsIsReady } from "./utils";
+import { MultiColonneView } from "./MultiColonneView";
+import { MetadataComponent } from "./components/Metadata";
+import { extractIndicateurValue, extractRecordNumber } from "./lib/indicateurExtractor";
 
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
   const [currentStep, setCurrentStep] = useState<InsituIndicSteps>("loading");
+  const [viewMode, setViewMode] = useState<"simple" | "multi">("simple");
+  const [tokenInfo, setTokenInfo] = useState<{ token: string; baseUrl: string } | null>(null);
+  const [tableId, setTableId] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string>("");
   const [feedback, setFeedback] = useState<string>("");
   const [metadata, setMetadata] = useState<Metadata>();
@@ -47,6 +53,13 @@ const InsituIndicateurs = () => {
       grist.onRecords((records, gristMappings) => {
         setRecords(records);
         setMappings(gristMappings);
+        
+        grist.docApi.getAccessToken({readOnly: true}).then(async (token) => {
+          setTokenInfo(token);
+          const table = await grist.getTable();
+          const tId = await table.getTableId();
+          setTableId(tId);
+        });
       });
     } catch (error) {
       console.error("Error during Grist initialization:", error);
@@ -73,15 +86,16 @@ const InsituIndicateurs = () => {
     setGlobalError("");
     setFeedback("Traitement en cours...");
     getInsituIndicateursResultsForRecords(
-      identifiantIndicateur,
+      [identifiantIndicateur],
       records,
       checkDestinationIsEmpty,
       stats,
     )
-      .then(({ data, errorByRecord }: InsituResults) => {
-        if (data) {
-          setMetadata(data.metadata);
-          writeDataInTable(data, stats);
+    .then(
+      ({ data, errorByRecord }: InsituResults) => {
+        if (data && data.length === 1) {
+          setMetadata(data[0].metadata);
+          writeDataInTable(data[0], stats);
         }
         if (errorByRecord) {
           writeErrorsInTable(errorByRecord);
@@ -115,45 +129,13 @@ const InsituIndicateurs = () => {
     stats: Stats,
   ) => {
     Object.entries(dataFromApi.mailles).forEach(([recordId, indicateur]) => {
-      let valeurIndicateur;
-      if (indicateur) {
-        switch (indicateur.__typename) {
-          case "IndicateurOneValue":
-            valeurIndicateur = indicateur.valeur;
-            break;
-          case "IndicateurRow":
-            valeurIndicateur = new String(Object.values(indicateur.row)[0]);
-            break;
-          case "IndicateurRows":
-            if (wantIndicateurDetail) {
-              valeurIndicateur = listObjectToString(indicateur.rows);
-            } else {
-              valeurIndicateur = indicateur.count;
-            }
-            break;
-          case "IndicateurListe":
-            if (wantIndicateurDetail) {
-              valeurIndicateur = indicateur.liste.join(", ");
-            } else {
-              valeurIndicateur = indicateur.count;
-            }
-            break;
-          case "IndicateurListeGeo":
-            if (wantIndicateurDetail) {
-              valeurIndicateur = indicateur.properties.join(", ");
-            } else {
-              valeurIndicateur = indicateur.count;
-            }
-            break;
-          default:
-            valeurIndicateur = "Erreur";
-        }
-      }
+      const valeurIndicateur = extractIndicateurValue(indicateur, wantIndicateurDetail);
+      
       const data = {
         [COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]: valeurIndicateur,
       };
       addObjectInRecord(
-        parseInt(recordId.split("recordId_")[1]),
+        extractRecordNumber(recordId),
         grist.mapColumnNamesBack(data),
       );
       stats.updatedCount++;
@@ -172,6 +154,13 @@ const InsituIndicateurs = () => {
     }
   };
 
+  const handleSwitchModeButton = () => {
+    setViewMode(viewMode === "simple" ? "multi" : "simple");
+    setFeedback("");
+    setGlobalError("");
+    setMetadata(undefined);
+  }
+
   return currentStep === "loading" ? (
     <div>
       <Title title={TITLE} />
@@ -183,116 +172,131 @@ const InsituIndicateurs = () => {
     </div>
   ) : (
     currentStep === "menu" && (
-      <div>
+      <div style={{margin: "auto", maxWidth: "76em"}}>
         <Title title={TITLE} />
-        <p>
-          Colonne sélectionnée :{" "}
-          <span className="tag validated semi-bold">
-            {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
-          </span>
-        </p>
-        <p>
-          Consulter{" "}
-          <a
-            href="https://catalogue-indicateurs.donnees.incubateur.anct.gouv.fr/"
-            target="_blank"
-            title="Lien catalogue d'indicateur de l'ANCT - ouvre une nouvelle fenêtre"
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row-reverse" }}>
+          <button 
+            className="secondary"
+            onClick={handleSwitchModeButton}
           >
-            le catalogue d'indicateurs de l'ANCT
-          </a>{" "}
-          pour trouver l'indicateur qui vous intéresse, copiez son identifiant
-          et collez le ci-dessous.
-        </p>
-        <label htmlFor="indicatorId">Identifiant de l'indicateur :</label>
-        <input
-          type="text"
-          id="indicatorId"
-          name="indicatorId"
-          placeholder="Entrez l'identifiant de l'indicateur"
-          defaultValue={identifiantIndicateur}
-          onChange={(event) => setIdentifiantIndicateur(event.target.value)}
-        />
-        <div className="advice">
-          <span className="text-to-copy">
-            Nous vous conseillons d'ajouter une description à votre colonne pour
-            ne pas perdre la trace de l'identifiant utilisé :
-            <br />
-            Exemple : « {DESCRIPTION_COLONNE_INDICATEUR}
-            <i>
-              {identifiantIndicateur.length > 0
-                ? identifiantIndicateur
-                : "renseignez un identifiant d'indicateur"}
-            </i>{" "}
-            »
-          </span>
-          <button className="secondary copied" onClick={handleCopyClick}>
-            {" "}
-            {isCopied ? "Copié !" : "Copier"}
+            {viewMode === "simple" ? "Mode multi-colonne" : "Retour au mode simple"}
           </button>
+          {viewMode !== "multi" && (<p>
+            Colonne sélectionnée :{" "}
+            <span className="tag validated semi-bold">
+              {mappings![COLUMN_MAPPING_NAMES.VALEUR_INDICATEUR.name]}
+            </span>
+          </p>)}
         </div>
-        <div className="radio-button">
-          Je souhaite récupérer :
-          <label>
-            <input
-              type="radio"
-              name="wantIndicateurDetail"
-              value="false"
-              checked={wantIndicateurDetail === false}
-              onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
-            />
-            Le décompte de l'indicateur (Ex: Nombre de villes concernées par le
-            programme)
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="wantIndicateurDetail"
-              value="true"
-              checked={wantIndicateurDetail === true}
-              onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
-            />
-            Le détail de l'indicateur (Ex : Liste des villes concernées par le
-            programme)
-          </label>
-        </div>
-        <div className="radio-button">
-          Je souhaite lancer une recherche sur :
-          <label>
-            <input
-              type="radio"
-              name="globalIndicateurUpdate"
-              value="true"
-              checked={globalIndicateurUpdate === true}
-              onChange={() =>
-                setGlobalIndicateurUpdate(!globalIndicateurUpdate)
-              }
-            />
-            L'ensemble des lignes
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="globalIndicateurUpdate"
-              value="false"
-              checked={globalIndicateurUpdate === false}
-              onChange={() =>
-                setGlobalIndicateurUpdate(!globalIndicateurUpdate)
-              }
-            />
-            Seulement les lignes vides
-          </label>
-        </div>
-        <div className="centered-column">
-          <button
-            className="primary"
-            onClick={() => {
-              updateIndicateurs(!globalIndicateurUpdate);
-            }}
-            disabled={identifiantIndicateur.length === 0}
-          >
-            Lancer la recherche
-          </button>
-        </div>
+        
+        {viewMode === "multi" ? (
+          <MultiColonneView tokenInfo={tokenInfo} tableId={tableId} records={records} setFeedback={setFeedback} setGlobalError={setGlobalError} />
+        ) : (
+          <>
+          <p>
+            Consulter{" "}
+            <a
+              href="https://catalogue-indicateurs.donnees.incubateur.anct.gouv.fr/"
+              target="_blank"
+              title="Lien catalogue d'indicateur de l'ANCT - ouvre une nouvelle fenêtre"
+            >
+              le catalogue d'indicateurs de l'ANCT
+            </a>{" "}
+            pour trouver l'indicateur qui vous intéresse, copiez son identifiant
+            et collez le ci-dessous.
+          </p>
+          <label htmlFor="indicatorId">Identifiant de l'indicateur :</label>
+          <input
+            type="text"
+            id="indicatorId"
+            name="indicatorId"
+            placeholder="Entrez l'identifiant de l'indicateur"
+            defaultValue={identifiantIndicateur}
+            onChange={(event) => setIdentifiantIndicateur(event.target.value)}
+          />
+          <div className="advice">
+            <span className="text-to-copy">
+              Nous vous conseillons d'ajouter une description à votre colonne pour
+              ne pas perdre la trace de l'identifiant utilisé :
+              <br />
+              Exemple : « {DESCRIPTION_COLONNE_INDICATEUR}
+              <i>
+                {identifiantIndicateur.length > 0
+                  ? identifiantIndicateur
+                  : "renseignez un identifiant d'indicateur"}
+              </i>{" "}
+              »
+            </span>
+            <button className="secondary copied" onClick={handleCopyClick}>
+              {" "}
+              {isCopied ? "Copié !" : "Copier"}
+            </button>
+          </div>
+          <div className="radio-button">
+            Je souhaite récupérer :
+            <label>
+              <input
+                type="radio"
+                name="wantIndicateurDetail"
+                value="false"
+                checked={wantIndicateurDetail === false}
+                onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
+              />
+              Le décompte de l'indicateur (Ex: Nombre de villes concernées par le
+              programme)
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="wantIndicateurDetail"
+                value="true"
+                checked={wantIndicateurDetail === true}
+                onChange={() => setWantIndicateurDetail(!wantIndicateurDetail)}
+              />
+              Le détail de l'indicateur (Ex : Liste des villes concernées par le
+              programme)
+            </label>
+          </div>
+          <div className="radio-button">
+            Je souhaite lancer une recherche sur :
+            <label>
+              <input
+                type="radio"
+                name="globalIndicateurUpdate"
+                value="true"
+                checked={globalIndicateurUpdate === true}
+                onChange={() =>
+                  setGlobalIndicateurUpdate(!globalIndicateurUpdate)
+                }
+              />
+              L'ensemble des lignes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="globalIndicateurUpdate"
+                value="false"
+                checked={globalIndicateurUpdate === false}
+                onChange={() =>
+                  setGlobalIndicateurUpdate(!globalIndicateurUpdate)
+                }
+              />
+              Seulement les lignes vides
+            </label>
+          </div>
+          <div className="centered-column">
+            <button
+              className="primary"
+              onClick={() => {
+                updateIndicateurs(!globalIndicateurUpdate);
+              }}
+              disabled={identifiantIndicateur.length === 0}
+            >
+              Lancer la recherche
+            </button>
+          </div>
+        </>
+        )}
         {globalError && (
           <div className="alert-error">
             <div>
@@ -301,21 +305,8 @@ const InsituIndicateurs = () => {
           </div>
         )}
         {feedback !== "" && <div className="summary">{feedback}</div>}
-        {metadata && (
-          <div className="metadata">
-            Meta données de l'indicateur :
-            <ul>
-              <li>Nom : {metadata?.nom}</li>
-              <li>Description : {metadata?.description}</li>
-              <li>Mailles disponibles : {metadata?.mailles?.join(", ")}</li>
-              {metadata?.unite && <li>Unité : {metadata?.unite}</li>}
-              {metadata?.returnType && (
-                <li>Type d'indicateur : {metadata?.returnType}</li>
-              )}
-            </ul>
-          </div>
-        )}
-        <Instructions />
+        {metadata && <MetadataComponent metadata={metadata}/>}
+        {viewMode !== "multi" && <Instructions />}
         <MyFooter />
       </div>
     )
