@@ -18,7 +18,7 @@ const recordNoResult = {
   collectivite: "zzzzzzzzzzzzz",
   departement: null,
   lib_groupement: null,
-  maille: "COM",
+  maille: "commune",
 };
 const recordNoSourceCode = {
   id: 67,
@@ -34,7 +34,7 @@ const recordWithDestinationFilledIn = {
   collectivite: "La Turballe",
   departement: "44",
   lib_groupement: "La Turballe",
-  maille: "COM",
+  maille: "commune",
 };
 const recordGivingFewResults = {
   id: 1,
@@ -42,7 +42,7 @@ const recordGivingFewResults = {
   collectivite: "Saint-Martin",
   departement: null,
   lib_groupement: null,
-  maille: "COM",
+  maille: "commune",
 };
 const mappings = {
   code_insee: "code_insee",
@@ -64,7 +64,7 @@ describe("callInseeCodeApi", () => {
   it("should call fetch with the geo.api.gouv.fr API for communes", async () => {
     // api response
     fetchMock.mockResponse(JSON.stringify([]));
-    await callInseeCodeApi("foo bar", "COM", "92");
+    await callInseeCodeApi("foo bar", "commune", "92");
     expect(fetchMock.mock.lastCall![0]).toBe(
       "https://geo.api.gouv.fr/communes?nom=foo+bar&fields=departement&codeDepartement=92",
     );
@@ -73,7 +73,7 @@ describe("callInseeCodeApi", () => {
   it("should call fetch with the geo.api.gouv.fr API for epcis", async () => {
     // api response
     fetchMock.mockResponse(JSON.stringify([]));
-    await callInseeCodeApi("foo bar", "CA", "92");
+    await callInseeCodeApi("foo bar", "epci", "92");
     expect(fetchMock.mock.lastCall![0]).toBe(
       "https://geo.api.gouv.fr/epcis?nom=foo+bar&fields=departement&codeDepartement=92",
     );
@@ -82,7 +82,7 @@ describe("callInseeCodeApi", () => {
   it("should call fetch with the geo.api.gouv.fr API for départements", async () => {
     // api response
     fetchMock.mockResponse(JSON.stringify([]));
-    await callInseeCodeApi("Yvelines", "DEP");
+    await callInseeCodeApi("Yvelines", "dep");
     expect(fetchMock.mock.lastCall![0]).toBe(
       "https://geo.api.gouv.fr/departements?nom=Yvelines",
     );
@@ -91,7 +91,7 @@ describe("callInseeCodeApi", () => {
   it("should call fetch with the geo.api.gouv.fr API for régions", async () => {
     // api response
     fetchMock.mockResponse(JSON.stringify([]));
-    await callInseeCodeApi("Hauts-de-France", "REG");
+    await callInseeCodeApi("Hauts-de-France", "reg");
     expect(fetchMock.mock.lastCall![0]).toBe(
       "https://geo.api.gouv.fr/regions?nom=Hauts-de-France",
     );
@@ -163,11 +163,10 @@ describe("getInseeCodeResults", () => {
     const expectedResultArray = [
       {
         lib_groupement: "La Turballe",
-        siren_groupement: "44420",
-        maille: "COM",
-        code_insee: "44211",
+        maille: "commune",
+        code: "44211",
         insee_dep: "44",
-        score: 1.0,
+        score: undefined,
       },
     ];
     fetchMock.mockResponse(JSON.stringify(geoApiResponse));
@@ -215,27 +214,24 @@ describe("getInseeCodeResults", () => {
     const expectedResultArray = [
       {
         lib_groupement: "Saint-Martin",
-        siren_groupement: "54450",
-        maille: "COM",
-        code_insee: "54480",
+        maille: "commune",
+        code: "54480",
         insee_dep: "54",
-        score: 1.0,
+        score: undefined,
       },
       {
         lib_groupement: "Saint-Martin",
-        siren_groupement: "32300",
-        maille: "COM",
-        code_insee: "32389",
+        maille: "commune",
+        code: "32389",
         insee_dep: "32",
-        score: 1.0,
+        score: undefined,
       },
       {
         lib_groupement: "Saint-Martin",
-        siren_groupement: "67290",
-        maille: "COM",
-        code_insee: "67426",
+        maille: "commune",
+        code: "67426",
         insee_dep: "67",
-        score: 1.0,
+        score: undefined,
       },
     ];
     fetchMock.mockResponse(JSON.stringify(geoApiResponse));
@@ -282,17 +278,15 @@ describe("cleanAndSortRecords", () => {
         results: [
           {
             lib_groupement: "Saint-Martin",
-            siren_groupement: "215404807",
-            maille: "COM",
-            code_insee: "54480",
+            maille: "commune",
+            code: "54480",
             insee_dep: "54",
             score: 1.0,
           },
           {
             lib_groupement: "Saint-Martin",
-            siren_groupement: "213203896",
-            maille: "COM",
-            code_insee: "32389",
+            maille: "commune",
+            code: "32389",
             insee_dep: "32",
             score: 1.0,
           },
@@ -307,9 +301,8 @@ describe("cleanAndSortRecords", () => {
         results: [
           {
             lib_groupement: "La Turballe",
-            siren_groupement: "214402117",
-            maille: "COM",
-            code_insee: "44211",
+            maille: "commune",
+            code: "44211",
             insee_dep: "44",
             score: 1.0,
           },
@@ -318,52 +311,48 @@ describe("cleanAndSortRecords", () => {
         toIgnore: false,
       },
       {
-        // Several result but with best score
+        // Single result with low but acceptable score (> 0.1)
         recordId: 4,
-        sourceData: "Nanterre",
-        results: [
-          {
-            lib_groupement: "Nanterre",
-            siren_groupement: "219200508",
-            maille: "COM",
-            code_insee: "92050",
-            insee_dep: "92",
-            score: 1.0,
-          },
-          {
-            lib_groupement: "SIVOM de Nanteuil-le-Haudouin",
-            siren_groupement: "246000046",
-            maille: "SIVOM",
-            code_insee: "",
-            insee_dep: "",
-            score: 0.5703327922077922,
-          },
-          {
-            lib_groupement: "SIVOM du canton de Frontignan",
-            siren_groupement: "243400058",
-            maille: "SIVOM",
-            code_insee: "",
-            insee_dep: "",
-            score: 0.4739488636363636,
-          },
-        ],
-        toIgnore: false,
-      },
-      {
-        // Several result without convincing score
-        recordId: 5,
         sourceData: "foobar",
         results: [
           {
             lib_groupement: "L\u00e9obard",
-            siren_groupement: "214601692",
-            maille: "COM",
-            code_insee: "46169",
+            maille: "commune",
+            code: "46169",
             insee_dep: "46",
             score: 0.336,
           },
         ],
         noResultMessage: undefined,
+        toIgnore: false,
+      },
+      {
+        // Several results - will be marked as dirty due to multiple results
+        recordId: 5,
+        sourceData: "Nanterre",
+        results: [
+          {
+            lib_groupement: "Nanterre",
+            maille: "commune",
+            code: "92050",
+            insee_dep: "92",
+            score: 1.0,
+          },
+          {
+            lib_groupement: "SIVOM de Nanteuil-le-Haudouin",
+            maille: "epci",
+            code: "",
+            insee_dep: "",
+            score: 0.5703327922077922,
+          },
+          {
+            lib_groupement: "SIVOM du canton de Frontignan",
+            maille: "epci",
+            code: "",
+            insee_dep: "",
+            score: 0.4739488636363636,
+          },
+        ],
         toIgnore: false,
       },
     ];
@@ -381,17 +370,15 @@ describe("cleanAndSortRecords", () => {
           results: [
             {
               lib_groupement: "Saint-Martin",
-              siren_groupement: "215404807",
-              maille: "COM",
-              code_insee: "54480",
+              maille: "commune",
+              code: "54480",
               insee_dep: "54",
               score: 1.0,
             },
             {
               lib_groupement: "Saint-Martin",
-              siren_groupement: "213203896",
-              maille: "COM",
-              code_insee: "32389",
+              maille: "commune",
+              code: "32389",
               insee_dep: "32",
               score: 1.0,
             },
@@ -402,19 +389,31 @@ describe("cleanAndSortRecords", () => {
         },
         5: {
           recordId: 5,
-          sourceData: "foobar",
+          sourceData: "Nanterre",
           results: [
             {
-              lib_groupement: "L\u00e9obard",
-              siren_groupement: "214601692",
-              maille: "COM",
-              code_insee: "46169",
-              insee_dep: "46",
-              score: 0.336,
+              lib_groupement: "Nanterre",
+              maille: "commune",
+              code: "92050",
+              insee_dep: "92",
+              score: 1.0,
+            },
+            {
+              lib_groupement: "SIVOM de Nanteuil-le-Haudouin",
+              maille: "epci",
+              code: "",
+              insee_dep: "",
+              score: 0.5703327922077922,
+            },
+            {
+              lib_groupement: "SIVOM du canton de Frontignan",
+              maille: "epci",
+              code: "",
+              insee_dep: "",
+              score: 0.4739488636363636,
             },
           ],
-          noResultMessage: undefined,
-          dirtyMessage: MESSAGES.DOUBTFUL_RESULT,
+          dirtyMessage: MESSAGES.TOO_CLOSE_RESULT,
           toIgnore: false,
         },
       },
@@ -423,21 +422,19 @@ describe("cleanAndSortRecords", () => {
           recordId: 3,
           sourceData: "La Turballe",
           lib_groupement: "La Turballe",
-          siren_groupement: "214402117",
-          maille: "COM",
-          code_insee: "44211",
+          maille: "commune",
+          code: "44211",
           insee_dep: "44",
           score: 1.0,
         },
         4: {
           recordId: 4,
-          sourceData: "Nanterre",
-          lib_groupement: "Nanterre",
-          siren_groupement: "219200508",
-          maille: "COM",
-          code_insee: "92050",
-          insee_dep: "92",
-          score: 1.0,
+          sourceData: "foobar",
+          lib_groupement: "L\u00e9obard",
+          maille: "commune",
+          code: "46169",
+          insee_dep: "46",
+          score: 0.336,
         },
       },
       noResult: {
