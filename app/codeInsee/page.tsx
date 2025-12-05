@@ -5,8 +5,8 @@ import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
 import {
   COLUMN_MAPPING_NAMES,
-  NATURE_JURIDIQUE,
   NO_DATA_MESSAGES,
+  DECOUPAGE_ADMIN,
   TITLE,
 } from "./constants";
 import {
@@ -53,7 +53,6 @@ const InseeCode = () => {
   const [atOnProgress, setAtOnProgress] = useState<[number, number]>([0, 0]);
   const [currentStep, setCurrentStep] =
     useState<WidgetCleanDataSteps>("loading");
-  const [acceptSirenCode, setAcceptSirenCode] = useState<boolean>(false);
   const [generalNatureJuridique, setGeneralNatureJuridique] =
     useState<EntiteAdmin | null>(null);
 
@@ -63,7 +62,7 @@ const InseeCode = () => {
     grist.onRecords((records, gristMappings) => {
       setRecords(records);
       setMappings(gristMappings);
-      if (gristMappings && gristMappings.nature_juridique) {
+      if (gristMappings && gristMappings.maille) {
         setGeneralNatureJuridique(null);
       }
     });
@@ -155,11 +154,9 @@ const InseeCode = () => {
   }) => {
     Object.values(cleanData).forEach(
       (clean: CleanRecord<NormalizedInseeResult>) => {
-        if (acceptSirenCode || clean.code_insee) {
+        if (clean.code) {
           const data = {
-            [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: acceptSirenCode
-              ? clean.code_insee || clean.siren_groupement
-              : clean.code_insee,
+            [COLUMN_MAPPING_NAMES.CODE_INSEE.name]: clean.code,
             [COLUMN_MAPPING_NAMES.LIB_GROUPEMENT.name]: clean.lib_groupement,
           };
           addObjectInRecord(clean.recordId, grist.mapColumnNamesBack(data));
@@ -195,21 +192,11 @@ const InseeCode = () => {
     });
   };
 
-  const sirenCodeCheckbox = (
-    <div className="centered-column">
-      <CheckboxParams
-        label="Accepter également les codes SIREN"
-        value={acceptSirenCode}
-        onChange={() => setAcceptSirenCode(!acceptSirenCode)}
-      />
-    </div>
-  );
-
   const generalNatureJuridiqueChoice = mappings &&
-    !mappings[COLUMN_MAPPING_NAMES.NATURE_JURIDIQUE.name] && (
+    !mappings[COLUMN_MAPPING_NAMES.MAILLE.name] && (
       <DropDownParams
-        label="Nature juridique commune à toute votre table (optionel) : "
-        list={Object.values(NATURE_JURIDIQUE)}
+        label="Nature juridique commune à toute votre table (optionnel) : "
+        list={Object.values(DECOUPAGE_ADMIN)}
         selected={generalNatureJuridique}
         onChange={(item) => {
           setGeneralNatureJuridique(item as EntiteAdmin | null);
@@ -230,7 +217,6 @@ const InseeCode = () => {
   ) : currentStep === "menu" ? (
     <div>
       <Title title={TITLE} />
-      {sirenCodeCheckbox}
       {generalNatureJuridiqueChoice}
       <div className="menu">
         <div className="centered-column">
@@ -264,7 +250,6 @@ const InseeCode = () => {
     <div>
       <div className="centered-column">
         <Title title={TITLE} />
-        {sirenCodeCheckbox}
         {generalNatureJuridiqueChoice}
         <Image priority src={globalSvg} alt="traitement global" />
         <GenericGlobalProcessing
@@ -284,7 +269,6 @@ const InseeCode = () => {
       <div>
         <div className="centered-column">
           <Title title={TITLE} />
-          {sirenCodeCheckbox}
           {generalNatureJuridiqueChoice}
           <Image priority src={specificSvg} alt="traitement spécifique" />
           <SpecificProcessing

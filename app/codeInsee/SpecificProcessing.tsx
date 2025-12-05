@@ -31,61 +31,61 @@ export const SpecificProcessing: FC<{
   recordResearch,
   goBackToMenu,
 }) => {
-  const recordName = (
-    <RecordName
-      record={record}
-      columnName={mappings && mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name]}
-    />
-  );
+    const recordName = (
+      <RecordName
+        record={record}
+        columnName={mappings && mappings[COLUMN_MAPPING_NAMES.COLLECTIVITE.name]}
+      />
+    );
 
-  const isResultFind = () => {
-    if (record && mappings) {
-      const columnName = mappings[COLUMN_MAPPING_NAMES.CODE_INSEE.name];
-      if (typeof columnName === "string" && record[columnName]) {
-        return true;
+    const isResultFind = () => {
+      if (record && mappings) {
+        const columnName = mappings[COLUMN_MAPPING_NAMES.CODE_INSEE.name];
+        if (typeof columnName === "string" && record[columnName]) {
+          return true;
+        }
       }
-    }
-    return false;
+      return false;
+    };
+
+    const recordFindNode = (
+      <div>Le code INSEE/SIREN de {recordName} a bien été rempli.</div>
+    );
+
+    const choiceBannerNode = record && dirtyData && (
+      <GenericChoiceBanner<NormalizedInseeResult>
+        dirtyData={dirtyData}
+        passDataFromDirtyToClean={passDataFromDirtyToClean}
+        option={{
+          choiceValueKey: "code_insee",
+          withChoiceTagLegend: true,
+          choiceTagLegend: "Code INSEE / SIREN",
+          choiceTagKey: "code_insee",
+          choiceTagKey2: "siren_groupement",
+        }}
+        itemDisplay={(item: NormalizedInseeResult) => {
+          return (
+            <div>
+              <b>
+                {item.maille} {item.lib_groupement}
+              </b>
+              {item.insee_dep && ` - ${DEPT[item.insee_dep]}`}
+            </div>
+          );
+        }}
+      />
+    );
+
+    return (
+      <GenericSpecificProcessing<NormalizedInseeResult>
+        record={record}
+        recordNameNode={recordName}
+        noResultData={noResultData}
+        recordResearch={recordResearch}
+        goBackToMenu={goBackToMenu}
+        isResultFind={isResultFind}
+        recordFindNode={recordFindNode}
+        choiceBannerNode={choiceBannerNode}
+      />
+    );
   };
-
-  const recordFindNode = (
-    <div>Le code INSEE/SIREN de {recordName} a bien été rempli.</div>
-  );
-
-  const choiceBannerNode = record && dirtyData && (
-    <GenericChoiceBanner<NormalizedInseeResult>
-      dirtyData={dirtyData}
-      passDataFromDirtyToClean={passDataFromDirtyToClean}
-      option={{
-        choiceValueKey: "code_insee",
-        withChoiceTagLegend: true,
-        choiceTagLegend: "Code INSEE / SIREN",
-        choiceTagKey: "code_insee",
-        choiceTagKey2: "siren_groupement",
-      }}
-      itemDisplay={(item: NormalizedInseeResult) => {
-        return (
-          <div>
-            <b>
-              {item.nature_juridique} {item.lib_groupement}
-            </b>
-            {item.insee_dep && ` - ${DEPT[item.insee_dep]}`}
-          </div>
-        );
-      }}
-    />
-  );
-
-  return (
-    <GenericSpecificProcessing<NormalizedInseeResult>
-      record={record}
-      recordNameNode={recordName}
-      noResultData={noResultData}
-      recordResearch={recordResearch}
-      goBackToMenu={goBackToMenu}
-      isResultFind={isResultFind}
-      recordFindNode={recordFindNode}
-      choiceBannerNode={choiceBannerNode}
-    />
-  );
-};
