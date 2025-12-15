@@ -6,6 +6,7 @@ import {
 } from "./constants";
 import {
   EntiteAdmin,
+  GeoApiResult,
   MAILLE_ACCEPTED_VALUES,
   MailleLabel,
   NormalizedInseeResult,
@@ -29,7 +30,7 @@ const getApiEndpoint = (maille: string): string => {
 
 // Fonction pour normaliser les résultats de l'API geo.api.gouv.fr vers le format NormalizedInseeResult
 const normalizeGeoApiResults = (
-  results: any[],
+  results: GeoApiResult[],
   maille: string,
 ): NormalizedInseeResult[] => {
   return results.map((result) => {
@@ -67,7 +68,7 @@ export const callInseeCodeApi = async (
   if (!response.ok) {
     throw new Error("L'appel à l'API geo.api.gouv.fr n'a pas fonctionné.");
   }
-  const data = await response.json();
+  const data = (await response.json()) as GeoApiResult[];
 
   // L'API geo.api.gouv.fr renvoie directement un tableau de résultats
   return normalizeGeoApiResults(data, maille);
@@ -120,9 +121,9 @@ export const getInseeCodeResults = async (
         } else if (inseeCodeResults.length === 0) {
           noResultMessage = NO_DATA_MESSAGES.NO_RESULT;
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error(error);
-        noResultMessage = error.message;
+        noResultMessage = (error as Error).message;
       }
     } else {
       toIgnore = true;

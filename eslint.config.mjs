@@ -1,30 +1,20 @@
-import typescriptEslintEslintPlugin from "@typescript-eslint/eslint-plugin";
+import { defineConfig, globalIgnores } from 'eslint/config';
+import tsEslint from "typescript-eslint";
+import tsEslintPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-export default [
-  {
-    ignores: ["**/node_modules", "**/.next"],
-  },
-  ...compat.extends(
-    "next/core-web-vitals",
-    "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/recommended",
-  ),
+export default defineConfig([
+  globalIgnores( ["**/node_modules", "**/.next", "grist-plugin-api.d.ts"] ),
+  nextVitals,
+  nextTs,
+  eslintConfigPrettier,
+  tsEslint.configs.recommended,
   {
     plugins: {
-      "@typescript-eslint": typescriptEslintEslintPlugin,
+      "@typescript-eslint": tsEslintPlugin,
     },
 
     languageOptions: {
@@ -43,6 +33,7 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
+      "@typescript-eslint/no-explicit-any": "off", // FIXME: could be enabled at some point?
     },
   },
-];
+]);

@@ -52,14 +52,12 @@ export type IndicateurOneValue = {
 
 export type IndicateurRow = {
   __typename: "IndicateurRow";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   row: any;
 };
 
 export type IndicateurRows = {
   __typename: "IndicateurRows";
   count: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows: any;
 };
 
