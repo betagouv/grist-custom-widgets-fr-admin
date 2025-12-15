@@ -1,16 +1,18 @@
-import { defineConfig, globalIgnores } from 'eslint/config';
+import { defineConfig, globalIgnores } from "eslint/config";
 import tsEslint from "typescript-eslint";
 import tsEslintPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import nextVitals from 'eslint-config-next/core-web-vitals';
-import nextTs from 'eslint-config-next/typescript';
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default defineConfig([
-  globalIgnores( ["**/node_modules", "**/.next", "grist-plugin-api.d.ts"] ),
+  globalIgnores(["**/node_modules", "**/.next", "grist-plugin-api.d.ts"]),
   nextVitals,
   nextTs,
   eslintConfigPrettier,
+  eslintPluginPrettierRecommended,
   tsEslint.configs.recommended,
   {
     plugins: {
