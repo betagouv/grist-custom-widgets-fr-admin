@@ -93,34 +93,34 @@ export const MultiColonneView = ({
       invalidCount: 0,
     };
     setFeedback("Traitement en cours...");
-    getInsituIndicateursResultsForRecords(
-      indicateursIdentifiants,
-      records,
-      false,
-      stats,
-    )
-      .then(({ data, errorByRecord }: InsituResults) => {
-        if (data) {
-          writeDataInTable(columnsToUpdate, data, stats);
-        }
-        if (errorByRecord) {
-          writeErrorsInTable(columnsToUpdate, errorByRecord);
-        }
-        setFeedback(
-          `Total de lignes : ${records.length} | 
-          Lignes à mettre à jour : ${stats.toUpdateCount} | 
-          Lignes mises à jour : ${stats.updatedCount} | 
-          Invalides : ${stats.invalidCount}`,
+    try {
+      const { data, errorByRecord }: InsituResults =
+        await getInsituIndicateursResultsForRecords(
+          indicateursIdentifiants,
+          records,
+          false,
+          stats,
         );
-      })
-      .catch((globalError: Error) => {
-        setGlobalError(
-          globalError.message.length > 400
-            ? globalError.message.slice(0, 400) + " ..."
-            : globalError.message,
-        );
-        setFeedback("");
-      });
+      if (data) {
+        writeDataInTable(columnsToUpdate, data, stats);
+      }
+      if (errorByRecord) {
+        writeErrorsInTable(columnsToUpdate, errorByRecord);
+      }
+      setFeedback(
+        `Total de lignes : ${records.length} |
+        Lignes à mettre à jour : ${stats.toUpdateCount} |
+        Lignes mises à jour : ${stats.updatedCount} |
+        Invalides : ${stats.invalidCount}`,
+      );
+    } catch (error) {
+      setGlobalError(
+        (error as Error).message.length > 400
+          ? (error as Error).message.slice(0, 400) + " ..."
+          : (error as Error).message,
+      );
+      setFeedback("");
+    }
   };
 
   const writeErrorsInTable = (

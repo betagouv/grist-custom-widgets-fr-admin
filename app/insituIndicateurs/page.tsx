@@ -84,35 +84,35 @@ const InsituIndicateurs = () => {
     };
     setGlobalError("");
     setFeedback("Traitement en cours...");
-    getInsituIndicateursResultsForRecords(
-      [identifiantIndicateur],
-      records,
-      checkDestinationIsEmpty,
-      stats,
-    )
-      .then(({ data, errorByRecord }: InsituResults) => {
-        if (data && data.length === 1) {
-          setMetadata(data[0].metadata);
-          writeDataInTable(data[0], stats);
-        }
-        if (errorByRecord) {
-          writeErrorsInTable(errorByRecord);
-        }
-        setFeedback(
-          `Total de lignes : ${records.length} | 
-          Lignes à mettre à jour : ${stats.toUpdateCount} | 
-          Lignes mises à jour : ${stats.updatedCount} | 
-          Invalides : ${stats.invalidCount}`,
+    try {
+      const { data, errorByRecord }: InsituResults =
+        await getInsituIndicateursResultsForRecords(
+          [identifiantIndicateur],
+          records,
+          checkDestinationIsEmpty,
+          stats,
         );
-      })
-      .catch((globalError: Error) => {
-        setGlobalError(
-          globalError.message.length > 400
-            ? globalError.message.slice(0, 400) + " ..."
-            : globalError.message,
-        );
-        setFeedback("");
-      });
+      if (data && data.length === 1) {
+        setMetadata(data[0].metadata);
+        writeDataInTable(data[0], stats);
+      }
+      if (errorByRecord) {
+        writeErrorsInTable(errorByRecord);
+      }
+      setFeedback(
+        `Total de lignes : ${records.length} |
+        Lignes à mettre à jour : ${stats.toUpdateCount} |
+        Lignes mises à jour : ${stats.updatedCount} |
+        Invalides : ${stats.invalidCount}`,
+      );
+    } catch (error) {
+      setGlobalError(
+        (error as Error).message.length > 400
+          ? (error as Error).message.slice(0, 400) + " ..."
+          : (error as Error).message,
+      );
+      setFeedback("");
+    }
   };
 
   const writeErrorsInTable = (
