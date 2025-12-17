@@ -119,8 +119,7 @@ export const MultiColonneView = ({ tokenInfo, tableId, records, setFeedback, set
     dataFromApi: FetchIndicateurReturnType<NarrowedTypeIndicateur>[],
     stats: Stats,
   ) => {
-    // Structure : { recordId: { columnId: valeur } }
-    const dataByRecord: Record<string, Record<string, number | string>> = {};
+    const dataByRecord: {[recordId: string]: {[columnId: string]: number|string}} = {};
 
     dataFromApi.forEach(resultatIndicateur => {
       const identifiantIndicateur = resultatIndicateur.metadata.identifiant;
