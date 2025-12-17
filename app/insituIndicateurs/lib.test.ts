@@ -27,7 +27,6 @@ jest.mock("graphql-request", () => ({
 import { generateQuery } from "./lib/generateQuery";
 
 // Mock grist global object
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).grist = {
   mapColumnNames: (record: RowRecord) => ({
     id: record.id,
