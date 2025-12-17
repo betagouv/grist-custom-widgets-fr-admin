@@ -62,7 +62,7 @@ function GenericChoiceBanner<NormalizedResult extends KeyValue>({
               <div className="choice">
                 <div className="choice-label">
                   <input
-                    onClick={() => setSelected(item)}
+                    onChange={() => setSelected(item)}
                     type="radio"
                     value={item[option.choiceValueKey]}
                     checked={selected === item}
