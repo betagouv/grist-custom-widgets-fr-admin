@@ -128,10 +128,10 @@ export const MultiColonneView = ({
     errorByRecord: { recordId: number; error: string }[],
   ) => {
     errorByRecord.forEach((error) => {
-      const data = columnsToUpdate.reduce((acc: any, col) => {
+      const data = columnsToUpdate.reduce((acc: RowRecord, col) => {
         acc[col.id] = error.error;
         return acc;
-      }, {});
+      }, {} as RowRecord);
       addObjectInRecord(error.recordId, data);
     });
   };
@@ -184,7 +184,7 @@ export const MultiColonneView = ({
 
     // Écriture des données dans Grist pour chaque record
     Object.entries(dataByRecord).forEach(([recordId, dataRecord]) => {
-      addObjectInRecord(extractRecordNumber(recordId), dataRecord as any);
+      addObjectInRecord(extractRecordNumber(recordId), dataRecord as RowRecord);
       stats.updatedCount++;
     });
   };
