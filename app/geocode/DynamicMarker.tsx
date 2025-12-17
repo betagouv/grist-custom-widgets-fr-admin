@@ -74,8 +74,6 @@ function DynamicMarker({
     if (
       lat &&
       long &&
-      lat !== 0 &&
-      long !== 0 &&
       (lastFlyToCoords.current?.lat !== lat ||
         lastFlyToCoords.current?.long !== long)
     ) {
