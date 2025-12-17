@@ -9,7 +9,7 @@ import { listObjectToString } from "../utils";
  */
 export const extractIndicateurValue = (
   indicateur: NarrowedTypeIndicateur | null | undefined,
-  wantDetail: boolean
+  wantDetail: boolean,
 ): number | string => {
   if (!indicateur) {
     return "Erreur";
@@ -18,25 +18,21 @@ export const extractIndicateurValue = (
   switch (indicateur.__typename) {
     case "IndicateurOneValue":
       return indicateur.valeur;
-    
+
     case "IndicateurRow":
       return String(Object.values(indicateur.row)[0]);
-    
+
     case "IndicateurRows":
       return wantDetail
         ? listObjectToString(indicateur.rows)
         : indicateur.count;
-    
+
     case "IndicateurListe":
-      return wantDetail
-        ? indicateur.liste.join(", ")
-        : indicateur.count;
-    
+      return wantDetail ? indicateur.liste.join(", ") : indicateur.count;
+
     case "IndicateurListeGeo":
-      return wantDetail
-        ? indicateur.properties.join(", ")
-        : indicateur.count;
-    
+      return wantDetail ? indicateur.properties.join(", ") : indicateur.count;
+
     default:
       return "Erreur";
   }

@@ -50,7 +50,7 @@ export const getInsituIndicateursResultsForRecords = async (
   checkDestinationIsEmpty: boolean,
   stats: Stats,
 ): Promise<InsituResults> => {
-  identifiants.forEach(identifiant => assertIdentifiantCorrect(identifiant))
+  identifiants.forEach((identifiant) => assertIdentifiantCorrect(identifiant));
   const { query, errors: errorByRecord } = generateQuery(
     records,
     checkDestinationIsEmpty,
