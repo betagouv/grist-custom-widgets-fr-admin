@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useGristEffect } from "../../lib/grist/hooks";
 import { addObjectInRecord, gristReady } from "../../lib/grist/plugin-api";
 import {
@@ -28,7 +28,6 @@ import { listObjectToString, mappingsIsReady } from "./utils";
 const InsituIndicateurs = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
-  const [currentStep, setCurrentStep] = useState<InsituIndicSteps>("loading");
   const [globalError, setGlobalError] = useState<string>("");
   const [feedback, setFeedback] = useState<string>("");
   const [metadata, setMetadata] = useState<Metadata>();
@@ -39,6 +38,10 @@ const InsituIndicateurs = () => {
     useState<boolean>(false);
   const [globalIndicateurUpdate, setGlobalIndicateurUpdate] =
     useState<boolean>(true);
+
+  const currentStep: InsituIndicSteps = mappingsIsReady(mappings)
+    ? "menu"
+    : "loading";
 
   useGristEffect(() => {
     try {
@@ -53,16 +56,6 @@ const InsituIndicateurs = () => {
       setGlobalError("Erreur lors de l'initialisation de Grist");
     }
   }, []);
-
-  useEffect(() => {
-    if (currentStep === "loading") {
-      if (mappingsIsReady(mappings)) {
-        setCurrentStep("menu");
-      } else {
-        setCurrentStep("loading");
-      }
-    }
-  }, [mappings, currentStep]);
 
   const updateIndicateurs = async (checkDestinationIsEmpty: boolean) => {
     const stats: Stats = {

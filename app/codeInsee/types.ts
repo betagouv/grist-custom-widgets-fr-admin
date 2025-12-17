@@ -19,6 +19,14 @@ export type EntiteAdmin = {
   echelonGeo?: string;
 };
 
+export type GeoApiResult = {
+  nom: string;
+  code: string;
+  codeDepartement: string | undefined;
+  departement: { code: string } | undefined;
+  _score: number;
+};
+
 export type MailleLabel = "region" | "departement" | "commune" | "epci";
 
 export enum MailleLabelEnum {

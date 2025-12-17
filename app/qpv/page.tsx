@@ -23,7 +23,6 @@ import { MappedRecordForUpdate } from "../../lib/util/types";
 const Qpv = () => {
   const [records, setRecords] = useState<RowRecord[]>([]);
   const [mappings, setMappings] = useState<WidgetColumnMap | null>(null);
-  const [currentStep, setCurrentStep] = useState<QPVWidgetSteps>("loading");
   const [resultMessage, setResultMessage] = useState({
     message: `Cliquez sur "Analyser les coordonnées" pour lancer l'analyse.`,
     type: "neutral",
@@ -43,20 +42,16 @@ const Qpv = () => {
     });
   }, []);
 
-  useEffect(() => {
-    //  Vérification du mapping des colonnes pour le bon fonctionnement du widget
-    if (currentStep === "loading") {
-      if (mappingsIsReady(mappings)) {
-        setCurrentStep("qpv_data_loading");
-      } else {
-        setCurrentStep("loading");
-      }
-    }
-  }, [mappings, currentStep]);
+  // Dériver le step actuel en fonction de l'état des mappings et des données QPV
+  const currentStep: QPVWidgetSteps = qpvData
+    ? "menu"
+    : mappingsIsReady(mappings)
+      ? "qpv_data_loading"
+      : "loading";
 
   useEffect(() => {
     // Charger les données QPV dès que le composant est mounted et que le mapping des colonnes est validé
-    if (currentStep === "qpv_data_loading") {
+    if (currentStep === "qpv_data_loading" && !qpvData) {
       const loadData = async () => {
         console.log("Chargement des données QPV...");
         try {
@@ -67,7 +62,6 @@ const Qpv = () => {
               `Données QPV chargées: ${loadedQpvData.features.length} quartiers prioritaires`,
             );
             setQpvData(loadedQpvData);
-            setCurrentStep("menu");
             setResultMessage({
               message:
                 "Données QPV chargées avec succès. Cliquez sur 'Analyser les coordonnées' pour lancer l'analyse.",
@@ -91,7 +85,7 @@ const Qpv = () => {
 
       loadData();
     }
-  }, [currentStep]);
+  }, [currentStep, qpvData]);
 
   // Analyser les coordonnées et mettre à jour les colonnes
   async function analyzeAllCoordinates() {

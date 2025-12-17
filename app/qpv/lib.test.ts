@@ -64,7 +64,6 @@ const mockGrist = {
 };
 
 // Assigner le mock à la variable globale
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).grist = mockGrist;
 
 describe("checkPointInQPV", () => {
