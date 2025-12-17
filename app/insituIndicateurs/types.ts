@@ -104,4 +104,4 @@ export type Stats = {
 
 export type IndicateursDetail = {
   [indicateurName: string]: boolean;
-}
+};
