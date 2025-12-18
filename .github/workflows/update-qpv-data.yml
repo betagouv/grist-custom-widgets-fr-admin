@@ -1,5 +1,10 @@
 name: Update QPV Data
 
+# Sets permissions to allow commit and push changes to the repository and create issues if the workflow fails
+permissions:
+  contents: write
+  issues: write
+
 on:
   # Exécute le workflow chaque lundi à 2h du matin (UTC)
   schedule:
