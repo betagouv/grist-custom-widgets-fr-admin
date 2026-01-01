@@ -13,12 +13,12 @@
   },
   "dependencies": {
     "@turf/turf": "^7.3.1",
-    "graphql-request": "^7.3.5",
+    "graphql-request": "^7.4.0",
     "leaflet": "1.9.4",
-    "next": "^16.0.10",
+    "next": "^16.1.1",
     "pdf-lib": "^1.17.1",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-leaflet": "5.0.0"
   },
   "devDependencies": {
