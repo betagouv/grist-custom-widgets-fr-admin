@@ -201,6 +201,7 @@ describe("generateQuery", () => {
         recordId: 3,
         error: ERROR_DATA_MESSAGE.CODE_INSEE_INVALIDE,
       });
+      expect(result.query).toBe("");
       expect(stats.toUpdateCount).toBe(0);
       expect(stats.invalidCount).toBe(1);
     });

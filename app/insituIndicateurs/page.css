@@ -52,3 +52,67 @@
 .radio-button input {
   accent-color: var(--green, #009058);
 }
+
+/* Multi-colonne view styles */
+.multi-colonne .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.multi-colonne .actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.multi-colonne .counter {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.multi-colonne .update-button {
+  margin-left: 1rem;
+}
+
+.multi-colonne table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.multi-colonne table thead tr {
+  border-bottom: 2px solid #ddd;
+}
+
+.multi-colonne table th {
+  text-align: left;
+  padding: 0.5rem;
+}
+
+.multi-colonne table th.checkbox-column {
+  text-align: center;
+  width: 50px;
+}
+
+.multi-colonne table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.multi-colonne table td {
+  padding: 0.5rem;
+}
+
+.multi-colonne table td.checkbox-column {
+  text-align: center;
+}
+
+.multi-colonne table td.small-text {
+  font-size: 0.9em;
+}
+
+.multi-colonne .radio-button label {
+  white-space: nowrap;
+}

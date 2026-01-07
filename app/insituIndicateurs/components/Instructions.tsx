@@ -1,6 +1,6 @@
 "use client";
 
-import { Accordion } from "../../components/Accordion";
+import { Accordion } from "../../../components/Accordion";
 
 export const Instructions = () => {
   const instructions = (

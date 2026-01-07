@@ -92,7 +92,7 @@ export type FetchIndicateursReturnType = {
 };
 
 export interface InsituResults {
-  data: FetchIndicateurReturnType<NarrowedTypeIndicateur> | null;
+  data: FetchIndicateurReturnType<NarrowedTypeIndicateur>[] | null;
   errorByRecord: { recordId: number; error: string }[];
 }
 
@@ -100,4 +100,8 @@ export type Stats = {
   toUpdateCount: number;
   updatedCount: number;
   invalidCount: number;
+};
+
+export type IndicateursDetail = {
+  [indicateurName: string]: boolean;
 };
