@@ -5,14 +5,26 @@ import { RowRecord } from "grist/GristData";
 import { MappedRecord } from "../../lib/util/types";
 import { UncleanedRecord } from "../../lib/cleanData/types";
 
+export const GEOCODE_URL = "https://data.geopf.fr/geocodage/search";
+export const GEOCODE_DOC_URL =
+  "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage";
+
 //Return ltn, lng, address from a string
 export const callGeoCodeApi = async (
   q: string,
 ): Promise<NormalizedGeocodeResult[]> => {
-  const url = new URL("https://api-adresse.data.gouv.fr/search/");
+  const url = new URL(GEOCODE_URL);
   url.searchParams.set("q", q);
+  url.searchParams.set("autocomplete", "0");
+  url.searchParams.set("index", "address");
+  url.searchParams.set("limit", "10");
+  url.searchParams.set("returntruegeometry", "true");
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    headers: {
+      accept: "application/json",
+    },
+  });
   const data = await response.json();
 
   // @ts-expect-error d in any type

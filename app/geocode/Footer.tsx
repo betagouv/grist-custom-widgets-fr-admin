@@ -1,12 +1,13 @@
 "use client";
 
 import { Footer } from "../../components/Footer";
+import { GEOCODE_DOC_URL } from "./lib";
 
 export const MyFooter = () => {
   const source = (
     <a
       title="Api Adresse - ouvre une nouvelle fenêtre"
-      href="https://adresse.data.gouv.fr/api-doc/adresse"
+      href={GEOCODE_DOC_URL}
       target="_blank"
     >
       api Adresse
