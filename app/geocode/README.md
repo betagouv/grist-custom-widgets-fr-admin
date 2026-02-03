@@ -2,7 +2,7 @@
 
 Ce widget permet de nettoyer de la donnée existante en ajoutant dans deux nouvelles colonnes la latitude et la longitude correspondant à la colonne adresse.
 
-API utilisée : https://api-adresse.data.gouv.fr
+API utilisée : <https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage>
 
 Pour chaque ligne le widget interroge l'API afin de trouver le geocodage correspondant.
 Il est possible que l'API ne trouve aucun résultat ou en trouve plusieurs et ne sait pas laquelle choisir. Dans le dernier cas, le widget demande à l'utilisateur de choisir via le `ChoiceBanner`.
