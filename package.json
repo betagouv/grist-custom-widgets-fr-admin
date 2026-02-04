@@ -15,7 +15,7 @@
     "@turf/turf": "^7.3.1",
     "graphql-request": "^7.3.5",
     "leaflet": "1.9.4",
-    "next": "^16.0.10",
+    "next": "^16.1.5",
     "pdf-lib": "^1.17.1",
     "react": "19.2.1",
     "react-dom": "19.2.1",
