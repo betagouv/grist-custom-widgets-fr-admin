@@ -10,7 +10,23 @@ Widgets de nettoyages de données :
 - [codeInsee](app/codeInsee/README.md)
 - [codeSiren](app/codeSiren/README.md) 
 - [geocode](app/geocode/README.md)
+- [qpv](app/qpv/README.md) - Identification des Quartiers Prioritaires de la Politique de la Ville
+- [insituIndicateurs](app/insituIndicateurs/README.md) - Récupération d'indicateurs In Situ
 - [omFiller](app/omFiller/README.md)
+
+## Automatisation
+
+### Mise à jour des données QPV
+
+Un workflow GitHub Actions met automatiquement à jour le fichier GeoJSON des Quartiers Prioritaires de la Politique de la Ville chaque lundi à 2h00 UTC.
+
+- **Fichier** : `public/qp-politiques-ville.geojson`
+- **Source** : [data.gouv.fr](https://www.data.gouv.fr/fr/datasets/r/942d4ee8-8142-4556-8ea1-335537ce1119)
+- **Configuration** : `.github/workflows/update-qpv-data.yml`
+
+Le workflow peut également être déclenché manuellement depuis l'onglet "Actions" de GitHub. En cas d'échec, une issue est automatiquement créée.
+
+Pour plus de détails, consultez la [documentation des workflows](.github/workflows/README.md).
 
 
 ## En Prod
