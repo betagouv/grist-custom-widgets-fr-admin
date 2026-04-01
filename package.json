@@ -12,13 +12,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "@turf/turf": "^7.3.1",
-    "graphql-request": "^7.3.5",
+    "@turf/turf": "^7.3.4",
+    "graphql-request": "^7.4.0",
     "leaflet": "1.9.4",
-    "next": "^16.1.7",
+    "next": "^16.2.2",
     "pdf-lib": "^1.17.1",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "react-leaflet": "5.0.0"
   },
   "devDependencies": {
@@ -27,7 +27,7 @@
     "@types/jest": "^30.0.0",
     "@types/leaflet": "1.9.21",
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
