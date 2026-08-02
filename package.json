@@ -15,10 +15,10 @@
     "@turf/turf": "^7.3.5",
     "graphql-request": "^7.4.0",
     "leaflet": "1.9.4",
-    "next": "^16.2.11",
+    "next": "^16.2.12",
     "pdf-lib": "^1.17.1",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-leaflet": "5.0.0"
   },
   "devDependencies": {
