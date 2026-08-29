@@ -5,8 +5,10 @@ import { QPVData, QPVInfo, ResultStats } from "./types";
 import { RowRecord } from "grist/GristData";
 import { MappedRecordForUpdate } from "../../lib/util/types";
 
-const QPV_DATA_URL =
-  "https://www.data.gouv.fr/fr/datasets/r/942d4ee8-8142-4556-8ea1-335537ce1119";
+// Fichier GeoJSON hébergé localement pour éviter les problèmes CORS
+// Le fichier est servi depuis GitHub Pages dans le dossier public/
+// https://www.data.gouv.fr/fr/datasets/r/942d4ee8-8142-4556-8ea1-335537ce1119
+const QPV_DATA_URL = "/qp-politiques-ville.geojson";
 
 export async function loadQPVData(): Promise<{
   features: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>[];
