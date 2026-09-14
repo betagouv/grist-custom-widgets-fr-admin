@@ -479,5 +479,56 @@
     ],
     "isGristLabsMaintained": false,
     "lastUpdatedAt": "2024-10-09T14:36:40+02:00"
+  },
+  {
+    "name": "Whack-a-Cell",
+    "url": "https://gristlabs.github.io/grist-widget/whackacell/index.html",
+    "widgetId": "@gristlabs/widget-whackacell",
+    "published": true,
+    "accessLevel": "full",
+    "renderAfterReady": true,
+    "description": "Multiplayer reflex game! A random cell turns red — race to click it first and score points.",
+    "authors": [
+      {
+        "name": "Grist Labs",
+        "url": "https://github.com/gristlabs"
+      }
+    ],
+    "isGristLabsMaintained": false,
+    "lastUpdatedAt": "2026-03-31T21:10:48+02:00"
+  },
+  {
+    "name": "Simple table filter",
+    "url": "https://gristlabs.github.io/grist-widget/varamil/simplefilter/index.html",
+    "widgetId": "@varamil/widget-simplefilter",
+    "published": true,
+    "accessLevel": "read table",
+    "renderAfterReady": true,
+    "description": "Simple table filtering to display any row that matches the search.",
+    "authors": [
+      {
+        "name": "Varamil",
+        "url": "https://github.com/Varamil"
+      }
+    ],
+    "isGristLabsMaintained": false,
+    "lastUpdatedAt": "2025-05-29T07:04:10+02:00"
+  },
+  {
+    "name": "Vibe View",
+    "url": "https://gristlabs.github.io/grist-widget/vibe-view/",
+    "widgetId": "@gristlabs/vibe-view",
+    "published": true,
+    "accessLevel": "full",
+    "renderAfterReady": true,
+    "description": "Create templates for pages or catalogs from Grist data.",
+    "isGristLabsMaintained": false,
+    "authors": [
+      {
+        "name": "Dmitry Sagalovskiy",
+        "url": "https://github.com/dsagal"
+      }
+    ],
+    "lastUpdatedAt": "2026-02-12T20:43:23-05:00"
   }
 ]
