@@ -1,0 +1,65 @@
+name: Update QPV Data
+
+# Sets permissions to allow commit and push changes to the repository and create issues if the workflow fails
+permissions:
+  contents: write
+  issues: write
+
+on:
+  # Exécute le workflow chaque lundi à 2h du matin (UTC)
+  schedule:
+    - cron: '0 2 * * 1'
+  # Permet aussi l'exécution manuelle depuis l'interface GitHub
+  workflow_dispatch:
+
+jobs:
+  update-qpv-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Download QPV GeoJSON file
+        run: |
+          echo "Téléchargement du fichier QPV depuis data.gouv.fr..."
+          curl -L "https://www.data.gouv.fr/fr/datasets/r/942d4ee8-8142-4556-8ea1-335537ce1119" \
+            -o public/qp-politiques-ville.geojson
+          
+          # Vérifier que le fichier a été téléchargé et n'est pas vide
+          if [ ! -s public/qp-politiques-ville.geojson ]; then
+            echo "Erreur: Le fichier téléchargé est vide"
+            exit 1
+          fi
+          
+          echo "Téléchargement terminé avec succès"
+          ls -lh public/qp-politiques-ville.geojson
+      
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code public/qp-politiques-ville.geojson || echo "changed=true" >> $GITHUB_OUTPUT
+      
+      - name: Commit and push if changed
+        if: steps.git-check.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add public/qp-politiques-ville.geojson
+          git commit -m "chore: mise à jour automatique des données QPV"
+          git push
+      
+      - name: Create issue if failed
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Échec de la mise à jour automatique des données QPV',
+              body: `La mise à jour automatique du fichier QPV a échoué.\n\nVoir les logs: ${context.payload.repository.html_url}/actions/runs/${context.runId}`,
+              labels: ['automated', 'bug']
+            })
