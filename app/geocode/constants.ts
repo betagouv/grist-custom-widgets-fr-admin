@@ -6,26 +6,26 @@ export const TITLE = "Geocoder une adresse";
 export const COLUMN_MAPPING_NAMES = {
   ADDRESS: {
     name: "address",
-    title: "adresse (source)",
-    type: "Any",
+    title: "Adresse (source)",
+    type: "Text",
     optional: false,
   },
   NORMALIZED_ADDRESS: {
     name: "address_normalisee",
-    title: "adresse Normalisee (destination)",
-    type: "Any",
+    title: "Adresse normalisée (destination)",
+    type: "Text",
     optional: true,
   },
   LATITUDE: {
     name: "latitude",
     title: "Latitude (destination)",
-    type: "Any",
+    type: "Numeric",
     optional: false,
   },
   LONGITUDE: {
     name: "longitude",
     title: "Longitude (destination)",
-    type: "Any",
+    type: "Numeric",
     optional: false,
   },
 };
