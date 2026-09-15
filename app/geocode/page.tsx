@@ -140,6 +140,7 @@ const GeoCodeur = () => {
           const data = {
             [COLUMN_MAPPING_NAMES.LATITUDE.name]: clean.lat,
             [COLUMN_MAPPING_NAMES.LONGITUDE.name]: clean.lng,
+            [COLUMN_MAPPING_NAMES.SCORE.name]: clean.score,
             [COLUMN_MAPPING_NAMES.NORMALIZED_ADDRESS.name]:
               clean.address_normalized,
           };

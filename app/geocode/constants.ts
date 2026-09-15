@@ -28,6 +28,12 @@ export const COLUMN_MAPPING_NAMES = {
     type: "Any",
     optional: false,
   },
+  SCORE: {
+    name: "score",
+    title: "Score (destination)",
+    type: "Numeric",
+    optional: true,
+  },
 };
 
 export const DEFAULT_MAP_CENTER: LatLngExpression = [48.864716, 2.349]; // Paris
